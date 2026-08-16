@@ -20,7 +20,12 @@ nethcare-management-system/
 │   │   │   └── service/          # Business logic layer
 │   │   └── resources/
 │   │       ├── application.properties       # Dev config
-│   │       └── application-prod.properties  # Production config
+│   │       ├── application-prod.properties  # Production config
+│   │       ├── templates/                   # Thymeleaf UI templates
+│   │       │   └── index.html               # Landing page
+│   │       └── static/
+│   │           └── css/
+│   │               └── style.css            # Basic UI styles
 │   └── test/
 │       └── java/com/nethcare/    # Unit & integration tests
 ├── pom.xml                       # Maven build (Spring Boot 3.2.5, Java 17)
@@ -91,6 +96,16 @@ nethcare-management-system/
 - Append-only audit log that no role can modify
 - Patient data encrypted at rest and in transit
 - Local-first design with sync; core screens work offline
+
+## Basic UI
+
+A minimal landing page has been added to serve as the entry point for the Nethcare system.
+
+- **PageController.java** — Spring MVC controller that serves the landing page at `/`
+- **index.html** — Thymeleaf template showing the system name, client, and navigation cards for all four modules (M1–M4)
+- **style.css** — Clean, minimal CSS styling for the landing page
+
+Run the application and visit `http://localhost:8080/` to view the page.
 
 ## Getting Started
 
