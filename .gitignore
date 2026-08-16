@@ -48,3 +48,4 @@ logs/
 *.env
 application-local.properties
 application-secrets.properties
+.askpass-*.sh

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${appName}">Nethcare Management System</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}" href="/css/style.css">
+</head>
+<body>
+
+<div class="container">
+    <!-- Header -->
+    <header>
+        <h1 th:text="${appName}">Nethcare Management System</h1>
+        <p class="subtitle" th:text="${clientName}">Neth Opticians, Kolonnawa</p>
+    </header>
+
+    <!-- Module Navigation Cards -->
+    <div class="modules">
+        <div class="module-card">
+            <h2>M1 — Patient Registration</h2>
+            <p>Patient records, portal, user &amp; role management.</p>
+            <a href="#">Open Module &rarr;</a>
+        </div>
+
+        <div class="module-card">
+            <h2>M2 — Examination &amp; Prescription</h2>
+            <p>Clinical workflow, prescription lifecycle, surgeon hand-off.</p>
+            <a href="#">Open Module &rarr;</a>
+        </div>
+
+        <div class="module-card">
+            <h2>M3 — Order, Billing &amp; Stock</h2>
+            <p>Order pipeline, pricing, payments, inventory control.</p>
+            <a href="#">Open Module &rarr;</a>
+        </div>
+
+        <div class="module-card">
+            <h2>M4 — Follow-up &amp; Reporting</h2>
+            <p>Reminders, notifications, management reports, audit trail.</p>
+            <a href="#">Open Module &rarr;</a>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>SLIIT &middot; SE2012 OOAD &middot; Group Project &middot; Semester 2 2026</p>
+    </footer>
+</div>
+
+</body>
+</html>
