@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nethcare — Requirements & Proposal</title>
+    <link rel="stylesheet" href="/Nethcare-Management-System/css/style.css">
+</head>
+<body>
+
+<!-- Hero -->
+<header class="hero">
+    <div class="hero-content">
+        <h1>Nethcare</h1>
+        <p class="tagline">Clinic-management software for Neth Opticians, Kolonnawa</p>
+        <p class="meta">SLIIT &middot; SE2012 Object Oriented Analysis &amp; Design &middot; Group Project &middot; Semester 2 2026</p>
+        <p class="meta">Presented 02 September 2026 &middot; Requirements Review</p>
+    </div>
+</header>
+
+<nav class="toc">
+    <div class="container">
+        <a href="#problem">Problem</a>
+        <a href="#solution">Solution</a>
+        <a href="#client">Client</a>
+        <a href="#stakeholders">Stakeholders</a>
+        <a href="#actors">Actors</a>
+        <a href="#modules">Modules</a>
+        <a href="#requirements">Requirements</a>
+        <a href="#architecture">Architecture</a>
+        <a href="#data">Data Model</a>
+        <a href="#scope">Scope</a>
+        <a href="#team">Team</a>
+        <a href="#timeline">Timeline</a>
+        <a href="#risks">Risks</a>
+        <a href="#tech">Tech Stack</a>
+    </div>
+</nav>
+
+<!-- Problem Statement -->
+<section id="problem" class="section">
+    <div class="container">
+        <h2>Problem Statement</h2>
+        <p class="lead">Everything at Neth Opticians runs on paper today.</p>
+        <p>Patient records, prescriptions and orders are written in books and files. Finding an old prescription means searching by hand through past registers. Order and billing status is tracked verbally &mdash; mistakes are easy. Stock levels of frames and lenses are only known by memory. No reliable way to follow up patients or report on monthly performance.</p>
+        <div class="grid grid-4">
+            <div class="card card-red">
+                <h3>Lost History</h3>
+                <p>Old records are hard or impossible to retrieve</p>
+            </div>
+            <div class="card card-orange">
+                <h3>Slow Service</h3>
+                <p>Repeat visits take longer than they should</p>
+            </div>
+            <div class="card card-yellow">
+                <h3>Stock Blind Spots</h3>
+                <p>Re-ordering happens too late</p>
+            </div>
+            <div class="card card-blue">
+                <h3>No Insight</h3>
+                <p>Sales and follow-ups are never measured</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Solution Overview -->
+<section id="solution" class="section section-alt">
+    <div class="container">
+        <h2>Solution Overview</h2>
+        <p class="lead">Nethcare: one shared record, four connected modules.</p>
+        <p>A single web-based system where every patient, examination, order and payment lives in one database and each role sees exactly what they need.</p>
+        <div class="grid grid-4">
+            <div class="module-card m1">
+                <span class="module-tag">Module 1</span>
+                <h3>Patient Registration &amp; History</h3>
+                <p class="owner">Owner &middot; Gayathri</p>
+            </div>
+            <div class="module-card m2">
+                <span class="module-tag">Module 2</span>
+                <h3>Examination, Prescription &amp; Referral</h3>
+                <p class="owner">Owner &middot; Akshai</p>
+            </div>
+            <div class="module-card m3">
+                <span class="module-tag">Module 3</span>
+                <h3>Order, Billing &amp; Stock</h3>
+                <p class="owner">Owner &middot; Shagash</p>
+            </div>
+            <div class="module-card m4">
+                <span class="module-tag">Module 4</span>
+                <h3>Follow-up, Reporting &amp; Audit</h3>
+                <p class="owner">Owner &middot; Edwien</p>
+            </div>
+        </div>
+        <div class="grid grid-3">
+            <div class="card">
+                <h3>Digital Patient File</h3>
+                <p>Every visit, prescription and order in one place</p>
+            </div>
+            <div class="card">
+                <h3>Role-Based Access</h3>
+                <p>Optician, admin, surgeon and staff views</p>
+            </div>
+            <div class="card">
+                <h3>Insight &amp; Follow-up</h3>
+                <p>Reports, reminders and a full audit trail</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Client Details -->
+<section id="client" class="section">
+    <div class="container">
+        <h2>Client Details</h2>
+        <table class="data-table">
+            <tbody>
+                <tr><th>Business</th><td>Neth Opticians &mdash; optical retail &amp; eye-care services</td></tr>
+                <tr><th>Client contact</th><td>Ms. Udeni Gurusinghe (owner)</td></tr>
+                <tr><th>Location</th><td>Kolonnawa, Sri Lanka</td></tr>
+                <tr><th>Premises</th><td>Single branch: reception, examination room, dispensing counter</td></tr>
+                <tr><th>Services</th><td>Eye examination, prescription glasses, contact lenses, repairs</td></tr>
+                <tr><th>Current system</th><td>Paper registers and handwritten prescription cards</td></tr>
+                <tr><th>Engagement</th><td>SLIIT SE2012 OOAD &mdash; client requirements study</td></tr>
+            </tbody>
+        </table>
+        <div class="callout">
+            <p><strong>What the client asked for:</strong> &ldquo;I want to find any patient&rsquo;s old prescription in seconds, know what stock I have, and see how the shop is doing each month.&rdquo;</p>
+        </div>
+        <div class="grid grid-2">
+            <div class="card">
+                <h3>Working Constraints</h3>
+                <p>Small team, limited IT experience, one shared counter PC plus a tablet. The system must be simple enough to use during a live consultation.</p>
+            </div>
+            <div class="card">
+                <h3>Success for the Client</h3>
+                <p>Faster repeat visits, no lost prescriptions, accurate bills and a clear monthly picture of the business.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Stakeholders -->
+<section id="stakeholders" class="section section-alt">
+    <div class="container">
+        <h2>Stakeholders</h2>
+        <div class="grid grid-4">
+            <div class="card">
+                <h3>Primary</h3>
+                <ul>
+                    <li>Ms. Udeni Gurusinghe (owner)</li>
+                    <li>Opticians / optometrists</li>
+                    <li>Patients &amp; guardians</li>
+                </ul>
+            </div>
+            <div class="card">
+                <h3>Secondary</h3>
+                <ul>
+                    <li>Reception &amp; sales staff</li>
+                    <li>Nurses / support staff</li>
+                    <li>Referral eye surgeons</li>
+                </ul>
+            </div>
+            <div class="card">
+                <h3>Supporting</h3>
+                <ul>
+                    <li>Frame &amp; lens suppliers</li>
+                    <li>System administrator</li>
+                    <li>Accountant</li>
+                </ul>
+            </div>
+            <div class="card">
+                <h3>Academic</h3>
+                <ul>
+                    <li>SE2012 evaluation panel</li>
+                    <li>Project supervisor</li>
+                    <li>Development team</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- System Actors -->
+<section id="actors" class="section">
+    <div class="container">
+        <h2>System Actors</h2>
+        <p>Seven actors interact with Nethcare.</p>
+        <div class="grid grid-4">
+            <div class="actor-card"><span class="actor-icon">&#128100;</span><p>Patient</p></div>
+            <div class="actor-card"><span class="actor-icon">&#128104;&#9877;&#65039;</span><p>Optician</p></div>
+            <div class="actor-card"><span class="actor-icon">&#128737;</span><p>Admin</p></div>
+            <div class="actor-card"><span class="actor-icon">&#129658;</span><p>Eye Surgeon</p></div>
+            <div class="actor-card"><span class="actor-icon">&#128105;&#9877;&#65039;</span><p>Staff / Nurse</p></div>
+            <div class="actor-card"><span class="actor-icon">&#128203;</span><p>Audit (system)</p></div>
+            <div class="actor-card"><span class="actor-icon">&#128241;</span><p>Notification service</p></div>
+        </div>
+
+        <h3>Actor &ndash; Role Matrix</h3>
+        <table class="data-table">
+            <thead>
+                <tr><th>Actor</th><th>Can do</th><th>Cannot do</th><th>Module</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>Patient</td><td>View own profile, prescriptions, order status; book &amp; confirm appointments</td><td>Edit clinical data</td><td>M1, M4</td></tr>
+                <tr><td>Optician</td><td>Register patients, record examinations, issue prescriptions, refer to surgeon</td><td>Manage users, delete records</td><td>M1, M2</td></tr>
+                <tr><td>Admin</td><td>Manage users &amp; roles, pricing, stock, reports, system settings</td><td>Alter audit log entries</td><td>All</td></tr>
+                <tr><td>Eye Surgeon</td><td>Receive referrals, read patient history, add surgical notes</td><td>Create orders or bills</td><td>M2</td></tr>
+                <tr><td>Staff / Nurse</td><td>Create orders, issue bills, update order status, update stock</td><td>Record examinations</td><td>M3</td></tr>
+                <tr><td>Audit (system)</td><td>Record every create / update / delete with user and timestamp</td><td>Be edited by any user</td><td>M4</td></tr>
+                <tr><td>Notification service</td><td>Send follow-up reminders and order-ready messages</td><td>Access billing data</td><td>M4</td></tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<!-- Modules -->
+<section id="modules" class="section section-alt">
+    <div class="container">
+        <h2>The Four Modules</h2>
+
+        <!-- M1 -->
+        <div class="module-section m1">
+            <h3><span class="badge m1-bg">M1</span> Patient Registration &amp; History &middot; <span class="owner-name">Gayathri</span></h3>
+            <p class="goal">Goal &mdash; make every patient identifiable in seconds and keep their full history in one file.</p>
+            <ul class="feature-list">
+                <li>Register a new patient with contact, age and medical notes</li>
+                <li>Search and open any existing patient record instantly</li>
+                <li>Patient portal: view own profile, prescriptions and order status</li>
+                <li>Admin console: create users, assign roles, deactivate accounts</li>
+                <li>Every visit appended to a chronological history timeline</li>
+            </ul>
+            <div class="grid grid-3">
+                <div class="mini-card"><strong>Key entities:</strong> Patient, User, Role, Visit</div>
+                <div class="mini-card"><strong>Primary actors:</strong> Patient, Optician, Admin</div>
+                <div class="mini-card"><strong>Depends on:</strong> Nothing &mdash; foundation module</div>
+            </div>
+            <table class="rules-table">
+                <thead><tr><th>Rule</th><th>Detail</th></tr></thead>
+                <tbody>
+                    <tr><td>Unique patient</td><td>NIC (or phone for minors) identifies a patient; duplicates blocked at save</td></tr>
+                    <tr><td>Minors</td><td>Guardian name and contact mandatory for patients under 18</td></tr>
+                    <tr><td>History is append-only</td><td>Past visits can never be deleted, only corrected with a new entry</td></tr>
+                    <tr><td>Portal access</td><td>Patients see their own record only, read-only, via phone-number login code</td></tr>
+                    <tr><td>Deactivation</td><td>Admin deactivates staff accounts; records created by them remain intact</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- M2 -->
+        <div class="module-section m2">
+            <h3><span class="badge m2-bg">M2</span> Examination, Prescription &amp; Referral &middot; <span class="owner-name">Akshai</span></h3>
+            <p class="goal">Goal &mdash; capture what the optician sees, turn it into a prescription, and hand off cleanly when a surgeon is needed.</p>
+            <ul class="feature-list">
+                <li>Structured eye-examination form (VA, SPH, CYL, AXIS, ADD, IPD)</li>
+                <li>Prescription generated from the examination and stored forever</li>
+                <li>Full prescription history with change comparison over time</li>
+                <li>Referral to an eye surgeon with reason and attached history</li>
+                <li>Surgeon feedback returned into the patient file</li>
+            </ul>
+            <div class="grid grid-3">
+                <div class="mini-card"><strong>Key entities:</strong> Examination, Prescription, Referral, Surgeon</div>
+                <div class="mini-card"><strong>Primary actors:</strong> Optician, Eye Surgeon, Patient</div>
+                <div class="mini-card"><strong>Depends on:</strong> Module 1 &mdash; patient must exist first</div>
+            </div>
+            <table class="rules-table">
+                <thead><tr><th>Rule</th><th>Detail</th></tr></thead>
+                <tbody>
+                    <tr><td>Prescription validity</td><td>Valid for 12 months; older ones flagged before ordering</td></tr>
+                    <tr><td>Immutable</td><td>Once issued, cannot be edited &mdash; only superseded by a new examination</td></tr>
+                    <tr><td>Referral trigger</td><td>Optician may refer at any point; referral always carries last 4 prescriptions</td></tr>
+                    <tr><td>Contact lenses</td><td>Record base curve and diameter in addition to standard fields</td></tr>
+                    <tr><td>Surgeon access</td><td>Surgeons see referred patients only, for 90 days after referral</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- M3 -->
+        <div class="module-section m3">
+            <h3><span class="badge m3-bg">M3</span> Order, Billing &amp; Stock &middot; <span class="owner-name">Shagash</span></h3>
+            <p class="goal">Goal &mdash; turn a prescription into a priced order, a correct bill, and an accurate stock position.</p>
+            <ul class="feature-list">
+                <li>Create an order from a prescription: frame, lens type, coatings</li>
+                <li>Automatic pricing, discount and advance-payment handling</li>
+                <li>Printable bill and receipt with outstanding balance</li>
+                <li>Order status tracking: placed &rarr; lab &rarr; ready &rarr; collected</li>
+                <li>Stock deducted on issue, with low-stock alerts for frames and lenses</li>
+            </ul>
+            <div class="grid grid-3">
+                <div class="mini-card"><strong>Key entities:</strong> Order, OrderItem, Bill, Payment, StockItem</div>
+                <div class="mini-card"><strong>Primary actors:</strong> Staff, Admin, Patient</div>
+                <div class="mini-card"><strong>Depends on:</strong> Module 2 &mdash; prescription drives lens spec</div>
+            </div>
+            <table class="rules-table">
+                <thead><tr><th>Rule</th><th>Detail</th></tr></thead>
+                <tbody>
+                    <tr><td>Price source</td><td>Admin maintains a price list; order uses price at time of order</td></tr>
+                    <tr><td>Advance payment</td><td>Minimum 40% advance before order is sent to the lab</td></tr>
+                    <tr><td>Stock deduction</td><td>Reserved at order creation, deducted when order is collected</td></tr>
+                    <tr><td>Low stock</td><td>Item below reorder level appears on admin dashboard automatically</td></tr>
+                    <tr><td>Cancellations</td><td>Cancelled order releases reserved stock and records a credit note</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- M4 -->
+        <div class="module-section m4">
+            <h3><span class="badge m4-bg">M4</span> Follow-up, Reporting &amp; Audit &middot; <span class="owner-name">Edwien</span></h3>
+            <p class="goal">Goal &mdash; bring patients back on time, show the owner how the shop is performing, and keep an unbreakable record of who did what.</p>
+            <ul class="feature-list">
+                <li>Weekly follow-up list of patients due for a re-check</li>
+                <li>SMS / email notifications: order ready, appointment, reminder</li>
+                <li>Management reports: monthly sales, patients attended, order status</li>
+                <li>Stock summary and low-stock report for re-ordering</li>
+                <li>Immutable audit log of every create, update and delete</li>
+            </ul>
+            <div class="grid grid-3">
+                <div class="mini-card"><strong>Key entities:</strong> FollowUp, Notification, Report, AuditLog</div>
+                <div class="mini-card"><strong>Primary actors:</strong> Admin, Notification service, Audit</div>
+                <div class="mini-card"><strong>Depends on:</strong> Data from Modules 1, 2 and 3</div>
+            </div>
+            <table class="rules-table">
+                <thead><tr><th>Rule</th><th>Detail</th></tr></thead>
+                <tbody>
+                    <tr><td>Audit coverage</td><td>Every create, update, delete stores user, action, entity, old value, timestamp</td></tr>
+                    <tr><td>Immutable</td><td>Audit rows cannot be edited or deleted by any role, including admin</td></tr>
+                    <tr><td>Follow-up window</td><td>12 months after last examination; contact-lens users at 6 months</td></tr>
+                    <tr><td>Notification channels</td><td>SMS first, email as fallback; patients may opt out at any time</td></tr>
+                    <tr><td>Report access</td><td>Financial reports visible to owner and admin only</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+<!-- Requirements -->
+<section id="requirements" class="section">
+    <div class="container">
+        <h2>Functional &amp; Non-Functional Requirements</h2>
+        <div class="grid grid-2">
+            <div>
+                <h3>Functional Requirements</h3>
+                <table class="data-table">
+                    <thead><tr><th>ID</th><th>Requirement</th></tr></thead>
+                    <tbody>
+                        <tr><td>FR-01</td><td>Register, search and update patient records</td></tr>
+                        <tr><td>FR-02</td><td>Record eye examinations and issue prescriptions</td></tr>
+                        <tr><td>FR-03</td><td>Maintain full prescription history per patient</td></tr>
+                        <tr><td>FR-04</td><td>Create referrals with attached clinical history</td></tr>
+                        <tr><td>FR-05</td><td>Create orders from prescriptions and price them</td></tr>
+                        <tr><td>FR-06</td><td>Generate bills, record advances and balances</td></tr>
+                        <tr><td>FR-07</td><td>Track order status through to collection</td></tr>
+                        <tr><td>FR-08</td><td>Manage frame and lens stock with alerts</td></tr>
+                        <tr><td>FR-09</td><td>Generate follow-up lists and send notifications</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div>
+                <h3>Non-Functional Requirements</h3>
+                <table class="data-table">
+                    <thead><tr><th>ID</th><th>Requirement</th></tr></thead>
+                    <tbody>
+                        <tr><td>NFR-01</td><td>Any patient record retrievable in under 3 seconds</td></tr>
+                        <tr><td>NFR-02</td><td>Usable by staff with no IT background after 1 hour training</td></tr>
+                        <tr><td>NFR-03</td><td>Role-based access control on every screen and query</td></tr>
+                        <tr><td>NFR-04</td><td>Patient data encrypted at rest and in transit</td></tr>
+                        <tr><td>NFR-05</td><td>Daily automated backup with 7-day retention</td></tr>
+                        <tr><td>NFR-06</td><td>99% availability during shop hours (9am&ndash;7pm)</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Architecture -->
+<section id="architecture" class="section section-alt">
+    <div class="container">
+        <h2>Architecture</h2>
+        <p>High-level system architecture:</p>
+        <div class="arch-flow">
+            <div class="arch-box">
+                <h3>Users &amp; Devices</h3>
+                <p>Patient (phone browser) &middot; Optician (counter PC / tablet) &middot; Staff (counter PC) &middot; Admin / Owner &middot; Eye Surgeon (remote access)</p>
+            </div>
+            <div class="arch-arrow">&darr;</div>
+            <div class="arch-box arch-core">
+                <h3>Nethcare Web Application</h3>
+                <p>Web portal &middot; Role-based UI &middot; Application services &middot; Business rules &middot; Auth &amp; roles &middot; Access control &middot; Notification service</p>
+            </div>
+            <div class="arch-arrow">&darr;</div>
+            <div class="arch-box">
+                <h3>Data Layer</h3>
+                <p>Relational database (patients, orders, stock) &middot; Document store (scans &amp; prescriptions) &middot; Audit log (append-only)</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Data Model -->
+<section id="data" class="section">
+    <div class="container">
+        <h2>Data Model</h2>
+        <p>Entity relationship &mdash; core tables and their relationships:</p>
+        <table class="data-table">
+            <thead><tr><th>Entity</th><th>Primary Key</th><th>Key Fields</th></tr></thead>
+            <tbody>
+                <tr><td>Patient</td><td>patient_id</td><td>name, nic, dob, phone, address, guardian_name</td></tr>
+                <tr><td>User</td><td>user_id</td><td>username, role, status, created_at</td></tr>
+                <tr><td>Examination</td><td>exam_id</td><td>FK patient_id, FK optician_id, va, findings, date</td></tr>
+                <tr><td>Prescription</td><td>rx_id</td><td>FK exam_id, sph, cyl, axis, add, issued_on, valid_to</td></tr>
+                <tr><td>Order</td><td>order_id</td><td>FK rx_id, status, promised, FK created_by</td></tr>
+                <tr><td>Bill</td><td>bill_id</td><td>FK order_id, total, discount, paid, balance</td></tr>
+                <tr><td>Stock Item</td><td>item_id</td><td>type, model, price, qty, reorder_level</td></tr>
+                <tr><td>Audit Log</td><td>log_id</td><td>FK user_id, entity, action, old_value, at</td></tr>
+                <tr><td>Follow-up</td><td>followup_id</td><td>FK patient_id, due_on</td></tr>
+                <tr><td>Referral</td><td>referral_id</td><td>FK exam_id, surgeon, reason, urgency, status</td></tr>
+            </tbody>
+        </table>
+        <div class="grid grid-3">
+            <div class="card">
+                <h3>Design Principles</h3>
+                <p>3NF relational schema, surrogate primary keys, FK enforced at DB level, soft-delete only.</p>
+            </div>
+            <div class="card">
+                <h3>Integrity</h3>
+                <p>A bill cannot exist without an order; an order cannot exist without a valid prescription; a prescription cannot exist without an examination.</p>
+            </div>
+            <div class="card">
+                <h3>Security</h3>
+                <p>Role-based access at query level, encrypted patient identifiers, daily backups, append-only audit table.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Scope -->
+<section id="scope" class="section section-alt">
+    <div class="container">
+        <h2>Scope</h2>
+        <div class="grid grid-2">
+            <div class="card card-green">
+                <h3>In Scope</h3>
+                <ul>
+                    <li>Patient registration, search and history</li>
+                    <li>Eye examination and prescription records</li>
+                    <li>Referral to eye surgeons</li>
+                    <li>Orders, billing and payment recording</li>
+                    <li>Frame and lens stock control</li>
+                    <li>Follow-up reminders and notifications</li>
+                    <li>Management reports and audit log</li>
+                    <li>Role-based access for five user types</li>
+                </ul>
+            </div>
+            <div class="card card-red">
+                <h3>Out of Scope (Phase 2)</h3>
+                <ul>
+                    <li>Online payment gateway integration</li>
+                    <li>Native mobile applications</li>
+                    <li>Multi-branch / franchise support</li>
+                    <li>Accounting-package integration</li>
+                    <li>Insurance claim processing</li>
+                    <li>Automated lens-machine (edger) integration</li>
+                    <li>Tele-consultation video calls</li>
+                    <li>Supplier purchase-order automation</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Team -->
+<section id="team" class="section">
+    <div class="container">
+        <h2>Team &amp; Responsibilities</h2>
+        <table class="data-table">
+            <thead><tr><th>Member</th><th>Module</th><th>Responsibility</th><th>Deliverables</th></tr></thead>
+            <tbody>
+                <tr><td>Gayathri</td><td>M1 &mdash; Patient Registration &amp; History</td><td>Patient records, portal, user &amp; role management</td><td>Use case + activity diagram, registration &amp; admin screens</td></tr>
+                <tr><td>Akshai</td><td>M2 &mdash; Examination, Prescription &amp; Referral</td><td>Clinical workflow, prescription lifecycle, surgeon hand-off</td><td>Use case + sequence diagram, exam &amp; referral screens</td></tr>
+                <tr><td>Shagash</td><td>M3 &mdash; Order, Billing &amp; Stock</td><td>Order pipeline, pricing, payments, inventory control</td><td>Use case + activity diagram, order, bill &amp; stock screens</td></tr>
+                <tr><td>Edwien</td><td>M4 &mdash; Follow-up, Reporting &amp; Audit</td><td>Reminders, notifications, management reports, audit trail</td><td>Use case + activity diagram, reporting dashboard mock</td></tr>
+                <tr><td>Shared</td><td>System-wide</td><td>Architecture, ERD, class diagram, integration &amp; testing</td><td>Full UML pack, SRS document, final demonstration</td></tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<!-- Timeline -->
+<section id="timeline" class="section section-alt">
+    <div class="container">
+        <h2>Project Timeline</h2>
+        <div class="timeline">
+            <div class="timeline-item">
+                <div class="timeline-dot m1-bg"></div>
+                <div class="timeline-content">
+                    <h3>Phase 1 &middot; Requirements &middot; Aug &ndash; 2 Sep</h3>
+                    <p>Interviews, actors, use cases, client presentation</p>
+                </div>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-dot m2-bg"></div>
+                <div class="timeline-content">
+                    <h3>Phase 2 &middot; Analysis &amp; Design &middot; Sep</h3>
+                    <p>Class diagrams, ERD, sequence diagrams, UI design</p>
+                </div>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-dot m3-bg"></div>
+                <div class="timeline-content">
+                    <h3>Phase 3 &middot; Implementation &middot; Sep &ndash; Oct</h3>
+                    <p>Module build by owner, weekly integration</p>
+                </div>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-dot m4-bg"></div>
+                <div class="timeline-content">
+                    <h3>Phase 4 &middot; Testing &amp; Handover &middot; Oct</h3>
+                    <p>Integration testing, client UAT, documentation</p>
+                </div>
+            </div>
+        </div>
+
+        <h3>Milestones</h3>
+        <div class="grid grid-3">
+            <div class="milestone-card">
+                <div class="milestone-date">02 Sep 2026</div>
+                <p>Requirements sign-off &mdash; Client confirms scope, actors and module split</p>
+            </div>
+            <div class="milestone-card">
+                <div class="milestone-date">30 Sep 2026</div>
+                <p>Progress review &mdash; Design pack complete, core modules demonstrable</p>
+            </div>
+            <div class="milestone-card">
+                <div class="milestone-date">21 Oct 2026</div>
+                <p>Project completion &mdash; All four modules integrated, tested and handed over</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Risks -->
+<section id="risks" class="section">
+    <div class="container">
+        <h2>Risks &amp; Mitigations</h2>
+        <table class="data-table">
+            <thead><tr><th>Risk</th><th>Impact</th><th>Likelihood</th><th>Mitigation</th></tr></thead>
+            <tbody>
+                <tr><td>Requirements change after sign-off</td><td>High</td><td>Medium</td><td>Change log, weekly client check-in, scope freeze after 30 Sep</td></tr>
+                <tr><td>Limited client availability</td><td>Medium</td><td>Medium</td><td>Batch questions, share written summaries after each meeting</td></tr>
+                <tr><td>Historical paper records not digitised</td><td>Medium</td><td>High</td><td>Start fresh; bulk-entry screen for the most active patients</td></tr>
+                <tr><td>Staff resistance to a new system</td><td>High</td><td>Medium</td><td>Simple UI, on-site training, run parallel with paper for 2 weeks</td></tr>
+                <tr><td>Integration issues between modules</td><td>High</td><td>Medium</td><td>Shared data model agreed early, weekly integration build</td></tr>
+                <tr><td>Unreliable internet at the shop</td><td>Medium</td><td>Medium</td><td>Local-first design with sync; core screens work offline</td></tr>
+                <tr><td>Team member unavailable</td><td>Medium</td><td>Low</td><td>Each module has a documented backup owner</td></tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<!-- Commercial -->
+<section class="section section-alt">
+    <div class="container">
+        <h2>Commercial Terms</h2>
+        <table class="data-table">
+            <tbody>
+                <tr><th>Engagement type</th><td>Academic project (SLIIT SE2012) &mdash; no licence fee</td></tr>
+                <tr><th>Deliverables</th><td>Working system, source code, SRS &amp; UML pack, user guide</td></tr>
+                <tr><th>Delivery date</th><td>21 October 2026</td></tr>
+                <tr><th>Training</th><td>One on-site session for owner and staff, included</td></tr>
+                <tr><th>Support</th><td>Four weeks of defect support after handover</td></tr>
+                <tr><th>Hosting &amp; data</th><td>Client provides hosting; all data remains client property</td></tr>
+                <tr><th>Change requests</th><td>Assessed jointly; scope changes may move the delivery date</td></tr>
+                <tr><th>Intellectual property</th><td>Client owns the delivered system and data; team retains the right to present academically</td></tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<!-- Tech Stack -->
+<section id="tech" class="section">
+    <div class="container">
+        <h2>Tech Stack</h2>
+        <div class="grid grid-3">
+            <div class="card">
+                <h3>Backend</h3>
+                <ul>
+                    <li>Java 17</li>
+                    <li>Spring Boot 3.2.5</li>
+                    <li>Spring MVC</li>
+                    <li>Spring Security</li>
+                    <li>Spring Data JPA</li>
+                </ul>
+            </div>
+            <div class="card">
+                <h3>Frontend</h3>
+                <ul>
+                    <li>Thymeleaf templates</li>
+                    <li>HTML5 / CSS3</li>
+                    <li>Responsive design</li>
+                </ul>
+            </div>
+            <div class="card">
+                <h3>Database</h3>
+                <ul>
+                    <li>MySQL 8</li>
+                    <li>3NF schema</li>
+                    <li>Surrogate PKs, FK enforced</li>
+                    <li>Soft-delete only</li>
+                </ul>
+            </div>
+            <div class="card">
+                <h3>Build</h3>
+                <ul>
+                    <li>Maven</li>
+                    <li>Spring Boot Maven Plugin</li>
+                </ul>
+            </div>
+            <div class="card">
+                <h3>Version Control</h3>
+                <ul>
+                    <li>Git + GitHub</li>
+                    <li>Branch-based workflow</li>
+                </ul>
+            </div>
+            <div class="card">
+                <h3>Design Principles</h3>
+                <ul>
+                    <li>Role-based access on every screen</li>
+                    <li>Soft-delete only</li>
+                    <li>Append-only audit log</li>
+                    <li>Patient data encrypted at rest and in transit</li>
+                    <li>Local-first design with sync</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Open Questions -->
+<section class="section section-alt">
+    <div class="container">
+        <h2>Open Questions for the Client</h2>
+        <div class="grid grid-2">
+            <div class="mini-card"><strong>Patient Identity:</strong> Is NIC always available, or should phone number be the primary identifier?</div>
+            <div class="mini-card"><strong>Historical Records:</strong> Should we bulk-enter past prescriptions, or start from go-live?</div>
+            <div class="mini-card"><strong>Pricing:</strong> Who is allowed to give discounts, and is there a maximum?</div>
+            <div class="mini-card"><strong>Advance Payment:</strong> Is 40% advance the correct minimum for all orders?</div>
+            <div class="mini-card"><strong>Notifications:</strong> SMS, WhatsApp or both &mdash; and who pays the message cost?</div>
+            <div class="mini-card"><strong>Referral Network:</strong> Which eye surgeons should be pre-loaded into the system?</div>
+            <div class="mini-card"><strong>Language:</strong> Do patient-facing screens and bills need Sinhala as well as English?</div>
+            <div class="mini-card"><strong>Access:</strong> Should the owner be able to view the system from home?</div>
+        </div>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <p><strong>Nethcare</strong> &middot; Neth Opticians, Kolonnawa</p>
+        <p>SLIIT &middot; SE2012 Object Oriented Analysis &amp; Design &middot; Group Project &middot; Semester 2 2026</p>
+        <p>Team: Gayathri &middot; Akshai &middot; Shagash &middot; Edwien</p>
+    </div>
+</footer>
+
+</body>
+</html>
