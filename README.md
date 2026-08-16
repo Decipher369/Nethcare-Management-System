@@ -1,8 +1,31 @@
-# Nethcare — Clinic Management System for Neth Opticians
+# Nethcare Management System
 
 > A web-based management system for **Neth Opticians**, Kolonnawa — an optometrist clinic offering eye examinations, prescription glasses, contact lenses, and repairs. Currently all operations run on paper registers; Nethcare digitises the entire workflow.
 
 **SLIIT · SE2012 Object Oriented Analysis & Design · Group Project · Semester 2 2026**
+
+## Project Structure
+
+```
+nethcare-management-system/
+├── src/
+│   ├── main/
+│   │   ├── java/com/nethcare/
+│   │   │   ├── config/           # Spring Security, CORS, JPA auditing
+│   │   │   ├── controller/       # REST controllers (by module)
+│   │   │   ├── dto/              # Data transfer objects & API response wrapper
+│   │   │   ├── exception/        # Global exception handling
+│   │   │   ├── model/            # JPA entities & enums (by module)
+│   │   │   ├── repository/       # Spring Data JPA repositories
+│   │   │   └── service/          # Business logic layer
+│   │   └── resources/
+│   │       ├── application.properties       # Dev config
+│   │       └── application-prod.properties  # Production config
+│   └── test/
+│       └── java/com/nethcare/    # Unit & integration tests
+├── pom.xml                       # Maven build (Spring Boot 3.2.5, Java 17)
+└── README.md
+```
 
 ## Client
 
@@ -52,23 +75,12 @@
 - Management reports: monthly sales, patients attended, order status, stock summary
 - Immutable audit log of every create, update, and delete
 
-## System Actors
-
-| Actor | Type | Modules |
-|---|---|---|
-| Patient | Human | M1, M4 |
-| Optician | Human | M1, M2 |
-| Admin | Human | All |
-| Eye Surgeon | Human | M2 |
-| Staff / Nurse | Human | M3 |
-| Audit (system) | System | M4 |
-| Notification service | System | M4 |
-
 ## Tech Stack
 
-- **Backend:** Java, Spring Boot, Spring MVC, RESTful API
-- **Frontend:** Web UI (Thymeleaf / JSP)
-- **Database:** Relational (MySQL), 3NF schema with surrogate primary keys
+- **Backend:** Java 17, Spring Boot 3.2.5, Spring MVC, Spring Security, Spring Data JPA
+- **Frontend:** Thymeleaf templates
+- **Database:** MySQL 8 (3NF schema, surrogate PKs, FK enforced, soft-delete only)
+- **Build:** Maven
 - **Version Control:** Git + GitHub
 
 ## Key Design Principles
@@ -78,6 +90,26 @@
 - Append-only audit log that no role can modify
 - Patient data encrypted at rest and in transit
 - Local-first design with sync; core screens work offline
+
+## Getting Started
+
+### Prerequisites
+- Java 17+
+- Maven 3.8+
+- MySQL 8+
+
+### Setup
+```bash
+# Create the database
+mysql -u root -p -e "CREATE DATABASE nethcare; CREATE USER 'nethcare_user'@'localhost' IDENTIFIED BY 'nethcare_pass'; GRANT ALL ON nethcare.* TO 'nethcare_user'@'localhost';"
+
+# Build and run
+mvn clean install
+mvn spring-boot:run
+
+# Verify
+curl http://localhost:8080/api/health
+```
 
 ## Project Timeline
 
