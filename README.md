@@ -107,6 +107,8 @@ A minimal landing page has been added to serve as the entry point for the Nethca
 
 Run the application and visit `http://localhost:8080/` to view the page.
 
+**Live preview:** https://decipher369.github.io/Nethcare-Management-System/ (static version served via GitHub Pages)
+
 ## Getting Started
 
 ### Prerequisites
