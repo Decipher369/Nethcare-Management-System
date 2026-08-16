@@ -54,6 +54,7 @@ nethcare-management-system/
 - Patient self-service portal (view own profile, prescriptions, order status)
 - Admin console: create users, assign roles, deactivate accounts
 - Chronological visit history timeline (append-only)
+- Mandatory-field validation on registration; patient consent recorded at sign-up
 
 ### M2 — Examination, Prescription & Referral
 - Structured eye-examination form (VA, SPH, CYL, AXIS, ADD, IPD)
