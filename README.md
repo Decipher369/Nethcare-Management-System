@@ -19,7 +19,7 @@ nethcare-management-system/
 │   │   │   ├── repository/       # Spring Data JPA repositories
 │   │   │   └── service/          # Business logic layer
 │   │   └── resources/
-│   │       ├── application.properties       # Dev config
+│   │       ├── application.properties       # Base config
 │   │       └── application-prod.properties  # Production config
 │   └── test/
 │       └── java/com/nethcare/    # Unit & integration tests

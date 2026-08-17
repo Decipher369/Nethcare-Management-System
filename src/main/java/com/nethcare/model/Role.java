@@ -1,19 +1,18 @@
 package com.nethcare.model;
 
 /**
- * User roles for Nethcare role-based access control.
+ * Roles that can log in. Each one gets a different slice of the system.
  *
- * Access rules from requirements deck:
- *   ADMIN    — Users, roles, pricing, stock, reports, settings (all modules)
- *   OPTICIAN — Register patients, examinations, prescriptions, referrals (M1, M2)
- *   STAFF    — Orders, bills, order status, stock (M3)
- *   SURGEON  — Referred patients, surgical notes (M2)
- *   PATIENT  — Own profile, prescriptions, order status (M1, M4 — read-only)
+ * ADMIN       everything
+ * OPTICIAN    patients, exams, prescriptions, referrals
+ * STAFF_NURSE orders, bills, stock
+ * SURGEON     referrals and their own notes
+ * PATIENT     own records only
  */
 public enum Role {
     ADMIN,
     OPTICIAN,
-    STAFF,
+    STAFF_NURSE,
     SURGEON,
     PATIENT
 }
