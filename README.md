@@ -23,6 +23,7 @@ nethcare-management-system/
 │   │       └── application-prod.properties  # Production config
 │   └── test/
 │       └── java/com/nethcare/    # Unit & integration tests
+├── docker-compose.yml            # MySQL 8.0 database container
 ├── pom.xml                       # Maven build (Spring Boot 3.2.5, Java 17)
 └── README.md
 ```
@@ -97,10 +98,14 @@ nethcare-management-system/
 ### Prerequisites
 - Java 17+
 - Maven 3.8+
-- MySQL 8+
+- MySQL 8+ (or Docker for containerised database)
 
 ### Setup
 ```bash
+# Option A — Docker (recommended)
+docker compose up -d              # starts MySQL on localhost:3306
+
+# Option B — Manual MySQL
 # Create the database
 mysql -u root -p -e "CREATE DATABASE nethcare; CREATE USER 'nethcare_user'@'localhost' IDENTIFIED BY 'nethcare_pass'; GRANT ALL ON nethcare.* TO 'nethcare_user'@'localhost';"
 
