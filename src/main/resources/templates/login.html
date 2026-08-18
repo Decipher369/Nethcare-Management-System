@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Login — Nethcare Management System</title>
+    <style>
+        body { font-family: system-ui, sans-serif; background: #f5f6f8; display: flex;
+               align-items: center; justify-content: center; height: 100vh; margin: 0; }
+        .card { background: #fff; padding: 2.5rem; border-radius: 8px;
+                box-shadow: 0 2px 12px rgba(0,0,0,.1); width: 340px; }
+        h1 { font-size: 1.3rem; margin: 0 0 .25rem; color: #1a3a5c; }
+        p.sub { margin: 0 0 1.5rem; color: #666; font-size: .85rem; }
+        label { display: block; font-size: .8rem; margin-bottom: .3rem; color: #333; }
+        input { width: 100%; padding: .6rem; margin-bottom: 1rem; border: 1px solid #ccc;
+                border-radius: 4px; font-size: .95rem; box-sizing: border-box; }
+        button { width: 100%; padding: .65rem; background: #1a3a5c; color: #fff;
+                 border: none; border-radius: 4px; font-size: .95rem; cursor: pointer; }
+        .error { background: #fde8e8; color: #c0392b; padding: .6rem; border-radius: 4px;
+                 font-size: .85rem; margin-bottom: 1rem; }
+        .logout { background: #e8f5e9; color: #2e7d32; padding: .6rem; border-radius: 4px;
+                  font-size: .85rem; margin-bottom: 1rem; }
+        .hint { font-size: .75rem; color: #888; margin-top: 1.25rem; line-height: 1.5; }
+    </style>
+</head>
+<body>
+<div class="card">
+    <h1>Nethcare</h1>
+    <p class="sub">Neth Opticians — Management System</p>
+
+    <div th:if="${param.error}" class="error">Invalid username or password.</div>
+    <div th:if="${param.logout}" class="logout">You have been logged out.</div>
+
+    <form th:action="@{/login}" method="post">
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username" autocomplete="username" autofocus required>
+
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" autocomplete="current-password" required>
+
+        <button type="submit">Sign in</button>
+    </form>
+
+    <p class="hint" th:if="${showHint}">
+        Dev accounts: admin/admin123, optician/optician123, staff/staff123,<br>
+        surgeon/surgeon123, patient/patient123
+    </p>
+</div>
+</body>
+</html>
