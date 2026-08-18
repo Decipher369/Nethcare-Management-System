@@ -20,7 +20,9 @@ nethcare-management-system/
 │   │   │   └── service/          # Business logic layer
 │   │   └── resources/
 │   │       ├── application.properties       # Base config
-│   │       └── application-prod.properties  # Production config
+│   │       ├── application-dev.properties   # Dev profile — seeded accounts
+│   │       ├── application-prod.properties  # Production config
+│   │       └── templates/login.html         # Login page
 │   └── test/
 │       └── java/com/nethcare/    # Unit & integration tests
 ├── docker-compose.yml            # MySQL 8.0 database container
