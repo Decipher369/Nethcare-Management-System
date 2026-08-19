@@ -6,9 +6,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
+import org.springframework.web.ErrorResponseException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.NoHandlerFoundException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -47,6 +50,31 @@ public class GlobalExceptionHandler {
         log.warn("Validation failed: {}", errors);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(ApiResponse.error("Validation failed", errors));
+    }
+
+    // Spring's "no such URL" error would otherwise land in the catch-all below
+    // and every endpoint we have not written yet would look like a crash.
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<ApiResponse<Void>> handleNoResource(NoResourceFoundException ex) {
+        log.debug("No handler for: {}", ex.getResourcePath());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ApiResponse.error("Not found: " + ex.getResourcePath()));
+    }
+
+    @ExceptionHandler(NoHandlerFoundException.class)
+    public ResponseEntity<ApiResponse<Void>> handleNoHandler(NoHandlerFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ApiResponse.error("Not found: " + ex.getRequestURL()));
+    }
+
+    // Without this, an error raised while rendering a page is handled here too
+    // and we get Spring's "status=999, error=None" response instead of a real
+    // one. Letting it through keeps the original error intact.
+    @ExceptionHandler(ErrorResponseException.class)
+    public ResponseEntity<ApiResponse<Void>> handleErrorResponse(ErrorResponseException ex) {
+        log.warn("Error response: {}", ex.getMessage());
+        return ResponseEntity.status(ex.getStatusCode())
+                .body(ApiResponse.error(ex.getBody().getDetail()));
     }
 
     @ExceptionHandler(Exception.class)
