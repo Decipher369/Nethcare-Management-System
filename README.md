@@ -22,7 +22,7 @@ nethcare-management-system/
 │   │       ├── application.properties       # Base config
 │   │       ├── application-dev.properties   # Dev profile — seeded accounts
 │   │       ├── application-prod.properties  # Production config
-│   │       └── templates/                   # login.html, landing.html
+│   │       └── templates/                   # login.html, landing.html, error.html
 │   └── test/
 │       └── java/com/nethcare/    # Unit & integration tests
 ├── docker-compose.yml            # MySQL 8.0 database container
@@ -149,6 +149,13 @@ Sign-in redirects by role, so nobody reaches a page they cannot use:
 
 These pages currently list what each role can do. The real screens are still
 being built under their module issues.
+
+### If you get Spring's whitelabel error page
+
+That fallback shows when something fails and nothing handles the resulting
+`/error` request. Restart the app and read the message on the error page; it
+names the URL that failed. If `/login` is the one failing, check the run
+configuration has `-Dspring-boot.run.profiles=dev`.
 
 ## Project Timeline
 

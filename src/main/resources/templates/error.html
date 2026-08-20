@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${status} + ' — Nethcare'">Error</title>
+    <style>
+        body { font-family: system-ui, sans-serif; background: #f5f6f8;
+               display: flex; align-items: center; justify-content: center;
+               height: 100vh; margin: 0; }
+        .card { background: #fff; padding: 2.5rem; border-radius: 8px; text-align: center;
+                box-shadow: 0 2px 12px rgba(0,0,0,.1); max-width: 420px; }
+        .code { font-size: 3rem; font-weight: 600; color: #c0392b; margin: 0; }
+        h1 { font-size: 1.1rem; color: #333; margin: .5rem 0 1rem; }
+        .path { font-size: .8rem; color: #999; word-break: break-all; margin-bottom: 1.5rem; }
+        a { color: #1a3a5c; text-decoration: none; font-size: .9rem; }
+    </style>
+</head>
+<body>
+<div class="card">
+    <p class="code" th:text="${status}">500</p>
+    <h1 th:text="${message}">Something went wrong</h1>
+    <p class="path" th:text="${path}"></p>
+    <a th:href="@{/}">Back to my page</a>
+</div>
+</body>
+</html>
