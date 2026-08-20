@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${title} + ' — Nethcare'">Nethcare</title>
+    <style>
+        body { font-family: system-ui, sans-serif; background: #f5f6f8; margin: 0; padding: 2rem; }
+        .wrap { max-width: 620px; margin: 0 auto; }
+        .card { background: #fff; border-radius: 8px; padding: 2rem;
+                box-shadow: 0 2px 12px rgba(0,0,0,.08); }
+        h1 { font-size: 1.4rem; margin: 0 0 .3rem; color: #1a3a5c; }
+        .role { display: inline-block; font-size: .7rem; letter-spacing: .06em;
+                background: #e8eef4; color: #1a3a5c; padding: .25rem .6rem;
+                border-radius: 3px; margin-bottom: 1.5rem; }
+        ul { list-style: none; padding: 0; margin: 0; }
+        li { padding: .7rem 0; border-bottom: 1px solid #eee; font-size: .95rem; color: #333; }
+        li:last-child { border-bottom: none; }
+        .note { margin-top: 1.5rem; font-size: .8rem; color: #888; }
+        a { color: #1a3a5c; }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <div class="card">
+        <h1 th:text="${title}">Page</h1>
+        <span class="role" th:text="${role}">ROLE</span>
+
+        <ul>
+            <li th:each="item : ${items}" th:text="${item}">item</li>
+        </ul>
+
+        <p class="note">
+            Screens for this section are still being built — see the module issues.
+        </p>
+    </div>
+</div>
+</body>
+</html>

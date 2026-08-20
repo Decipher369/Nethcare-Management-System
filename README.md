@@ -22,7 +22,7 @@ nethcare-management-system/
 │   │       ├── application.properties       # Base config
 │   │       ├── application-dev.properties   # Dev profile — seeded accounts
 │   │       ├── application-prod.properties  # Production config
-│   │       └── templates/login.html         # Login page
+│   │       └── templates/                   # login.html, landing.html
 │   └── test/
 │       └── java/com/nethcare/    # Unit & integration tests
 ├── docker-compose.yml            # MySQL 8.0 database container
@@ -134,6 +134,21 @@ per role on first run, and prints the list on the login page itself:
 
 Without the `dev` profile no accounts are created and there is nothing to log in with.
 Change the passwords in `application-dev.properties` before using this anywhere shared.
+
+### Where each role lands after login
+
+Sign-in redirects by role, so nobody reaches a page they cannot use:
+
+| Role | Lands on | Owns |
+|---|---|---|
+| ADMIN | `/admin` | Users, roles, pricing, stock, reports, audit |
+| OPTICIAN | `/patients` | Patient records, examinations, prescriptions, referrals |
+| STAFF_NURSE | `/orders` | Orders, bills, order status, stock |
+| SURGEON | `/referrals` | Referred patients, surgical notes |
+| PATIENT | `/portal` | Own profile, prescriptions, order status |
+
+These pages currently list what each role can do. The real screens are still
+being built under their module issues.
 
 ## Project Timeline
 

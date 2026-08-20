@@ -37,7 +37,7 @@ public class SecurityConfig {
 
                 // M2 — exams, prescriptions, referrals
                 .requestMatchers("/api/examinations/**", "/api/prescriptions/**",
-                                 "/api/referrals/**", "/examinations/**").hasAnyRole("ADMIN", "OPTICIAN", "SURGEON")
+                                 "/api/referrals/**", "/examinations/**", "/referrals/**").hasAnyRole("ADMIN", "OPTICIAN", "SURGEON")
 
                 // M3 — orders, billing, stock
                 .requestMatchers("/api/orders/**", "/api/bills/**", "/api/payments/**",
@@ -60,7 +60,7 @@ public class SecurityConfig {
                 .loginProcessingUrl("/login")
                 .usernameParameter("username")
                 .passwordParameter("password")
-                .defaultSuccessUrl("/api/health", true)
+                .defaultSuccessUrl("/", true)   // "/" then routes by role
                 .failureUrl("/login?error")
                 .permitAll()
             )
