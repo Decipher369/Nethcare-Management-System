@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
+import org.springframework.web.ErrorResponseException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -64,6 +65,16 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Void>> handleNoHandler(NoHandlerFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(ApiResponse.error("Not found: " + ex.getRequestURL()));
+    }
+
+    // Without this, an error raised while rendering a page is handled here too
+    // and we get Spring's "status=999, error=None" response instead of a real
+    // one. Letting it through keeps the original error intact.
+    @ExceptionHandler(ErrorResponseException.class)
+    public ResponseEntity<ApiResponse<Void>> handleErrorResponse(ErrorResponseException ex) {
+        log.warn("Error response: {}", ex.getMessage());
+        return ResponseEntity.status(ex.getStatusCode())
+                .body(ApiResponse.error(ex.getBody().getDetail()));
     }
 
     @ExceptionHandler(Exception.class)
