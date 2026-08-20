@@ -19,8 +19,10 @@ nethcare-management-system/
 │   │   │   ├── repository/       # Spring Data JPA repositories
 │   │   │   └── service/          # Business logic layer
 │   │   └── resources/
-│   │       ├── application.properties       # Dev config
-│   │       └── application-prod.properties  # Production config
+│   │       ├── application.properties       # Base config
+│   │       ├── application-dev.properties   # Dev profile — seeded accounts
+│   │       ├── application-prod.properties  # Production config
+│   │       └── templates/login.html         # Login page
 │   └── test/
 │       └── java/com/nethcare/    # Unit & integration tests
 ├── docker-compose.yml            # MySQL 8.0 database container
@@ -109,13 +111,29 @@ docker compose up -d              # starts MySQL on localhost:3306
 # Create the database
 mysql -u root -p -e "CREATE DATABASE nethcare; CREATE USER 'nethcare_user'@'localhost' IDENTIFIED BY 'nethcare_pass'; GRANT ALL ON nethcare.* TO 'nethcare_user'@'localhost';"
 
-# Build and run
+# Build and run (dev profile seeds one account per role)
 mvn clean install
-mvn spring-boot:run
+mvn spring-boot:run -Dspring-boot.run.profiles=dev
 
 # Verify
 curl http://localhost:8080/api/health
 ```
+
+### Login
+
+Sign in at `http://localhost:8080/login`. The `dev` profile creates one account
+per role on first run, and prints the list on the login page itself:
+
+| Username | Password | Role |
+|---|---|---|
+| admin | admin123 | ADMIN |
+| optician | optician123 | OPTICIAN |
+| staff | staff123 | STAFF_NURSE |
+| surgeon | surgeon123 | SURGEON |
+| patient | patient123 | PATIENT |
+
+Without the `dev` profile no accounts are created and there is nothing to log in with.
+Change the passwords in `application-dev.properties` before using this anywhere shared.
 
 ## Project Timeline
 

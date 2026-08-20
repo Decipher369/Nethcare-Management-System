@@ -9,10 +9,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 /**
- * Spring Security configuration.
+ * Login and what each role is allowed to open. Roles are set in model/Role.java.
  *
- * TODO: Implement full role-based access control (#22)
- * For now, permits all requests so the scaffold compiles and runs.
+ * Paths are grouped by module so a role gets exactly its own module and
+ * nothing else. Anything not listed needs a signed-in user; a path no rule
+ * matches is closed rather than open.
  */
 @Configuration
 @EnableWebSecurity
@@ -27,10 +28,53 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(auth -> auth
-                // TODO: Add role-based rules once auth is implemented
-                .anyRequest().permitAll()
+                // Open to everyone
+                .requestMatchers("/login", "/css/**", "/js/**", "/images/**", "/error").permitAll()
+                .requestMatchers("/api/health").permitAll()
+
+                // M1 — patient records
+                .requestMatchers("/api/patients/**", "/patients/**").hasAnyRole("ADMIN", "OPTICIAN")
+
+                // M2 — exams, prescriptions, referrals
+                .requestMatchers("/api/examinations/**", "/api/prescriptions/**",
+                                 "/api/referrals/**", "/examinations/**").hasAnyRole("ADMIN", "OPTICIAN", "SURGEON")
+
+                // M3 — orders, billing, stock
+                .requestMatchers("/api/orders/**", "/api/bills/**", "/api/payments/**",
+                                 "/api/stock/**", "/orders/**").hasAnyRole("ADMIN", "STAFF_NURSE")
+
+                // M4 — follow-ups, reports, audit
+                .requestMatchers("/api/followups/**", "/api/reports/**", "/api/audit/**").hasAnyRole("ADMIN", "OPTICIAN", "STAFF_NURSE")
+
+                // Admin console
+                .requestMatchers("/api/users/**", "/admin/**").hasRole("ADMIN")
+
+                // Patient portal. The role check only opens the door here —
+                // each query still has to filter to that patient's own id.
+                .requestMatchers("/api/portal/**", "/portal/**").hasAnyRole("PATIENT", "ADMIN")
+
+                .anyRequest().authenticated()
             )
-            .csrf(csrf -> csrf.disable())
+            .formLogin(form -> form
+                .loginPage("/login")
+                .loginProcessingUrl("/login")
+                .usernameParameter("username")
+                .passwordParameter("password")
+                .defaultSuccessUrl("/api/health", true)
+                .failureUrl("/login?error")
+                .permitAll()
+            )
+            .logout(logout -> logout
+                .logoutUrl("/logout")
+                .logoutSuccessUrl("/login?logout")
+                .invalidateHttpSession(true)
+                .deleteCookies("JSESSIONID")
+                .permitAll()
+            )
+            // Kept on for form posts. Thymeleaf puts the hidden _csrf field in
+            // by itself, so the login form needs no change. /api/** is skipped
+            // because it is stateless and may get a non-browser client later.
+            .csrf(csrf -> csrf.ignoringRequestMatchers("/api/**"))
             .headers(headers -> headers.frameOptions(frame -> frame.disable()));
 
         return http.build();
