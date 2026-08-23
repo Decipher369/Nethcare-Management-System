@@ -12,7 +12,8 @@ import java.util.List;
  *
  * They list what the person is allowed to do so the access rules can be
  * checked before the real screens exist. The real pages belong to their own
- * module: /patients is #24, /orders is #28, /referrals is #26.
+ * module: /orders is #28, /referrals is #26, /patients is #24 and lives in
+ * PatientController.
  */
 @Controller
 public class LandingController {
@@ -25,14 +26,6 @@ public class LandingController {
                 "Stock",
                 "Management reports",
                 "Audit log"));
-    }
-
-    @GetMapping("/patients")
-    public String patients(Model model) {
-        return page(model, "Patient Registration", "OPTICIAN", List.of(
-                "Register a new patient",
-                "Search existing records",
-                "Visit history timeline"));
     }
 
     @GetMapping("/orders")

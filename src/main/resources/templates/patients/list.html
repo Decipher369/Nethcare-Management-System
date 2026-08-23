@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Patients — Nethcare</title>
+    <style>
+        body { font-family: system-ui, sans-serif; background: #f5f6f8; margin: 0; padding: 2rem; }
+        .wrap { max-width: 860px; margin: 0 auto; }
+        .card { background: #fff; border-radius: 8px; padding: 2rem;
+                box-shadow: 0 2px 12px rgba(0,0,0,.08); }
+        h1 { font-size: 1.4rem; margin: 0 0 .3rem; color: #1a3a5c; }
+        .sub { color: #888; font-size: .85rem; margin: 0 0 1.5rem; }
+        table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+        th { text-align: left; font-size: .7rem; letter-spacing: .06em;
+             color: #888; border-bottom: 1px solid #e5e5e5; padding: .5rem .4rem; }
+        td { padding: .6rem .4rem; border-bottom: 1px solid #f0f0f0; color: #333; }
+        a { color: #1a3a5c; text-decoration: none; }
+        .empty { text-align: center; color: #999; padding: 2.5rem 0; font-size: .9rem; }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <div class="card">
+        <h1>Patients</h1>
+        <p class="sub"><span th:text="${total}">0</span> on the register</p>
+
+        <table th:if="${!patients.isEmpty()}">
+            <thead>
+            <tr>
+                <th>No.</th>
+                <th>Name</th>
+                <th>Phone</th>
+                <th>Registered</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="p : ${patients}">
+                <td><a th:href="@{/patients/{id}(id=${p.id})}" th:text="${p.patientNo}">P-1</a></td>
+                <td th:text="${p.fullName}">Name</td>
+                <td th:text="${p.phone}">Phone</td>
+                <td th:text="${p.registeredOn}">Date</td>
+            </tr>
+            </tbody>
+        </table>
+
+        <p class="empty" th:if="${patients.isEmpty()}">No patients registered yet.</p>
+    </div>
+</div>
+</body>
+</html>
