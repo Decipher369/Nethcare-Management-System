@@ -16,6 +16,12 @@
         td { padding: .6rem .4rem; border-bottom: 1px solid #f0f0f0; color: #333; }
         a { color: #1a3a5c; text-decoration: none; }
         .empty { text-align: center; color: #999; padding: 2.5rem 0; font-size: .9rem; }
+        form.search { display: flex; gap: .5rem; margin-bottom: 1.5rem; }
+        form.search input { flex: 1; padding: .55rem .7rem; font-size: .9rem;
+                            border: 1px solid #ddd; border-radius: 4px; }
+        form.search button { padding: .55rem 1.1rem; font-size: .9rem;
+                             background: #1a3a5c; color: #fff; border: none;
+                             border-radius: 4px; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -23,6 +29,11 @@
     <div class="card">
         <h1>Patients</h1>
         <p class="sub"><span th:text="${total}">0</span> on the register</p>
+
+        <form class="search" method="get" th:action="@{/patients}">
+            <input type="text" name="q" th:value="${q}" placeholder="Name, phone or patient number">
+            <button type="submit">Search</button>
+        </form>
 
         <table th:if="${!patients.isEmpty()}">
             <thead>
@@ -43,7 +54,8 @@
             </tbody>
         </table>
 
-        <p class="empty" th:if="${patients.isEmpty()}">No patients registered yet.</p>
+        <p class="empty" th:if="${patients.isEmpty()}"
+           th:text="${#strings.isEmpty(q)} ? 'No patients registered yet.' : 'Nothing matched that search.'">No patients yet.</p>
     </div>
 </div>
 </body>
