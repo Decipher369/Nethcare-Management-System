@@ -22,13 +22,19 @@
         form.search button { padding: .55rem 1.1rem; font-size: .9rem;
                              background: #1a3a5c; color: #fff; border: none;
                              border-radius: 4px; cursor: pointer; }
+        .bar { display: flex; justify-content: space-between; align-items: baseline;
+               margin-bottom: 1.2rem; }
+        .bar a { font-size: .85rem; }
     </style>
 </head>
 <body>
 <div class="wrap">
     <div class="card">
         <h1>Patients</h1>
-        <p class="sub"><span th:text="${total}">0</span> on the register</p>
+        <div class="bar">
+            <p class="sub"><span th:text="${total}">0</span> on the register</p>
+            <a th:href="@{/patients/new}">+ Register patient</a>
+        </div>
 
         <form class="search" method="get" th:action="@{/patients}">
             <input type="text" name="q" th:value="${q}" placeholder="Name, phone or patient number">

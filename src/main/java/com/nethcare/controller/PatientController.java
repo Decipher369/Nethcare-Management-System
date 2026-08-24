@@ -1,5 +1,6 @@
 package com.nethcare.controller;
 
+import com.nethcare.dto.PatientForm;
 import com.nethcare.model.Patient;
 import com.nethcare.repository.PatientRepository;
 import org.springframework.stereotype.Controller;
@@ -32,5 +33,11 @@ public class PatientController {
         model.addAttribute("total", patients.count());
         model.addAttribute("q", q == null ? "" : q);
         return "patients/list";
+    }
+
+    @GetMapping("/patients/new")
+    public String newPatientForm(Model model) {
+        model.addAttribute("form", new PatientForm());
+        return "patients/form";
     }
 }
