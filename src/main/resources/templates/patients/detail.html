@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="'Patient ' + ${patient.patientNo} + ' — Nethcare'">Patient</title>
+    <style>
+        body { font-family: system-ui, sans-serif; background: #f5f6f8; margin: 0; padding: 2rem; }
+        .wrap { max-width: 620px; margin: 0 auto; }
+        .card { background: #fff; border-radius: 8px; padding: 2rem;
+                box-shadow: 0 2px 12px rgba(0,0,0,.08); }
+        h1 { font-size: 1.4rem; margin: 0 0 .3rem; color: #1a3a5c; }
+        .no { display: inline-block; font-size: .7rem; letter-spacing: .06em;
+              background: #e8eef4; color: #1a3a5c; padding: .25rem .6rem;
+              border-radius: 3px; margin-bottom: 1.5rem; }
+        dl { display: grid; grid-template-columns: 130px 1fr; gap: .55rem .8rem;
+             font-size: .9rem; margin: 0 0 1.5rem; }
+        dt { color: #888; font-size: .78rem; letter-spacing: .03em; }
+        dd { margin: 0; color: #333; }
+        a { color: #1a3a5c; }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <div class="card">
+        <h1 th:text="${patient.fullName}">Name</h1>
+        <span class="no" th:text="${patient.patientNo}">P-0001</span>
+
+        <dl>
+            <dt>Date of birth</dt>   <dd th:text="${patient.dob}">dob</dd>
+            <dt>Gender</dt>          <dd th:text="${patient.gender} ?: '—'">gender</dd>
+            <dt>Phone</dt>           <dd th:text="${patient.phone} ?: '—'">phone</dd>
+            <dt>Email</dt>           <dd th:text="${patient.email} ?: '—'">email</dd>
+            <dt>Blood group</dt>     <dd th:text="${patient.bloodGroup} ?: '—'">bg</dd>
+            <dt>Address</dt>         <dd th:text="${patient.address} ?: '—'">address</dd>
+            <dt>Registered</dt>      <dd th:text="${patient.registeredOn}">date</dd>
+        </dl>
+
+        <a th:href="@{/patients}">← Back to patients</a>
+    </div>
+</div>
+</body>
+</html>
