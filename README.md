@@ -73,6 +73,21 @@ nethcare-management-system/
 - Order status tracking: placed → lab → ready → collected
 - Stock deducted on issue with low-stock alerts for frames and lenses
 
+**Module 3 is on the `m3-stock-billing` branch.** It builds the stock catalogue
+first, since the frame gallery and the order screen both read from it.
+
+| Entity | What it holds |
+|---|---|
+| `StockItem` | One product — code, brand, category, price, quantity, reserved, reorder level, expiry, image |
+
+Categories are the five the client asked to see on the dashboard: `FRAME`,
+`SINGLE_VISION_LENS`, `BIFOCAL_LENS`, `CONTACT_LENS`, `CASE`.
+
+`quantity` is what is on the shelf. `reserved` is what an open order has
+claimed but not yet taken. The counter works from `available()`, which is the
+difference — a frame that is on the shelf but already spoken for must not be
+offered to the next customer.
+
 ### M4 — Follow-up, Reporting & Audit
 - Weekly follow-up list of patients due for a re-check (12 months / 6 months for contact lens users)
 - SMS / email notifications: order ready, appointment, reminder
