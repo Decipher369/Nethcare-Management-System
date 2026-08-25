@@ -24,12 +24,16 @@
                 border-radius: 4px; cursor: pointer; text-decoration: none; }
         .actions button { background: #1a3a5c; color: #fff; border: none; }
         .actions a { background: #f0f0f0; color: #333; }
+        .err { background: #fdeaea; color: #a33; padding: .7rem .9rem;
+               border-radius: 4px; font-size: .87rem; margin-bottom: 1.2rem; }
     </style>
 </head>
 <body>
 <div class="wrap">
     <div class="card">
         <h1>Register a patient</h1>
+
+        <p class="err" th:if="${error}" th:text="${error}">Something went wrong.</p>
 
         <form method="post" th:action="@{/patients}">
             <div class="field">
