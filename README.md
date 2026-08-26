@@ -88,6 +88,23 @@ claimed but not yet taken. The counter works from `available()`, which is the
 difference — a frame that is on the shelf but already spoken for must not be
 offered to the next customer.
 
+`StockService` keeps the three movements apart, because merging them is how a
+shop ends up selling the same frame twice:
+
+| Method | Shelf count | Reserved | When |
+|---|---|---|---|
+| `reserve` | unchanged | up | order placed — set aside, still on the shelf |
+| `deduct` | down | down | customer collects — the item actually leaves |
+| `release` | unchanged | down | order cancelled — the reservation goes back |
+
+`adjustQuantity` is the counter recount. The staff member is stating what is
+really there, so their number wins — but a count *below* what is already
+reserved is refused, since that would hand an open order's frame to somebody
+else without anyone noticing.
+
+Low stock is `available() <= reorderLevel`, so an item flagged while fully in
+stock still shows once somebody claims the last one.
+
 ### M4 — Follow-up, Reporting & Audit
 - Weekly follow-up list of patients due for a re-check (12 months / 6 months for contact lens users)
 - SMS / email notifications: order ready, appointment, reminder
