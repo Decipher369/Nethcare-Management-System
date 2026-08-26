@@ -66,8 +66,11 @@ public class PatientController {
 
     @GetMapping("/patients/{id}")
     public String detail(@PathVariable Long id, Model model) {
-        model.addAttribute("patient", patients.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("No patient with id " + id)));
+        Patient patient = patients.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("No patient with id " + id));
+        model.addAttribute("patient", patient);
+        // Empty until M2 lands — examinations and prescriptions are #25.
+        model.addAttribute("visits", List.of());
         return "patients/detail";
     }
 }
