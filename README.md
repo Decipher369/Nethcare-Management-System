@@ -79,6 +79,8 @@ first, since the frame gallery and the order screen both read from it.
 | Entity | What it holds |
 |---|---|
 | `StockItem` | One product — code, brand, category, price, quantity, reserved, reorder level, expiry, image |
+| `Order` | Order number, customer, lens spec, priority, status, promised date |
+| `OrderItem` | One line — stock item, quantity, and the unit price *as it was on the day* |
 
 Categories are the five the client asked to see on the dashboard: `FRAME`,
 `SINGLE_VISION_LENS`, `BIFOCAL_LENS`, `CONTACT_LENS`, `CASE`.
@@ -104,6 +106,25 @@ else without anyone noticing.
 
 Low stock is `available() <= reorderLevel`, so an item flagged while fully in
 stock still shows once somebody claims the last one.
+
+An order runs `PLACED → LAB → READY → COLLECTED`, with `CANCELLED` reachable
+from anywhere before collection. `OrderStatus.next()` is the only place that
+knows which step follows which — the tracker reads from it rather than
+hard-coding the chain a second time.
+
+`OrderItem.unitPrice` is written once and never re-read from the price list.
+The admin can change a frame's price next month, but this order still cost
+what it cost on the day; otherwise an old bill would quietly stop adding up
+and the customer's receipt would disagree with our records.
+
+The lens specification (type, coating) is copied onto the order rather than
+looked up through the prescription, for the same reason. A prescription gets
+reissued next year — the glasses already made to last year's spec must not
+change with it.
+
+`Order` carries `customerName` and `customerPhone` instead of a patient id,
+because M3 branches from `main` and no patient table exists there yet. That
+link is added when M3 merges with M1.
 
 ### M4 — Follow-up, Reporting & Audit
 - Weekly follow-up list of patients due for a re-check (12 months / 6 months for contact lens users)
