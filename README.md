@@ -22,7 +22,8 @@ nethcare-management-system/
 │   │       ├── application.properties       # Base config
 │   │       ├── application-dev.properties   # Dev profile — seeded accounts
 │   │       ├── application-prod.properties  # Production config
-│   │       └── templates/                   # login.html, landing.html, error.html
+│   │       └── templates/                   # login.html, landing.html, error.html,
+│   │                                        # patients/
 │   └── test/
 │       └── java/com/nethcare/    # Unit & integration tests
 ├── docker-compose.yml            # MySQL 8.0 database container
@@ -149,6 +150,25 @@ Sign-in redirects by role, so nobody reaches a page they cannot use:
 
 These pages currently list what each role can do. The real screens are still
 being built under their module issues.
+
+### Patient registration (M1)
+
+Opticians and admins work the register at `/patients`:
+
+| Page | What it does |
+|---|---|
+| `/patients` | The list, with a search box over name, phone and patient number |
+| `/patients/new` | Registration form |
+| `/patients/{id}` | One patient's record and visit history |
+
+A patient row is separate from their login. The `users` entry is the account
+and password, the `patients` entry is the clinical record, and `user_id` links
+them — so closing an account leaves the visit history intact. Tick "also create
+a login" during registration and a `PATIENT` account is made with a random
+password that the front desk writes on a slip.
+
+The visit history on a patient's record is empty for now. It fills in when
+examinations and prescriptions land with M2.
 
 ### If you get Spring's whitelabel error page
 
