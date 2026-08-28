@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{console/fragments :: head('Dashboard')}"></head>
+<body>
+<div class="console">
+<div th:replace="~{console/fragments :: side(${active})}"></div>
+
+<div class="main">
+<div th:replace="~{console/fragments :: top(${title}, ${user}, ${role})}"></div>
+
+<div class="content">
+<div th:replace="~{console/fragments :: mocknote}"></div>
+
+    <div class="kpis">
+        <div class="kpi">
+            <div class="k">Sales this month</div>
+            <div class="v" th:text="'LKR ' + ${salesThisMonth}">LKR 842,000</div>
+            <div class="sub">August 2026</div>
+        </div>
+        <div class="kpi">
+            <div class="k">Patients attended</div>
+            <div class="v" th:text="${patientsAttended}">196</div>
+            <div class="sub">this month</div>
+        </div>
+        <div class="kpi">
+            <div class="k">Orders completed</div>
+            <div class="v" th:text="${ordersCompleted}">141</div>
+            <div class="sub">collected and paid</div>
+        </div>
+        <div class="kpi alert">
+            <div class="k">Below reorder</div>
+            <div class="v" th:text="${lowStockCount}">7</div>
+            <div class="sub"><a th:href="@{/reports/stock}">view stock</a></div>
+        </div>
+    </div>
+
+    <div class="panel">
+        <h2>Monthly sales <span class="sp">last 5 months, LKR</span></h2>
+        <div class="pad">
+            <div class="bars">
+                <div class="col" th:each="t : ${trend}">
+                    <div class="amt" th:text="${t[1]}">842,000</div>
+                    <div class="fill" th:style="'height:' + ${t[2]}" th:text="'&nbsp;'">&nbsp;</div>
+                    <div class="mon" th:text="${t[0]}">Aug</div>
+                </div>
+            </div>
+            <p class="note"><a th:href="@{/reports/sales}">Open the full sales report</a></p>
+        </div>
+    </div>
+
+    <div class="panel">
+        <h2>Order status <span class="sp" th:text="${totalOrders} + ' orders in total'">141 orders</span></h2>
+        <div class="pad">
+            <div class="split">
+                <div th:each="o : ${orderSplit}" th:class="${o[2]}"
+                     th:style="'width:' + ${(T(java.lang.Integer).parseInt(o[1]) * 100 / 141)} + '%'"
+                     th:text="${o[0]} + ' ' + ${o[1]}">Collected 84</div>
+            </div>
+            <ul class="legend">
+                <li th:each="o : ${orderSplit}">
+                    <i th:class="${o[2]}"></i>
+                    <span th:text="${o[0]}">Collected</span>
+                    <span class="n" th:text="${o[1]}">84</span>
+                </li>
+            </ul>
+            <p class="note"><a th:href="@{/reports/orders}">Open the order status report</a></p>
+        </div>
+    </div>
+
+    <div class="panel">
+        <h2>Needs attention</h2>
+        <div class="two">
+            <div class="pad">
+                <h3 style="font-size:.9rem;margin-top:0;">Low stock</h3>
+                <table>
+                    <thead><tr><th>Code</th><th>Item</th><th class="num">In stock</th><th class="num">Reorder</th></tr></thead>
+                    <tbody>
+                    <tr th:each="s : ${lowStock}">
+                        <td class="mono" th:text="${s[0]}">TR-204</td>
+                        <td th:text="${s[1]}">Titan TR-204</td>
+                        <td class="num" th:text="${s[3]}">2</td>
+                        <td class="num"><span class="tag warn" th:text="${s[4]}">4</span></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="pad">
+                <h3 style="font-size:.9rem;margin-top:0;">Due for review</h3>
+                <p class="empty" style="padding:1.4rem 0;">
+                    <strong th:text="${dueForReview} + ' patients'">23 patients</strong><br>
+                    are past their review date
+                </p>
+                <a class="btn" th:href="@{/followups}">Open the review list</a>
+            </div>
+        </div>
+    </div>
+
+</div>
+</div>
+</div>
+</body>
+</html>
