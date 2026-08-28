@@ -126,6 +126,21 @@ change with it.
 because M3 branches from `main` and no patient table exists there yet. That
 link is added when M3 merges with M1.
 
+A bill is `INV-xxxx` and stores its own totals — subtotal, discount, urgent
+surcharge, total. Same reasoning as the order line price: a bill is a document
+the customer keeps, so reprinting it next year must show what they actually
+owed. The arithmetic is worked out once, when the bill is raised, and the
+figures sit on the row.
+
+Payments are a separate append-only table. A bill's paid amount is the sum of
+its payments rather than a column that gets overwritten, so the advance taken
+before the lab and the balance settled on collection stay as two entries —
+which is what M4's financial report reads.
+
+`PaymentMethod` is cash or card, recorded by staff. There is no gateway and no
+card details are stored anywhere; the row records that money was taken, not
+how it moved.
+
 ### M4 — Follow-up, Reporting & Audit
 - Weekly follow-up list of patients due for a re-check (12 months / 6 months for contact lens users)
 - SMS / email notifications: order ready, appointment, reminder
