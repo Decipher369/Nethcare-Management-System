@@ -141,6 +141,31 @@ which is what M4's financial report reads.
 card details are stored anywhere; the row records that money was taken, not
 how it moved.
 
+`OrderService` is where the client's rules are actually enforced — each one is
+a decision the system makes, so none of them are left to a screen:
+
+| Rule | Where it lives |
+|---|---|
+| Price frozen on the day | `place` copies the catalogue price onto each line |
+| 40% advance before the lab | `advance` checks the bill and says how much is short |
+| Stock reserved at order, deducted at collection | `place` reserves, `advance` deducts on `COLLECTED` |
+| Low stock flags itself | `StockItem.isLow()` — `available() <= reorderLevel` |
+| Cancel releases stock, writes a credit note | `cancel` releases, then raises `CN-xxxx` if money was taken |
+
+The 40% comes from `nethcare.order.advance-percentage` in
+`application.properties`, not a number typed into a screen, so changing the
+client's terms is a config change. Urgent orders carry a 15% surcharge on top
+of the discount, per FR-3.3.
+
+Money rounds to two decimals at every step, so the customer adding up the
+printed bill gets the same figure we hold.
+
+Overpayment is refused rather than absorbed. If somebody hands over a note for
+a 500 balance, the counter needs to know before the change is given, not after.
+
+Cancelling an order that took money raises a credit note. It is marked, not
+deleted — the money genuinely moved, and M4 reports on it.
+
 ### M4 — Follow-up, Reporting & Audit
 - Weekly follow-up list of patients due for a re-check (12 months / 6 months for contact lens users)
 - SMS / email notifications: order ready, appointment, reminder
