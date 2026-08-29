@@ -76,6 +76,11 @@ public class Prescription extends BaseEntity {
         return issuedOn.plusMonths(VALID_MONTHS);
     }
 
+    // Thymeleaf reads properties, so the view cannot call expiresOn() directly.
+    public LocalDate getExpiresOn() {
+        return expiresOn();
+    }
+
     public String getRxNo() { return rxNo; }
     public void setRxNo(String rxNo) { this.rxNo = rxNo; }
 
