@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{console/fragments :: head('Order Status')}"></head>
+<body>
+<div class="console">
+<div th:replace="~{console/fragments :: side(${active})}"></div>
+
+<div class="main">
+<div th:replace="~{console/fragments :: top(${title}, ${user}, ${role})}"></div>
+
+<div class="content">
+<div th:replace="~{console/fragments :: mocknote}"></div>
+
+    <div class="kpis">
+        <div class="kpi">
+            <div class="k">Open orders</div>
+            <div class="v" th:text="${totalOrders}">141</div>
+            <div class="sub">across all stages</div>
+        </div>
+        <div class="kpi">
+            <div class="k">Average to collect</div>
+            <div class="v" th:text="${avgDays} + ' days'">9 days</div>
+            <div class="sub">order placed to picked up</div>
+        </div>
+        <div class="kpi alert">
+            <div class="k">Overdue</div>
+            <div class="v" th:text="${overdue}">3</div>
+            <div class="sub">past the promised date</div>
+        </div>
+        <div class="kpi">
+            <div class="k">Urgent</div>
+            <div class="v" th:text="${urgent}">12</div>
+            <div class="sub">carry the surcharge</div>
+        </div>
+    </div>
+
+    <div class="panel">
+        <h2>Stage breakdown</h2>
+        <div class="pad">
+            <div class="split">
+                <div th:each="o : ${orderSplit}" th:class="${o[2]}"
+                     th:text="${o[0]} + ' ' + ${o[1]}">Collected 84</div>
+            </div>
+            <ul class="legend">
+                <li th:each="o : ${orderSplit}">
+                    <i th:class="${o[2]}"></i>
+                    <span th:text="${o[0]}">Collected</span>
+                    <span class="n" th:text="${o[1]}">84</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="panel">
+        <h2>Stage rules</h2>
+        <table>
+            <thead><tr><th>Stage</th><th>What it means</th><th>Needs</th></tr></thead>
+            <tbody>
+            <tr>
+                <td><span class="tag info">Placed</span></td>
+                <td>Order taken, price frozen, stock reserved</td>
+                <td>40% advance</td>
+            </tr>
+            <tr>
+                <td><span class="tag mute">At lab</span></td>
+                <td>Sent out for lens making</td>
+                <td>lab progress</td>
+            </tr>
+            <tr>
+                <td><span class="tag warn">Ready</span></td>
+                <td>Back from the lab, waiting for collection</td>
+                <td>balance due</td>
+            </tr>
+            <tr>
+                <td><span class="tag good">Collected</span></td>
+                <td>Handed over, stock deducted</td>
+                <td>—</td>
+            </tr>
+            <tr>
+                <td><span class="tag bad">Cancelled</span></td>
+                <td>Reservation released, credit note raised</td>
+                <td>—</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+</div>
+</div>
+</body>
+</html>
