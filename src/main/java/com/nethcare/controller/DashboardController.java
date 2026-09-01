@@ -22,10 +22,13 @@ public class DashboardController {
     private String landingPageFor(Authentication authentication) {
         String role = roleOf(authentication);
 
+        // Admin and staff go to the M4 console — it is where the work happens.
+        // The optician still starts on the patient register, and the surgeon
+        // and patient have no M4 access at all.
         return switch (role) {
-            case "ADMIN"       -> "/admin";
+            case "ADMIN"       -> "/dashboard/console";
             case "OPTICIAN"    -> "/patients";
-            case "STAFF_NURSE" -> "/orders";
+            case "STAFF_NURSE" -> "/dashboard/console";
             case "SURGEON"     -> "/referrals";
             case "PATIENT"     -> "/portal";
             // Should not happen — a user always has a role. Sending them to the
