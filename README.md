@@ -79,6 +79,13 @@ nethcare-management-system/
 - Management reports: monthly sales, patients attended, order status, stock summary
 - Immutable audit log of every create, update, and delete
 
+**Status: screens built, data pending.** This module is on its own branch off
+`main`, so the tables these screens read — patients from M1, examinations from
+M2, orders and bills from M3 — are not in the tree yet. The layouts, columns,
+filters and buttons are finished; the figures are placeholders from the deck's
+own mock-up, and every screen says so at the top. The live queries get wired
+up once M1–M3 are merged into `main`.
+
 ## Tech Stack
 
 - **Backend:** Java 17, Spring Boot 3.2.5, Spring MVC, Spring Security, Spring Data JPA
@@ -133,7 +140,26 @@ per role on first run, and prints the list on the login page itself:
 | patient | patient123 | PATIENT |
 
 Without the `dev` profile no accounts are created and there is nothing to log in with.
+
 Change the passwords in `application-dev.properties` before using this anywhere shared.
+
+### Console screens (M4)
+
+Admin and staff land straight on the dashboard.
+
+| Screen | URL |
+|---|---|
+| Management dashboard | `/dashboard/console` |
+| Patients due for review | `/followups` |
+| Reminder queue | `/notifications` |
+| Sales report | `/reports/sales` |
+| Order status | `/reports/orders` |
+| Stock summary | `/reports/stock` |
+| Audit trail | `/audit` |
+
+Open to `ADMIN`, `OPTICIAN` and `STAFF_NURSE`. The surgeon and the patient get
+403 on all of them — the audit trail and the money figures are not the
+clinical role's business.
 
 ### Where each role lands after login
 
@@ -141,14 +167,14 @@ Sign-in redirects by role, so nobody reaches a page they cannot use:
 
 | Role | Lands on | Owns |
 |---|---|---|
-| ADMIN | `/admin` | Users, roles, pricing, stock, reports, audit |
+| ADMIN | `/dashboard/console` | Users, roles, pricing, stock, reports, audit |
 | OPTICIAN | `/patients` | Patient records, examinations, prescriptions, referrals |
-| STAFF_NURSE | `/orders` | Orders, bills, order status, stock |
+| STAFF_NURSE | `/dashboard/console` | Orders, bills, order status, stock, follow-up |
 | SURGEON | `/referrals` | Referred patients, surgical notes |
 | PATIENT | `/portal` | Own profile, prescriptions, order status |
 
-These pages currently list what each role can do. The real screens are still
-being built under their module issues.
+The M4 console screens are built — see the table above. The other modules'
+screens are still being built under their module issues.
 
 ### If you get Spring's whitelabel error page
 
