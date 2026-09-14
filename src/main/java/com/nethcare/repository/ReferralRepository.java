@@ -7,6 +7,8 @@ import java.util.List;
 
 public interface ReferralRepository extends JpaRepository<Referral, Long> {
 
+    boolean existsByExaminationId(Long examinationId);
+
     List<Referral> findByPatientIdOrderByReferredOnDesc(Long patientId);
 
     // The surgeon's worklist — referred patients, newest first.
