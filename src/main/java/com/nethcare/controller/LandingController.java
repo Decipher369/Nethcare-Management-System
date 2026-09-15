@@ -17,16 +17,6 @@ import java.util.List;
 @Controller
 public class LandingController {
 
-    @GetMapping("/admin")
-    public String admin(Model model) {
-        return page(model, "Admin", "ADMIN", List.of(
-                "User accounts and roles",
-                "Pricing and settings",
-                "Stock",
-                "Management reports",
-                "Audit log"));
-    }
-
     @GetMapping("/patients")
     public String patients(Model model) {
         return page(model, "Patient Registration", "OPTICIAN", List.of(

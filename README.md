@@ -166,6 +166,43 @@ a 500 balance, the counter needs to know before the change is given, not after.
 Cancelling an order that took money raises a credit note. It is marked, not
 deleted — the money genuinely moved, and M4 reports on it.
 
+## M3 — public shop front
+
+The public side needs no login. Four pages, all reading from the same
+catalogue the counter works from — so the gallery is not a hand-kept list
+that drifts out of date.
+
+| Page | Path | Shows |
+|---|---|---|
+| Home | `/` | Shop name, location, services, link to the gallery |
+| About | `/about` | Business details and the full service list |
+| Frames | `/frames` | Live gallery, filterable by category, searchable |
+| Contact | `/contact` | Contact details |
+
+`/` used to be the post-login redirect. It is now the shop front, and
+`/dashboard` does the role routing instead — a signed-in user opening the home
+page sees the shop, not a redirect loop. All five roles still land correctly
+(`/dashboard` → `/admin`, `/patients`, `/orders`, `/referrals`, `/portal`).
+
+**The gallery shows "Available" or "Ask us — on order", never the exact count.**
+Printing "2 left" on a public page is a countdown for somebody else to beat us
+to. The staff screen in the next commit is where the numbers live.
+
+**`BusinessProfile` holds only what the client actually told us** — the shop
+name, Kolonnawa, the owner's name and the three premises. Phone, street
+address, email and opening hours appear nowhere in the proposal or the deck, so
+those fields are `null` and the page prints "To be confirmed" instead. An
+invented phone number on a real business is worse than a blank.
+
+If the client supplies the missing details, they go in `BusinessProfile` and
+every page updates. The templates already read every value from there rather
+than hard-coding text, so promoting it to an editable settings screen later
+means changing one class, not five templates.
+
+Stock items with no photo render a neutral "No photo yet" tile. Real frame
+photographs go in `src/main/resources/static/images/frames/` and are picked up
+by `imageName` — no template change needed.
+
 ### M4 — Follow-up, Reporting & Audit
 - Weekly follow-up list of patients due for a re-check (12 months / 6 months for contact lens users)
 - SMS / email notifications: order ready, appointment, reminder
