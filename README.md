@@ -170,6 +170,44 @@ password that the front desk writes on a slip.
 The visit history on a patient's record is empty for now. It fills in when
 examinations and prescriptions land with M2.
 
+### Patient API (M1)
+
+The same register over JSON, for anything that is not a browser form. Every
+path is behind the login, and the role rules are the same ones the HTML pages
+use — `OPTICIAN` and `ADMIN` on patients, `ADMIN` only on users.
+
+| Method | Path | Does |
+|---|---|---|
+| GET | `/api/patients?q=` | List, searchable by name, phone or patient number |
+| GET | `/api/patients/{id}` | One patient |
+| POST | `/api/patients` | Register a patient |
+| PUT | `/api/patients/{id}` | Correct a patient's details |
+| GET | `/api/patients/{id}/history` | Visit history — empty until M2 |
+| GET | `/api/users` | List staff accounts (admin) |
+| POST | `/api/users` | Create a staff account (admin) |
+| PUT | `/api/users/{id}/role` | Change someone's role (admin) |
+| PATCH | `/api/users/{id}/deactivate` | Close an account (admin) |
+
+**Registration calls the same `PatientService` the form uses**, so the API and
+the browser cannot disagree about what makes a valid patient.
+
+**`PUT` only accepts the fields a person can correct.** `patient_no`, `user_id`
+and `registered_on` are set at creation and stay put, so a `PUT` cannot quietly
+renumber a patient or repoint their portal login.
+
+**Deactivating is not deleting.** It sets `status = INACTIVE` and leaves the row
+in place, because registrations point at `user_id` and removing the account
+would orphan everything they touched.
+
+**Responses are DTOs, not entities.** `User` has a `getPasswordHash()`, and
+Jackson would happily serialise it — returning the entity from `/api/users`
+put every account's BCrypt hash in the response. `UserDto` never reads the
+field off the entity, so there is nothing to leak.
+
+`/api/**` skips CSRF (`SecurityConfig`) because it is stateless and may get a
+non-browser client. Everything the browser submits still goes through a
+checked form post.
+
 ### If you get Spring's whitelabel error page
 
 That fallback shows when something fails and nothing handles the resulting
