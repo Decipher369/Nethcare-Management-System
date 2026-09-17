@@ -95,18 +95,7 @@ public class ClinicalController {
     // Deltas between two prescriptions, the way the history table shows them.
     @GetMapping("/api/prescriptions/compare")
     public ApiResponse<Map<String, String>> compare(@RequestParam Long rx1, @RequestParam Long rx2) {
-        Prescription a = prescriptions.findById(rx1)
-                .orElseThrow(() -> new ResourceNotFoundException("No prescription " + rx1));
-        Prescription b = prescriptions.findById(rx2)
-                .orElseThrow(() -> new ResourceNotFoundException("No prescription " + rx2));
-
-        return ApiResponse.success(Map.of(
-                "rx1", a.getRxNo(),
-                "rx2", b.getRxNo(),
-                "odSph", delta(a.getOdSph(), b.getOdSph()),
-                "osSph", delta(a.getOsSph(), b.getOsSph()),
-                "odCyl", delta(a.getOdCyl(), b.getOdCyl()),
-                "osCyl", delta(a.getOsCyl(), b.getOsCyl())));
+        return ApiResponse.success(clinical.compareRx(rx1, rx2));
     }
 
     // ---- Referrals -------------------------------------------------------
@@ -126,21 +115,7 @@ public class ClinicalController {
                 .orElseThrow(() -> new ResourceNotFoundException("No referral with id " + id)));
     }
 
-    @PatchMapping("/api/referrals/{id}/feedback")
-    public ApiResponse<Referral> feedback(@PathVariable Long id, @RequestParam String notes) {
-        clinical.recordFeedback(id, notes);
-        return ApiResponse.success(referrals.findById(id).orElseThrow());
-    }
-
-    // Compared as written text, not parsed as numbers — -0.25 and 0.00 are
-    // both "no correction" and should read as unchanged.
-    private String delta(String older, String newer) {
-        if (older == null || older.isBlank()) {
-            return newer == null || newer.isBlank() ? "unchanged" : "new: " + newer;
-        }
-        if (newer == null || newer.isBlank()) {
-            return "removed";
-        }
-        return older.equals(newer) ? "unchanged" : older + " → " + newer;
-    }
+    // Feedback, the worklists and the patient's referral list all moved to
+    // ReferralApiController. The feedback call there also checks the caller is
+    // the surgeon, which this version did not do.
 }

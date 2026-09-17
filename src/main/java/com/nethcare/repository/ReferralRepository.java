@@ -11,4 +11,6 @@ public interface ReferralRepository extends JpaRepository<Referral, Long> {
 
     // The surgeon's worklist — referred patients, newest first.
     List<Referral> findByStatusOrderByReferredOnDesc(String status);
+
+    List<Referral> findAllByOrderByReferredOnDesc();
 }

@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 /**
  * The rules that sit between the screens and the tables.
@@ -145,6 +146,40 @@ public class ClinicalService {
 
     public List<Referral> referralsFor(Long patientId) {
         return referrals.findByPatientIdOrderByReferredOnDesc(patientId);
+    }
+
+    // ---- Comparison ------------------------------------------------------
+
+    /**
+     * Deltas between two prescriptions, the way the history table shows them.
+     * Moved out of the controller so both the API and any later view read the
+     * same wording.
+     */
+    public Map<String, String> compareRx(Long rx1Id, Long rx2Id) {
+        Prescription a = prescriptions.findById(rx1Id)
+                .orElseThrow(() -> new ResourceNotFoundException("No prescription " + rx1Id));
+        Prescription b = prescriptions.findById(rx2Id)
+                .orElseThrow(() -> new ResourceNotFoundException("No prescription " + rx2Id));
+
+        return Map.of(
+                "rx1", a.getRxNo(),
+                "rx2", b.getRxNo(),
+                "odSph", delta(a.getOdSph(), b.getOdSph()),
+                "osSph", delta(a.getOsSph(), b.getOsSph()),
+                "odCyl", delta(a.getOdCyl(), b.getOdCyl()),
+                "osCyl", delta(a.getOsCyl(), b.getOsCyl()));
+    }
+
+    // Compared as written text, not parsed as numbers — -0.25 and 0.00 are
+    // both "no correction" and should read as unchanged.
+    private String delta(String older, String newer) {
+        if (older == null || older.isBlank()) {
+            return newer == null || newer.isBlank() ? "unchanged" : "new: " + newer;
+        }
+        if (newer == null || newer.isBlank()) {
+            return "removed";
+        }
+        return older.equals(newer) ? "unchanged" : older + " → " + newer;
     }
 
     // ---- Numbering -------------------------------------------------------
