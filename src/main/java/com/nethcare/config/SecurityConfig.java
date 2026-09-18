@@ -45,7 +45,8 @@ public class SecurityConfig {
 
                 // M3 — orders, billing, stock
                 .requestMatchers("/api/orders/**", "/api/bills/**", "/api/payments/**",
-                                 "/api/stock/**", "/orders/**").hasAnyRole("ADMIN", "STAFF_NURSE")
+                                 "/api/stock/**", "/orders/**", "/stock/**", "/bills/**")
+                                 .hasAnyRole("ADMIN", "STAFF_NURSE")
 
                 // M4 — follow-ups, reports, audit
                 .requestMatchers("/api/followups/**", "/api/reports/**", "/api/audit/**").hasAnyRole("ADMIN", "OPTICIAN", "STAFF_NURSE")

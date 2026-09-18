@@ -186,7 +186,7 @@ page sees the shop, not a redirect loop. All five roles still land correctly
 
 **The gallery shows "Available" or "Ask us — on order", never the exact count.**
 Printing "2 left" on a public page is a countdown for somebody else to beat us
-to. The staff screen in the next commit is where the numbers live.
+to. The staff screen is where the numbers live.
 
 **`BusinessProfile` holds only what the client actually told us** — the shop
 name, Kolonnawa, the owner's name and the three premises. Phone, street
@@ -202,6 +202,29 @@ means changing one class, not five templates.
 Stock items with no photo render a neutral "No photo yet" tile. Real frame
 photographs go in `src/main/resources/static/images/frames/` and are picked up
 by `imageName` — no template change needed.
+
+## M3 — staff stock screen
+
+`/stock`, behind the login. This is the screen the counter actually works on,
+and it writes to the same catalogue the public gallery reads.
+
+| Page | Path | Does |
+|---|---|---|
+| Catalogue | `/stock` | Every item, filterable by state, category or search |
+| Add / edit | `/stock/new`, `/stock/{id}/edit` | Price, reorder level, expiry, image file |
+| Stock count | `/stock/{id}/count` | Records what is on the shelf, with a reason |
+
+Open to `ADMIN` and `STAFF_NURSE`. The optician, surgeon and patient get 403.
+
+**A stock count does not touch reserved units.** Reserved stock belongs to an
+open order, so a recount of the shelf must not silently hand that frame to
+somebody else. If the count lands below what is already reserved the service
+refuses it rather than papering over the conflict.
+
+**Adding an item lists it for sale immediately** — `is_active` starts true, so a
+newly added frame appears on the public gallery. That is the point of the shared
+catalogue, but it means a frame cannot be stocked before it has physically
+arrived.
 
 ### M4 — Follow-up, Reporting & Audit
 - Weekly follow-up list of patients due for a re-check (12 months / 6 months for contact lens users)

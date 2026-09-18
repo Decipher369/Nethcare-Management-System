@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head(title)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${title} + ' — Nethcare'">Nethcare</title>
+    <link rel="stylesheet" th:href="@{/css/staff.css}">
+</head>
+<body>
+
+<div th:fragment="bar(active, user)">
+    <div class="topbar">
+        <span class="brand">Nethcare staff</span>
+        <nav>
+            <a th:href="@{/stock}" th:classappend="${active == 'stock'} ? ' <b>' : ''">Stock</a>
+            <a th:href="@{/orders}" th:classappend="${active == 'orders'} ? ' <b>' : ''">Orders</a>
+            <a th:href="@{/bills}" th:classappend="${active == 'bills'} ? ' <b>' : ''">Bills</a>
+            <a th:href="@{/frames-preview}">Public frames page</a>
+        </nav>
+        <span class="who" th:text="${user}">staff</span>
+    </div>
+    <div class="wrap">
+        <div th:if="${msg}" class="flash" th:text="${msg}">Saved</div>
+    </div>
+</div>
+
+</body>
+</html>
