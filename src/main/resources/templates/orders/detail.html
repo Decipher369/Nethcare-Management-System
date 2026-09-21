@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{staff/fragments :: head('Order')}"></head>
+<body>
+<div th:replace="~{staff/fragments :: bar('orders', ${user})}"></div>
+
+<main class="wrap">
+    <p><a th:href="@{/orders}">← All orders</a></p>
+    <h1 th:text="${order.orderNo}">ORD-0001</h1>
+
+    <div class="flash" th:if="${msg}" th:text="${msg}"></div>
+    <div class="flash" th:if="${error}" th:text="${error}"></div>
+
+    <div class="grid">
+        <div class="panel">
+            <span class="note">Customer</span>
+            <strong th:text="${order.customerName}">Name</strong>
+            <div class="note" th:text="${order.customerPhone}">phone</div>
+        </div>
+        <div class="panel">
+            <span class="note">Status</span>
+            <strong th:text="${order.status.label()}">Placed</strong>
+            <div class="note" th:if="${next != null}" th:text="'Next: ' + ${next.label()}">Next</div>
+        </div>
+        <div class="panel">
+            <span class="note">Promised</span>
+            <strong th:text="${order.promisedOn}">date</strong>
+            <div class="note" th:if="${order.overdue}">overdue</div>
+        </div>
+        <div class="panel">
+            <span class="note">Priority</span>
+            <strong th:text="${order.priority.label()}">Normal</strong>
+        </div>
+    </div>
+
+    <h2>Items</h2>
+    <table class="panel">
+        <thead>
+        <tr><th>Code</th><th>Description</th><th>Qty</th><th>Unit</th><th>Line</th></tr>
+        </thead>
+        <tbody>
+        <tr th:each="i : ${order.items}">
+            <td class="mono" th:text="${i.itemCode}">CODE</td>
+            <td th:text="${i.description}">Item</td>
+            <td class="num" th:text="${i.quantity}">1</td>
+            <td class="num" th:text="'LKR ' + ${i.unitPrice}">0.00</td>
+            <td class="num" th:text="'LKR ' + ${i.lineTotal()}">0.00</td>
+        </tr>
+        </tbody>
+        <tfoot>
+        <tr><th colspan="4">Subtotal</th><th class="num" th:text="'LKR ' + ${order.subtotal()}">0.00</th></tr>
+        </tfoot>
+    </table>
+    <p class="note">Price is frozen on the line when the order is placed, so a later
+        catalogue change does not rewrite what the customer agreed to pay.</p>
+
+    <h2>Move it along</h2>
+    <form method="post" th:if="${next != null}" th:action="@{/orders/{id}/advance(id=${order.id})}">
+        <button class="btn" type="submit" th:text="'Move to ' + ${next.label()}">Advance</button>
+        <span class="note" th:if="${next.name() == 'LAB'}">The lab step needs a 40% advance paid.</span>
+    </form>
+    <p class="empty" th:if="${next == null}">This order has reached the end of the pipeline.</p>
+
+    <p class="note" th:if="${blockedBy != null}" th:text="${blockedBy}">Blocked</p>
+    <p class="note" th:if="${next != null and next.name() == 'COLLECTED' and blockedBy == null}">
+        Settled in full, so this order can be handed over.</p>
+
+    <h2>Bill</h2>
+    <div th:if="${bill != null}" class="panel">
+        <a th:href="@{/bills/{id}(id=${bill.id})}" th:text="${bill.billNo}">INV-0001</a>
+        <span class="note" th:text="'Balance LKR ' + ${bill.balance()}">0.00</span>
+        <span class="tag warn" th:if="${bill.creditNote}" th:text="${bill.creditNoteNo}">CN</span>
+    </div>
+    <form method="post" th:unless="${bill != null}" th:action="@{/orders/{id}/bill(id=${order.id})}">
+        <label class="field">Discount (LKR)
+            <input type="number" name="discount" step="0.01" min="0" value="0">
+        </label>
+        <button class="btn" type="submit">Raise the bill</button>
+    </form>
+
+    <h2 th:if="${canCancel}">Cancel</h2>
+    <form method="post" th:if="${canCancel}" th:action="@{/orders/{id}/cancel(id=${order.id})}">
+        <label class="field">Reason
+            <input type="text" name="reason" placeholder="Customer changed their mind">
+        </label>
+        <button class="btn" type="submit">Cancel this order</button>
+        <span class="note">Reserved stock goes back, and any money taken becomes a credit note.</span>
+    </form>
+</main>
+</body>
+</html>

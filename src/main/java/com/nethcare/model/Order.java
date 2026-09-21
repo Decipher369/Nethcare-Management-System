@@ -91,6 +91,20 @@ public class Order extends BaseEntity {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
+    /**
+     * Past the promised date and still not collected.
+     *
+     * On the entity rather than in the template: Thymeleaf 3.1 removed
+     * unrestricted T() calls, so a view cannot ask for LocalDate.now() without
+     * being handed the date first. An order asked to judge itself is also
+     * easier to reuse from the overdue filter.
+     */
+    public boolean isOverdue() {
+        return promisedOn != null
+                && promisedOn.isBefore(LocalDate.now())
+                && status.isOpen();
+    }
+
     public String getOrderNo() { return orderNo; }
     public void setOrderNo(String orderNo) { this.orderNo = orderNo; }
 

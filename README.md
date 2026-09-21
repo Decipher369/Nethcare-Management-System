@@ -226,6 +226,40 @@ newly added frame appears on the public gallery. That is the point of the shared
 catalogue, but it means a frame cannot be stocked before it has physically
 arrived.
 
+## M3 — order and bill screens
+
+`/orders` and `/bills`, behind the login. These drive the order pipeline that
+`OrderService` already enforced, so the counter can work an order through
+placed → lab → ready → collected without touching the console.
+
+| Page | Path | Does |
+|---|---|---|
+| Order list | `/orders` | Filter by Open / Overdue / All / Collected / Cancelled, or search the order number and customer |
+| New order | `/orders/new` | Lens type, coating, promised date, priority, and a quantity against each catalogue item |
+| Order detail | `/orders/{id}` | The lines, the next step, raise the bill, cancel with a reason |
+| Bill list | `/bills` | Filter by Outstanding / Settled / Cancelled / All |
+| Bill detail | `/bills/{id}` | Itemised subtotal, discount, urgent surcharge, total, balance, and the receipts taken |
+
+Open to `ADMIN` and `STAFF_NURSE` — the same two roles as the stock screen. The
+optician, surgeon and patient get 403.
+
+**The 40% advance is enforced at the lab step.** An order cannot go from placed
+to the lab until 40% of the bill is paid, and the page says how much is still
+short. Urgent orders add a 15% surcharge, so the advance is calculated on the
+surcharged total rather than the subtotal.
+
+**Collection is stricter than the advance — the bill must be settled in full.**
+The glasses do not leave the shop while money is still owing, so the counter
+cannot hand over an unpaid order. The order page says what is outstanding and
+why the step is refused, rather than making staff click through to find out.
+
+**Stock is reserved when the order is placed, and deducted when it is
+collected.** A reserved unit cannot be sold twice, and it comes back to the
+shelf if the order is cancelled.
+
+**Nothing here stores a card number.** A `CARD` payment only records that
+someone paid by card at the counter.
+
 ### M4 — Follow-up, Reporting & Audit
 - Weekly follow-up list of patients due for a re-check (12 months / 6 months for contact lens users)
 - SMS / email notifications: order ready, appointment, reminder

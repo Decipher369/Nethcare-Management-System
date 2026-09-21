@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{staff/fragments :: head('New order')}"></head>
+<body>
+<div th:replace="~{staff/fragments :: bar('orders', ${user})}"></div>
+
+<main class="wrap">
+    <p><a th:href="@{/orders}">← All orders</a></p>
+    <h1>New order</h1>
+
+    <div class="flash" th:if="${error}" th:text="${error}"></div>
+
+    <form method="post" th:action="@{/orders/new}">
+        <div class="grid">
+            <label class="field">Customer name
+                <input type="text" name="customerName" th:value="${order.customerName}" required>
+            </label>
+            <label class="field">Phone
+                <input type="text" name="customerPhone" th:value="${order.customerPhone}">
+            </label>
+            <label class="field">Lens type
+                <input type="text" name="lensType" th:value="${order.lensType}" placeholder="Single vision">
+            </label>
+            <label class="field">Coating
+                <input type="text" name="coating" th:value="${order.coating}" placeholder="Anti-reflective">
+            </label>
+            <label class="field">Promised on
+                <input type="date" name="promisedOn" th:value="${order.promisedOn}">
+            </label>
+            <label class="field">Priority
+                <select name="priority">
+                    <option th:each="p : ${priorities}" th:value="${p}" th:text="${p.label()}">Normal</option>
+                </select>
+            </label>
+        </div>
+
+        <h2>Items</h2>
+        <p class="note" th:if="${#lists.isEmpty(stock)}">The catalogue is empty — add stock first.</p>
+        <table class="panel" th:unless="${#lists.isEmpty(stock)}">
+            <thead>
+            <tr><th></th><th>Code</th><th>Item</th><th>Available</th><th>Price</th><th>Qty</th></tr>
+            </thead>
+            <tbody>
+            <tr th:each="s : ${stock}">
+                <td>
+                    <input type="hidden" name="stockItemId" th:value="${s.id}">
+                </td>
+                <td class="mono" th:text="${s.itemCode}">CODE</td>
+                <td th:text="${s.name}">Item</td>
+                <td class="num">
+                    <span th:text="${s.available()}">0</span>
+                    <span class="tag warn" th:if="${s.low}">low</span>
+                </td>
+                <td class="num" th:text="'LKR ' + ${s.unitPrice}">0.00</td>
+                <td><input type="number" name="quantity" min="0" value="0" style="width:5rem"></td>
+            </tr>
+            </tbody>
+        </table>
+        <p class="note">Put a number in the quantity box for anything on this order. Everything
+            left at zero is ignored.</p>
+
+        <label class="field">Remarks
+            <input type="text" name="remarks" th:value="${order.remarks}">
+        </label>
+
+        <button class="btn" type="submit">Place the order</button>
+        <span class="note">Placing it reserves the stock straight away, so the same frame
+            cannot be promised twice.</span>
+    </form>
+</main>
+</body>
+</html>

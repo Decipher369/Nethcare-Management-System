@@ -136,6 +136,9 @@ public class OrderService {
         if (next == OrderStatus.LAB) {
             requireAdvancePaid(order);
         }
+        if (next == OrderStatus.COLLECTED) {
+            requireSettled(order);
+        }
 
         order.setStatus(next);
         Order saved = orders.save(order);
@@ -171,6 +174,27 @@ public class OrderService {
                     + advancePercent.toPlainString() + "% advance of LKR " + required.toPlainString()
                     + " before it goes to the lab. LKR " + bill.getPaid().toPlainString()
                     + " paid so far.");
+        }
+    }
+
+    /**
+     * The collection rule. An order only leaves the shop once the money has
+     * actually arrived, so a customer cannot walk out with unpaid glasses.
+     * Stricter than the 40% lab gate on purpose: at the lab the balance is
+     * still expected, at the counter it should already be gone.
+     */
+    private void requireSettled(Order order) {
+        Bill bill = bills.findByOrderId(order.getId()).orElse(null);
+        if (bill == null) {
+            throw new BusinessException("Order " + order.getOrderNo()
+                    + " has no bill yet, so it cannot be collected.");
+        }
+        if (bill.isCancelled()) {
+            throw new BusinessException("Order " + order.getOrderNo() + " has a cancelled bill.");
+        }
+        if (bill.balance().compareTo(BigDecimal.ZERO) > 0) {
+            throw new BusinessException("Order " + order.getOrderNo() + " still owes LKR "
+                    + bill.balance().toPlainString() + ". Settle the bill before handing the order over.");
         }
     }
 

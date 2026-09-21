@@ -15,7 +15,7 @@
             <a th:href="@{/stock}" th:classappend="${active == 'stock'} ? ' <b>' : ''">Stock</a>
             <a th:href="@{/orders}" th:classappend="${active == 'orders'} ? ' <b>' : ''">Orders</a>
             <a th:href="@{/bills}" th:classappend="${active == 'bills'} ? ' <b>' : ''">Bills</a>
-            <a th:href="@{/frames-preview}">Public frames page</a>
+            <a th:href="@{/frames}">Public frames page</a>
         </nav>
         <span class="who" th:text="${user}">staff</span>
     </div>

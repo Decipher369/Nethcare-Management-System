@@ -20,4 +20,8 @@ public enum OrderPriority {
     public int surchargePercent() {
         return surchargePercent;
     }
+
+    public String label() {
+        return this == URGENT ? "Urgent" : "Normal";
+    }
 }

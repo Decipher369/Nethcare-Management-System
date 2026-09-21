@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{staff/fragments :: head('Orders')}"></head>
+<body>
+<div th:replace="~{staff/fragments :: bar('orders', ${user})}"></div>
+
+<main class="wrap">
+    <h1>Orders</h1>
+
+    <div class="flash" th:if="${msg}" th:text="${msg}"></div>
+    <div class="flash" th:if="${error}" th:text="${error}"></div>
+
+    <div class="filters">
+        <a class="tag" th:href="@{/orders(view='open')}"     th:classappend="${view == 'open'}    ? ' <b>' : ''">Open</a>
+        <a class="tag" th:href="@{/orders(view='overdue')}"  th:classappend="${view == 'overdue'} ? ' <b>' : ''">Overdue</a>
+        <a class="tag" th:href="@{/orders(view='all')}"      th:classappend="${view == 'all'}     ? ' <b>' : ''">All</a>
+        <a class="tag" th:href="@{/orders(view='COLLECTED')}" th:classappend="${view == 'COLLECTED'} ? ' <b>' : ''">Collected</a>
+        <a class="tag" th:href="@{/orders(view='CANCELLED')}" th:classappend="${view == 'CANCELLED'} ? ' <b>' : ''">Cancelled</a>
+    </div>
+
+    <form class="filters" method="get" th:action="@{/orders}">
+        <input type="hidden" name="view" th:value="${view}">
+        <input type="text" name="q" th:value="${q}" placeholder="Order number or customer">
+        <button class="btn" type="submit">Search</button>
+        <a class="btn" href="/orders/new">New order</a>
+    </form>
+
+    <div class="grid">
+        <div class="panel" th:each="s : ${statuses}">
+            <strong th:text="${counts[s.name()]}">0</strong>
+            <span th:text="${s.label()}">Status</span>
+        </div>
+    </div>
+
+    <p class="empty" th:if="${#lists.isEmpty(orders)}">No orders here.</p>
+
+    <table class="panel" th:unless="${#lists.isEmpty(orders)}">
+        <thead>
+        <tr>
+            <th>Order</th><th>Customer</th><th>Status</th>
+            <th>Promised</th><th>Priority</th><th>Items</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="o : ${orders}">
+            <td><a th:href="@{/orders/{id}(id=${o.id})}" th:text="${o.orderNo}">ORD-0001</a></td>
+            <td>
+                <span th:text="${o.customerName}">Name</span>
+                <div class="note" th:if="${o.customerPhone}" th:text="${o.customerPhone}">phone</div>
+            </td>
+            <td>
+                <span class="tag" th:classappend="${o.status.name() == 'CANCELLED'} ? ' bad' :
+                                         (${o.status.name() == 'COLLECTED'} ? ' warn' : '')"
+                      th:text="${o.status.label()}">Status</span>
+            </td>
+            <td>
+                <span th:text="${o.promisedOn}">date</span>
+                <div class="note" th:if="${o.overdue}">overdue</div>
+            </td>
+            <td><span class="tag" th:if="${o.priority.name() == 'URGENT'}" th:text="${o.priority.label()}">Urgent</span></td>
+            <td class="mono" th:text="${o.items.size()}">0</td>
+        </tr>
+        </tbody>
+    </table>
+</main>
+</body>
+</html>
