@@ -93,6 +93,7 @@ public class ClinicalService {
 
         history.setId(null);
         history.setPatientId(saved.getPatientId());
+        history.setExaminationId(saved.getId());
         history.setVersionNumber(Math.toIntExact(histories.countByPatientId(saved.getPatientId()) + 1));
         history.setRecordedOn(examDate);
         history.setRecordedBy(clinician);
@@ -110,6 +111,35 @@ public class ClinicalService {
 
     public Optional<MedicalHistory> currentMedicalHistory(Long patientId) {
         return histories.findFirstByPatientIdOrderByVersionNumberDesc(patientId);
+    }
+
+    public Optional<MedicalHistory> medicalHistoryForExamination(Long examinationId) {
+        return histories.findByExaminationId(examinationId);
+    }
+
+    public MedicalHistory historyDraftFor(Long patientId) {
+        MedicalHistory draft = new MedicalHistory();
+        currentMedicalHistory(patientId).ifPresent(current -> copyHistory(current, draft));
+        return draft;
+    }
+
+    private void copyHistory(MedicalHistory from, MedicalHistory to) {
+        to.setDiabetic(from.isDiabetic());
+        to.setAsthma(from.isAsthma());
+        to.setHypertension(from.isHypertension());
+        to.setCardiac(from.isCardiac());
+        to.setSle(from.isSle());
+        to.setCholesterol(from.isCholesterol());
+        to.setTb(from.isTb());
+        to.setThyroid(from.isThyroid());
+        to.setArthritis(from.isArthritis());
+        to.setSyphilis(from.isSyphilis());
+        to.setCancer(from.isCancer());
+        to.setRenal(from.isRenal());
+        to.setBronchitis(from.isBronchitis());
+        to.setMigraine(from.isMigraine());
+        to.setOcularHistory(from.getOcularHistory());
+        to.setOtherConditions(from.getOtherConditions());
     }
 
     // ---- Prescriptions ---------------------------------------------------

@@ -6,13 +6,7 @@ import com.nethcare.model.Referral;
 import java.time.LocalDate;
 
 /**
- * The two list views a clinician works from, with the rule that matters
- * attached to each row.
- *
- * Validity and access expiry live on the entity as isValidOn / isOpenForAccess
- * and were never called from anywhere — a client had to work them out for
- * itself. Both are computed here so the API states the answer instead of
- * leaving the rule to whoever is reading.
+ * Compact rows used by the permanent prescription and referral histories.
  */
 public class ClinicalListDto {
 
@@ -21,17 +15,14 @@ public class ClinicalListDto {
     Long patientId;
     LocalDate date;
     String summary;
-    Boolean valid;
-    LocalDate validUntil;
-    Boolean accessible;
     String status;
 
-    public static PrescriptionDto ofPrescription(Prescription rx, LocalDate today) {
-        return new PrescriptionDto(rx, today);
+    public static PrescriptionDto ofPrescription(Prescription rx, LocalDate ignored) {
+        return new PrescriptionDto(rx);
     }
 
-    public static ReferralDto ofReferral(Referral r, LocalDate today) {
-        return new ReferralDto(r, today);
+    public static ReferralDto ofReferral(Referral r, LocalDate ignored) {
+        return new ReferralDto(r);
     }
 
     /** A prescription row: the powers, plus whether it can still be ordered. */
@@ -40,18 +31,14 @@ public class ClinicalListDto {
         private String od;
         private String os;
 
-        PrescriptionDto(Prescription rx, LocalDate today) {
+        PrescriptionDto(Prescription rx) {
             this.id = rx.getId();
             this.number = rx.getRxNo();
             this.patientId = rx.getPatientId();
             this.date = rx.getIssuedOn();
-            this.validUntil = rx.getExpiresOn();
-            this.valid = rx.isValidOn(today);
             this.od = power(rx.getOdSph(), rx.getOdCyl(), rx.getOdAxis(), rx.getOdAdd());
             this.os = power(rx.getOsSph(), rx.getOsCyl(), rx.getOsAxis(), rx.getOsAdd());
-            this.summary = this.valid
-                    ? "Valid until " + this.validUntil
-                    : "Expired on " + this.validUntil + " — a new examination is needed before ordering";
+            this.summary = "Permanent clinical record";
         }
 
         public String getOd() { return od; }
@@ -64,7 +51,7 @@ public class ClinicalListDto {
         private String surgeonName;
         private String reason;
 
-        ReferralDto(Referral r, LocalDate today) {
+        ReferralDto(Referral r) {
             this.id = r.getId();
             this.number = r.getRefNo();
             this.patientId = r.getPatientId();
@@ -72,11 +59,9 @@ public class ClinicalListDto {
             this.surgeonName = r.getSurgeonName();
             this.reason = r.getReason();
             this.status = r.getStatus();
-            this.accessible = r.isOpenForAccess(today);
-            this.validUntil = r.getReferredOn().plusDays(Referral.ACCESS_DAYS);
-            this.summary = this.accessible
-                    ? "Open until " + this.validUntil
-                    : "Access closed on " + this.validUntil;
+            this.summary = "PENDING".equalsIgnoreCase(r.getStatus())
+                    ? "Awaiting surgeon consultation"
+                    : "Consultation completed";
         }
 
         public String getSurgeonName() { return surgeonName; }
@@ -103,8 +88,5 @@ public class ClinicalListDto {
     public Long getPatientId() { return patientId; }
     public LocalDate getDate() { return date; }
     public String getSummary() { return summary; }
-    public Boolean getValid() { return valid; }
-    public LocalDate getValidUntil() { return validUntil; }
-    public Boolean getAccessible() { return accessible; }
     public String getStatus() { return status; }
 }

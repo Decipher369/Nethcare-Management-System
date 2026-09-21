@@ -9,5 +9,6 @@ import java.util.Optional;
 public interface MedicalHistoryRepository extends JpaRepository<MedicalHistory, Long> {
     List<MedicalHistory> findByPatientIdOrderByVersionNumberDesc(Long patientId);
     Optional<MedicalHistory> findFirstByPatientIdOrderByVersionNumberDesc(Long patientId);
+    Optional<MedicalHistory> findByExaminationId(Long examinationId);
     long countByPatientId(Long patientId);
 }

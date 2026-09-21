@@ -40,6 +40,8 @@
             <dt>Registered</dt>      <dd th:text="${patient.registeredOn}">date</dd>
         </dl>
 
+        <p><a th:href="@{/examinations/new(patientId=${patient.id})}">Record a new clinical examination →</a></p>
+
         <h2>Visit history</h2>
 
         <table th:if="${!visits.isEmpty()}">
@@ -48,7 +50,7 @@
             </thead>
             <tbody>
             <tr th:each="v : ${visits}">
-                <td th:text="${v.examDate}">date</td>
+                <td><a th:href="@{/examinations/{id}(id=${v.id})}" th:text="${v.examDate}">date</a></td>
                 <td th:text="${v.examinedBy}">by</td>
                 <td th:text="${v.odSph} + ' ' + ${v.odCyl}">R</td>
                 <td th:text="${v.osSph} + ' ' + ${v.osCyl}">L</td>
@@ -61,7 +63,7 @@
 
         <table th:if="${!prescriptions.isEmpty()}">
             <thead>
-            <tr><th>Rx</th><th>Issued</th><th>Right</th><th>Left</th><th>Expires</th></tr>
+            <tr><th>Rx</th><th>Issued</th><th>Right</th><th>Left</th></tr>
             </thead>
             <tbody>
             <tr th:each="rx : ${prescriptions}">
@@ -69,7 +71,6 @@
                 <td th:text="${rx.issuedOn}">date</td>
                 <td th:text="${rx.odSph} + ' ' + ${rx.odCyl}">R</td>
                 <td th:text="${rx.osSph} + ' ' + ${rx.osCyl}">L</td>
-                <td th:text="${rx.expiresOn}">exp</td>
             </tr>
             </tbody>
         </table>

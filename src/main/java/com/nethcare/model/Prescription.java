@@ -14,14 +14,11 @@ import java.time.LocalDate;
  * a new one from a fresh examination, and the old row is left alone. The exam
  * that produced it is kept so the numbers can be traced back.
  *
- * Prescriptions run out after 12 months. After that a new test is needed
- * before the patient can order.
+ * Prescriptions remain in the clinical record without an automatic expiry.
  */
 @Entity
 @Table(name = "prescriptions")
 public class Prescription extends BaseEntity {
-
-    public static final int VALID_MONTHS = 12;
 
     @Column(name = "rx_no", nullable = false, unique = true, length = 20)
     private String rxNo;
@@ -67,19 +64,6 @@ public class Prescription extends BaseEntity {
 
     @Column(name = "notes", length = 500)
     private String notes;
-
-    public boolean isValidOn(LocalDate date) {
-        return !date.isAfter(issuedOn.plusMonths(VALID_MONTHS));
-    }
-
-    public LocalDate expiresOn() {
-        return issuedOn.plusMonths(VALID_MONTHS);
-    }
-
-    // Thymeleaf reads properties, so the view cannot call expiresOn() directly.
-    public LocalDate getExpiresOn() {
-        return expiresOn();
-    }
 
     public String getRxNo() { return rxNo; }
     public void setRxNo(String rxNo) { this.rxNo = rxNo; }

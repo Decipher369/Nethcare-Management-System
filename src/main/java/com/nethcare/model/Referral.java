@@ -22,9 +22,6 @@ import java.time.LocalDate;
 @Table(name = "referrals")
 public class Referral extends BaseEntity {
 
-    // How long a surgeon may still open the patient's record after the referral.
-    public static final int ACCESS_DAYS = 90;
-
     @Column(name = "ref_no", nullable = false, unique = true, length = 20)
     private String refNo;
 
@@ -66,9 +63,14 @@ public class Referral extends BaseEntity {
     @Column(name = "feedback_on")
     private LocalDate feedbackOn;
 
-    public boolean isOpenForAccess(LocalDate today) {
-        return !today.isAfter(referredOn.plusDays(ACCESS_DAYS));
-    }
+    @Column(name = "tests", length = 2000)
+    private String tests;
+
+    @Column(name = "treatment", length = 2000)
+    private String treatment;
+
+    @Column(name = "follow_up_instructions", length = 2000)
+    private String followUpInstructions;
 
     public String getRefNo() { return refNo; }
     public void setRefNo(String refNo) { this.refNo = refNo; }
@@ -108,4 +110,10 @@ public class Referral extends BaseEntity {
 
     public LocalDate getFeedbackOn() { return feedbackOn; }
     public void setFeedbackOn(LocalDate feedbackOn) { this.feedbackOn = feedbackOn; }
+    public String getTests() { return tests; }
+    public void setTests(String tests) { this.tests = tests; }
+    public String getTreatment() { return treatment; }
+    public void setTreatment(String treatment) { this.treatment = treatment; }
+    public String getFollowUpInstructions() { return followUpInstructions; }
+    public void setFollowUpInstructions(String followUpInstructions) { this.followUpInstructions = followUpInstructions; }
 }

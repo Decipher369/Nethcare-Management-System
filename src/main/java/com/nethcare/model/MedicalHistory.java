@@ -18,6 +18,9 @@ public class MedicalHistory extends BaseEntity {
     @Column(name = "patient_id", nullable = false)
     private Long patientId;
 
+    @Column(name = "examination_id", nullable = false, unique = true)
+    private Long examinationId;
+
     @Column(name = "version_number", nullable = false)
     private Integer versionNumber;
 
@@ -50,6 +53,8 @@ public class MedicalHistory extends BaseEntity {
 
     public Long getPatientId() { return patientId; }
     public void setPatientId(Long patientId) { this.patientId = patientId; }
+    public Long getExaminationId() { return examinationId; }
+    public void setExaminationId(Long examinationId) { this.examinationId = examinationId; }
     public Integer getVersionNumber() { return versionNumber; }
     public void setVersionNumber(Integer versionNumber) { this.versionNumber = versionNumber; }
     public LocalDate getRecordedOn() { return recordedOn; }

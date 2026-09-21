@@ -25,10 +25,8 @@ import java.util.Map;
  *
  * ClinicalService.referralsFor and ReferralRepository's by-status lookup were
  * both already written and both unreachable: nothing in the application called
- * them. Issue #25 asks for surgeons to see referred patients for 90 days, and
- * that rule needs somewhere to live. Referral.ACCESS_DAYS is the enforcement
- * point, reported per row rather than filtered silently — hiding a closed
- * referral would leave a surgeon wondering why the case vanished.
+ * them. Referrals remain available as permanent clinical records; their
+ * status describes workflow progress rather than an access-expiry window.
  */
 @RestController
 @RequestMapping("/api/referrals")
@@ -69,16 +67,11 @@ public class ReferralApiController {
                 .toList());
     }
 
-    /**
-     * Just the ones still inside the 90-day window — the worklist a surgeon
-     * can still act on without chasing the clinic.
-     */
+    /** Open work without applying an age-based access cutoff. */
     @GetMapping("/open")
     public ApiResponse<List<ClinicalListDto.ReferralDto>> stillOpen() {
-        LocalDate today = LocalDate.now();
         return ApiResponse.success(referrals.findByStatusOrderByReferredOnDesc("PENDING").stream()
-                .filter(r -> r.isOpenForAccess(today))
-                .map(r -> ClinicalListDto.ofReferral(r, today))
+                .map(r -> ClinicalListDto.ofReferral(r, LocalDate.now()))
                 .toList());
     }
 

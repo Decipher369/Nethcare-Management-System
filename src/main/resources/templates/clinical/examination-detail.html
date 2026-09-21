@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{clinical/fragments :: head('Examination')}"></head>
+<body>
+<div th:replace="~{clinical/fragments :: bar('examinations', ${user})}"></div>
+<main class="wrap">
+    <p><a th:href="@{/patients/{id}(id=${patient.id})}">← Patient record</a></p>
+    <h1 th:text="'Examination · ' + ${patient.fullName}">Examination</h1>
+    <div class="flash" th:if="${msg}" th:text="${msg}">Saved</div>
+    <div class="flash bad" th:if="${error}" th:text="${error}">Error</div>
+
+    <div class="grid">
+        <section class="panel"><h2>Visit</h2><div class="pad">
+            <dl class="detail-list">
+                <dt>Date</dt><dd th:text="${exam.examDate}">date</dd>
+                <dt>Clinician</dt><dd th:text="${exam.examinedBy}">name</dd>
+                <dt>Findings</dt><dd th:text="${exam.findings} ?: '—'">findings</dd>
+            </dl>
+        </div></section>
+        <section class="panel"><h2>Measurements</h2><div class="pad">
+            <table><thead><tr><th>Eye</th><th>VA</th><th>SPH</th><th>CYL</th><th>Axis</th><th>ADD</th></tr></thead>
+                <tbody>
+                <tr><th>OD</th><td th:text="${exam.odVa} ?: '—'"></td><td th:text="${exam.odSph} ?: '—'"></td><td th:text="${exam.odCyl} ?: '—'"></td><td th:text="${exam.odAxis} ?: '—'"></td><td th:text="${exam.odAdd} ?: '—'"></td></tr>
+                <tr><th>OS</th><td th:text="${exam.osVa} ?: '—'"></td><td th:text="${exam.osSph} ?: '—'"></td><td th:text="${exam.osCyl} ?: '—'"></td><td th:text="${exam.osAxis} ?: '—'"></td><td th:text="${exam.osAdd} ?: '—'"></td></tr>
+                </tbody></table>
+            <p class="note" th:text="'PD: ' + (${exam.ipd} ?: '—')">PD</p>
+        </div></section>
+    </div>
+
+    <section class="panel"><h2>Prescription</h2><div class="pad">
+        <div th:if="${prescription}">
+            <strong th:text="${prescription.rxNo}">RX</strong>
+            <span th:text="' · issued ' + ${prescription.issuedOn} + ' by ' + ${prescription.issuedBy}">date</span>
+            <p class="note">This is retained as a permanent clinical record and has no automatic expiry.</p>
+        </div>
+        <form th:unless="${prescription}" method="post" th:action="@{/examinations/{id}/prescription(id=${exam.id})}">
+            <button class="btn" type="submit">Issue prescription from this examination</button>
+        </form>
+    </div></section>
+
+    <section class="panel"><h2>Symptoms and history snapshot</h2><div class="pad grid">
+        <div><strong>Other symptoms</strong><p th:text="${symptoms.additionalSymptoms} ?: 'See recorded symptom flags.'">Symptoms</p></div>
+        <div><strong>Ocular history</strong><p th:text="${history.ocularHistory} ?: '—'">History</p></div>
+        <div><strong>Other medical conditions</strong><p th:text="${history.otherConditions} ?: '—'">History</p></div>
+    </div></section>
+</main>
+</body>
+</html>
