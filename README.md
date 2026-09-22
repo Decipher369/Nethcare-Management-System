@@ -161,6 +161,74 @@ Open to `ADMIN`, `OPTICIAN` and `STAFF_NURSE`. The surgeon and the patient get
 403 on all of them — the audit trail and the money figures are not the
 clinical role's business.
 
+### M4 — the follow-up and audit tables
+
+The console screens above are still wireframes with the client's own numbers on
+them. Underneath, the tables and rules now exist.
+
+| Table | Holds |
+|---|---|
+| `follow_ups` | A patient due back, when they were last seen, and what they said |
+| `notifications` | The reminder queue, one row per attempt |
+| `audit_log` | One row per create / update / delete, in the whole system |
+
+**The follow-up rule is 12 months, or 6 for a contact lens patient.** Both live
+in `nethcare.followup.regular-months` and `contact-lens-months` rather than in
+the code, and the service works out the due date from the last examination.
+`due_for_who` records which rule applied, so nobody has to reverse the
+arithmetic to know why somebody is on the list.
+
+**A reminder is SMS first, email as the fallback.** A patient with no number
+gets the email channel; a patient who has opted out gets nothing queued at all,
+and a patient with no contact details is recorded as failed rather than left
+sitting in the queue with nowhere to go.
+
+**A no-answer stays on the worklist.** Recording that nobody picked up leaves
+the row PENDING, because a customer who did not answer has not been told no.
+Only a booking or a decline closes it.
+
+**Nothing is sent from this table.** The shop has no SMS gateway, so a row
+being SENT means a staff member recorded handing it over — the app does not
+claim a message left the building on its own.
+
+#### The audit trail is append-only, with one caveat
+
+The trigger that enforces this is in
+`src/main/resources/schema/audit_immutable.sql`:
+
+```bash
+mysql -u root -p nethcare < src/main/resources/schema/audit_immutable.sql
+```
+
+It needs a user with the `SUPER` privilege — the app's own `nethcare_user` gets
+MySQL error 1419, because binary logging is on and
+`log_bin_trust_function_creators` is not set. Check it is in place with:
+
+```sql
+SELECT TRIGGER_NAME FROM information_schema.TRIGGERS
+WHERE TRIGGER_SCHEMA = 'nethcare' AND EVENT_OBJECT_TABLE = 'audit_log';
+```
+
+**Until that has been applied, the table is append-only by agreement, not by
+enforcement.** `@Immutable` on the entity stops Hibernate issuing an UPDATE,
+but that is not enough on its own — measured on this schema, it leaves the
+update blocked and `deleteById()` still removes the row. The trigger is what
+closes that, and it applies to anything reaching the database, not just this
+application.
+
+Audit rows are written by `AuditService.record(...)`, which the other modules
+call on every create, update and delete. It uses `REQUIRES_NEW` so an entry
+survives even when the operation it describes rolls back — a failed create is
+still worth having on record.
+
+#### What waits for the merge
+
+Building the follow-up *list* from real examinations, and the four report
+aggregates, need the patients, examinations, orders and bills tables. Those
+belong to M1, M2 and M3 and are not in this branch — M4 was started from
+`main`, before any of them existed. The rules above are all testable against
+hand-seeded rows now, and the live queries drop in at the merge.
+
 ### Where each role lands after login
 
 Sign-in redirects by role, so nobody reaches a page they cannot use:
