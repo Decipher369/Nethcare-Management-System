@@ -9,6 +9,9 @@ import com.nethcare.model.Patient;
 import com.nethcare.repository.ExaminationRepository;
 import com.nethcare.repository.PatientRepository;
 import com.nethcare.repository.PrescriptionRepository;
+import com.nethcare.repository.ReferralRepository;
+import com.nethcare.repository.UserRepository;
+import com.nethcare.model.Role;
 import com.nethcare.service.ClinicalService;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -30,15 +33,21 @@ public class ClinicalWorkflowController {
     private final ExaminationRepository examinations;
     private final PatientRepository patients;
     private final PrescriptionRepository prescriptions;
+    private final ReferralRepository referrals;
+    private final UserRepository users;
 
     public ClinicalWorkflowController(ClinicalService clinical,
                                       ExaminationRepository examinations,
                                       PatientRepository patients,
-                                      PrescriptionRepository prescriptions) {
+                                      PrescriptionRepository prescriptions,
+                                      ReferralRepository referrals,
+                                      UserRepository users) {
         this.clinical = clinical;
         this.examinations = examinations;
         this.patients = patients;
         this.prescriptions = prescriptions;
+        this.referrals = referrals;
+        this.users = users;
     }
 
     @GetMapping("/examinations/new")
@@ -81,6 +90,8 @@ public class ClinicalWorkflowController {
         model.addAttribute("symptoms", clinical.symptomsFor(id).orElse(new ClinicalSymptom()));
         model.addAttribute("history", clinical.medicalHistoryForExamination(id).orElse(new MedicalHistory()));
         model.addAttribute("prescription", prescriptions.findByExaminationId(id).orElse(null));
+        model.addAttribute("referral", referrals.findByExaminationId(id).orElse(null));
+        model.addAttribute("surgeons", users.findByRoleOrderByFullNameAsc(Role.SURGEON));
         model.addAttribute("user", authentication.getName());
         return "clinical/examination-detail";
     }

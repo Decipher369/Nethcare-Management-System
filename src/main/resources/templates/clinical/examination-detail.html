@@ -38,6 +38,29 @@
         </form>
     </div></section>
 
+    <section class="panel"><h2>Surgeon referral</h2><div class="pad">
+        <div th:if="${referral}">
+            <a th:href="@{/referrals/{id}(id=${referral.id})}" th:text="${referral.refNo}">REF</a>
+            <span th:text="' · ' + ${referral.status} + ' · assigned to ' + ${referral.surgeonName}">status</span>
+        </div>
+        <form th:unless="${referral}" method="post" th:action="@{/examinations/{id}/referral(id=${exam.id})}">
+            <div class="grid">
+                <label class="field">Assigned surgeon
+                    <select name="surgeon" required>
+                        <option value="">Select surgeon</option>
+                        <option th:each="s : ${surgeons}" th:value="${s.username}"
+                                th:text="${s.fullName} + ' (' + ${s.username} + ')'">Surgeon</option>
+                    </select>
+                </label>
+                <label class="field">Urgency
+                    <select name="urgency"><option value="ROUTINE">Routine</option><option value="URGENT">Urgent</option></select>
+                </label>
+            </div>
+            <label class="field">Reason for referral<textarea name="reason" required></textarea></label>
+            <button class="btn" type="submit">Send referral</button>
+        </form>
+    </div></section>
+
     <section class="panel"><h2>Symptoms and history snapshot</h2><div class="pad grid">
         <div><strong>Other symptoms</strong><p th:text="${symptoms.additionalSymptoms} ?: 'See recorded symptom flags.'">Symptoms</p></div>
         <div><strong>Ocular history</strong><p th:text="${history.ocularHistory} ?: '—'">History</p></div>

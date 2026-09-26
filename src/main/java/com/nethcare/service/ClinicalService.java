@@ -7,12 +7,15 @@ import com.nethcare.model.ClinicalSymptom;
 import com.nethcare.model.MedicalHistory;
 import com.nethcare.model.Prescription;
 import com.nethcare.model.Referral;
+import com.nethcare.model.Role;
+import com.nethcare.model.User;
 import com.nethcare.repository.ClinicalSymptomRepository;
 import com.nethcare.repository.ExaminationRepository;
 import com.nethcare.repository.MedicalHistoryRepository;
 import com.nethcare.repository.PatientRepository;
 import com.nethcare.repository.PrescriptionRepository;
 import com.nethcare.repository.ReferralRepository;
+import com.nethcare.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,19 +39,22 @@ public class ClinicalService {
     private final PatientRepository patients;
     private final ClinicalSymptomRepository symptoms;
     private final MedicalHistoryRepository histories;
+    private final UserRepository users;
 
     public ClinicalService(ExaminationRepository exams,
                            PrescriptionRepository prescriptions,
                            ReferralRepository referrals,
                            PatientRepository patients,
                            ClinicalSymptomRepository symptoms,
-                           MedicalHistoryRepository histories) {
+                           MedicalHistoryRepository histories,
+                           UserRepository users) {
         this.exams = exams;
         this.prescriptions = prescriptions;
         this.referrals = referrals;
         this.patients = patients;
         this.symptoms = symptoms;
         this.histories = histories;
+        this.users = users;
     }
 
     // ---- Examinations ----------------------------------------------------
@@ -194,6 +200,9 @@ public class ClinicalService {
         if (reason == null || reason.isBlank()) {
             throw new BusinessException("A referral needs a reason.");
         }
+        User surgeon = users.findByUsername(surgeonName)
+                .filter(user -> user.getRole() == Role.SURGEON && user.isActive())
+                .orElseThrow(() -> new BusinessException("Select an active surgeon account."));
         if (!"ROUTINE".equalsIgnoreCase(urgency) && !"URGENT".equalsIgnoreCase(urgency)) {
             throw new BusinessException("Urgency must be ROUTINE or URGENT.");
         }
@@ -204,7 +213,7 @@ public class ClinicalService {
         r.setExaminationId(exam.getId());
         r.setReferredOn(LocalDate.now());
         r.setReferredBy(referredBy);
-        r.setSurgeonName(surgeonName);
+        r.setSurgeonName(surgeon.getUsername());
         r.setReason(reason);
         r.setUrgency(urgency.toUpperCase());
         r.setAttachedHistory(buildHistory(exam.getPatientId()));
@@ -295,6 +304,39 @@ public class ClinicalService {
         r.setFeedbackOn(LocalDate.now());
         r.setStatus("COMPLETED");
         referrals.save(r);
+    }
+
+    @Transactional
+    public Referral recordConsultation(Long referralId, String actor, boolean admin,
+                                       String tests, String diagnosis, String treatment,
+                                       String followUpInstructions, String notes) {
+        Referral referral = referrals.findById(referralId)
+                .orElseThrow(() -> new ResourceNotFoundException("No referral with id " + referralId));
+        if (!admin && !referral.getSurgeonName().equalsIgnoreCase(actor)) {
+            throw new BusinessException("This referral is assigned to another surgeon.");
+        }
+        if ("COMPLETED".equalsIgnoreCase(referral.getStatus())) {
+            throw new BusinessException("This consultation has already been completed.");
+        }
+        if (!isSet(diagnosis)) {
+            throw new BusinessException("Diagnosis is required to complete the consultation.");
+        }
+        if (!isSet(treatment)) {
+            throw new BusinessException("Treatment is required to complete the consultation.");
+        }
+
+        referral.setTests(blankToNull(tests));
+        referral.setDiagnosis(diagnosis.trim());
+        referral.setTreatment(treatment.trim());
+        referral.setFollowUpInstructions(blankToNull(followUpInstructions));
+        referral.setFeedback(blankToNull(notes));
+        referral.setFeedbackOn(LocalDate.now());
+        referral.setStatus("COMPLETED");
+        return referrals.save(referral);
+    }
+
+    private String blankToNull(String value) {
+        return isSet(value) ? value.trim() : null;
     }
 
     public List<Referral> referralsFor(Long patientId) {

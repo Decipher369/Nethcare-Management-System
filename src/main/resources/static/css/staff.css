@@ -127,3 +127,4 @@ td.mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size
 .detail-list { display: grid; grid-template-columns: 95px 1fr; gap: .45rem .8rem; margin: 0; }
 .detail-list dt { color: var(--ink-soft); font-size: .78rem; }
 .detail-list dd { margin: 0; }
+.clinical-history { margin: 0; white-space: pre-wrap; font: .82rem/1.6 ui-monospace, monospace; }

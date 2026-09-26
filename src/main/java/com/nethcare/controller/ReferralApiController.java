@@ -83,15 +83,20 @@ public class ReferralApiController {
     @PatchMapping("/{id}/feedback")
     public ApiResponse<Referral> recordFeedback(@PathVariable Long id,
                                                 @RequestParam String notes,
+                                                @RequestParam(required = false) String tests,
+                                                @RequestParam String diagnosis,
+                                                @RequestParam String treatment,
+                                                @RequestParam(required = false) String followUp,
                                                 Authentication auth) {
         boolean isSurgeon = auth.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_SURGEON") || a.getAuthority().equals("ROLE_ADMIN"));
         if (!isSurgeon) {
             throw new BusinessException("Only the surgeon can record feedback on a referral.");
         }
-        clinical.recordFeedback(id, notes);
-        return ApiResponse.success("Feedback recorded.",
-                referrals.findById(id).orElseThrow(() -> new ResourceNotFoundException("No referral with id " + id)));
+        Referral updated = clinical.recordConsultation(id, auth.getName(),
+                auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN")),
+                tests, diagnosis, treatment, followUp, notes);
+        return ApiResponse.success("Consultation recorded.", updated);
     }
 
     /** How the numbers changed between two prescriptions, for the history view. */
