@@ -35,7 +35,8 @@ a { color: var(--ink); }
     background: var(--ink); color: #fff; padding: .8rem 1.6rem;
     display: flex; align-items: center; gap: 1.4rem;
 }
-.topbar .brand { font-weight: 600; font-size: 1rem; }
+.topbar .brand { font-weight: 600; font-size: 1rem; display: flex; align-items: center; gap: .55rem; }
+.topbar .brand img { width: 38px; height: 38px; object-fit: contain; flex: 0 0 auto; }
 .topbar nav { display: flex; gap: 1rem; font-size: .87rem; }
 .topbar nav a { color: #c9d6e2; text-decoration: none; }
 .topbar nav a:hover { color: #fff; }

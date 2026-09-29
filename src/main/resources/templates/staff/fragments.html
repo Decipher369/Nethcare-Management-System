@@ -4,13 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title th:text="${title} + ' — Nethcare'">Nethcare</title>
+    <link rel="icon" type="image/png" th:href="@{/images/nethcare-logo.png}">
     <link rel="stylesheet" th:href="@{/css/staff.css}">
 </head>
 <body>
 
 <div th:fragment="bar(active, user)">
     <div class="topbar">
-        <span class="brand">Nethcare staff</span>
+        <span class="brand">
+            <img th:src="@{/images/nethcare-logo.png}" alt="Nethcare logo">
+            <span>Nethcare staff</span>
+        </span>
         <nav>
             <a th:href="@{/stock}" th:classappend="${active == 'stock'} ? ' <b>' : ''">Stock</a>
             <a th:href="@{/orders}" th:classappend="${active == 'orders'} ? ' <b>' : ''">Orders</a>
