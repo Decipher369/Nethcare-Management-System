@@ -1,0 +1,155 @@
+/* Nethcare public site — the shop front, not the management console.
+   Kept separate from the staff pages: same palette, different tone. */
+
+:root {
+    --ink: #1a3a5c;
+    --ink-soft: #4a5f78;
+    --line: #e3e8ee;
+    --bg: #ffffff;
+    --bg-soft: #f6f8fa;
+    --warn: #b45309;
+    --warn-bg: #fef4e6;
+}
+
+* { box-sizing: border-box; }
+
+body {
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    color: #22303f;
+    background: var(--bg);
+    margin: 0;
+    line-height: 1.6;
+}
+
+.wrap { max-width: 1040px; margin: 0 auto; padding: 0 1.5rem; }
+
+/* ---------------------------------------------------------------- header */
+
+.site-head { border-bottom: 1px solid var(--line); background: var(--bg); }
+.head-in { display: flex; align-items: center; gap: 2rem; padding-top: 1rem; padding-bottom: 1rem; }
+
+.brand { text-decoration: none; display: flex; flex-direction: column; line-height: 1.25; }
+.brand strong { color: var(--ink); font-size: 1.15rem; letter-spacing: -.01em; }
+.brand span { color: var(--ink-soft); font-size: .78rem; }
+
+.site-head nav { display: flex; gap: 1.4rem; margin-left: auto; }
+.site-head nav a {
+    color: var(--ink-soft); text-decoration: none; font-size: .92rem;
+    padding-bottom: .3rem; border-bottom: 2px solid transparent;
+}
+.site-head nav a:hover { color: var(--ink); }
+.site-head nav a.on { color: var(--ink); border-bottom-color: var(--ink); font-weight: 600; }
+
+.staff {
+    font-size: .82rem; color: var(--ink); text-decoration: none;
+    border: 1px solid var(--line); border-radius: 4px; padding: .4rem .8rem;
+}
+.staff:hover { background: var(--bg-soft); }
+
+/* ----------------------------------------------------------------- hero */
+
+.hero { background: var(--bg-soft); border-bottom: 1px solid var(--line); padding: 3.5rem 0; }
+.hero h1 { font-size: 2.1rem; line-height: 1.2; margin: 0 0 .6rem; color: var(--ink); }
+.hero p { font-size: 1.05rem; color: var(--ink-soft); max-width: 46ch; margin: 0 0 1.5rem; }
+
+.btn {
+    display: inline-block; background: var(--ink); color: #fff; text-decoration: none;
+    padding: .65rem 1.3rem; border-radius: 4px; font-size: .92rem;
+}
+.btn.ghost { background: transparent; color: var(--ink); border: 1px solid var(--ink); }
+.btn:hover { opacity: .9; }
+
+/* ---------------------------------------------------------------- bands */
+
+.band { padding: 3rem 0; }
+.band.soft { background: var(--bg-soft); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+
+.band h2 { font-size: 1.4rem; color: var(--ink); margin: 0 0 .4rem; }
+.band .lede { color: var(--ink-soft); margin: 0 0 1.8rem; max-width: 60ch; }
+
+.grid { display: grid; gap: 1.25rem; }
+.grid.three { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+.grid.two { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+
+/* ------------------------------------------------------------- services */
+
+.svc { background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 1.3rem; }
+.svc h3 { font-size: 1rem; color: var(--ink); margin: 0 0 .4rem; }
+.svc p { font-size: .9rem; color: var(--ink-soft); margin: 0; }
+
+/* -------------------------------------------------------------- gallery */
+
+.filters { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: 1.5rem; align-items: center; }
+.chip {
+    font-size: .85rem; text-decoration: none; color: var(--ink-soft);
+    border: 1px solid var(--line); border-radius: 999px; padding: .35rem .9rem; background: var(--bg);
+}
+.chip:hover { border-color: var(--ink); color: var(--ink); }
+.chip.on { background: var(--ink); color: #fff; border-color: var(--ink); }
+
+.search { display: flex; gap: .5rem; margin-left: auto; }
+.search input {
+    padding: .45rem .7rem; border: 1px solid var(--line); border-radius: 4px;
+    font-size: .88rem; min-width: 200px;
+}
+.search button {
+    padding: .45rem .9rem; border: 1px solid var(--line); background: var(--bg-soft);
+    border-radius: 4px; cursor: pointer; font-size: .88rem; color: var(--ink);
+}
+
+.card {
+    background: var(--bg); border: 1px solid var(--line); border-radius: 6px;
+    overflow: hidden; display: flex; flex-direction: column;
+}
+.card .shot {
+    height: 150px; background: var(--bg-soft); display: flex;
+    align-items: center; justify-content: center; color: var(--ink-soft);
+    font-size: .8rem; text-align: center; padding: 0 1rem; border-bottom: 1px solid var(--line);
+}
+.card .shot img { width: 100%; height: 100%; object-fit: cover; }
+.card .body { padding: 1rem; display: flex; flex-direction: column; gap: .3rem; flex: 1; }
+.card h3 { font-size: .95rem; margin: 0; color: var(--ink); }
+.card .brand-line { font-size: .8rem; color: var(--ink-soft); margin: 0; }
+.card .code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .75rem; color: var(--ink-soft); }
+
+.price { margin-top: auto; padding-top: .6rem; font-size: .95rem; font-weight: 600; color: var(--ink); }
+.price small { font-weight: 400; color: var(--ink-soft); }
+
+.tag {
+    display: inline-block; font-size: .7rem; letter-spacing: .04em; text-transform: uppercase;
+    padding: .2rem .55rem; border-radius: 3px; background: var(--bg-soft); color: var(--ink-soft);
+}
+.tag.in { background: #e7f4ea; color: #2e7d32; }
+
+.empty {
+    text-align: center; padding: 3rem 1rem; color: var(--ink-soft);
+    border: 1px dashed var(--line); border-radius: 6px; background: var(--bg-soft);
+}
+
+/* --------------------------------------------------------------- facts */
+
+.facts { list-style: none; padding: 0; margin: 0; }
+.facts li { padding: .7rem 0; border-bottom: 1px solid var(--line); display: flex; gap: 1rem; }
+.facts li:last-child { border-bottom: none; }
+.facts .k { color: var(--ink-soft); font-size: .88rem; min-width: 130px; }
+.facts .v { color: #22303f; font-size: .95rem; }
+
+.pending {
+    background: var(--warn-bg); color: var(--warn); font-size: .85rem;
+    padding: .5rem .8rem; border-radius: 4px; margin-top: 1.5rem;
+}
+
+.note { font-size: .82rem; color: var(--ink-soft); }
+
+/* --------------------------------------------------------------- footer */
+
+.site-foot { border-top: 1px solid var(--line); background: var(--bg-soft); padding: 1.8rem 0; margin-top: 3rem; }
+.site-foot p { margin: 0 0 .3rem; font-size: .9rem; color: var(--ink-soft); }
+.site-foot .fine { font-size: .8rem; }
+.site-foot a { color: var(--ink); }
+
+@media (max-width: 640px) {
+    .head-in { flex-wrap: wrap; gap: 1rem; }
+    .site-head nav { order: 3; width: 100%; margin-left: 0; }
+    .search { margin-left: 0; width: 100%; }
+}

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{staff/fragments :: head('Stock')}"></head>
+<body>
+<div th:replace="~{staff/fragments :: bar('stock', ${user})}"></div>
+
+<div class="wrap">
+    <h1>Stock</h1>
+
+    <div class="panel">
+        <h2>Catalogue
+            <span th:text="${lowCount} + ' below reorder, ' + ${expiringCount} + ' expiring soon'"
+                  style="float:right;font-weight:400;color:var(--ink-soft);font-size:.8rem;">0</span>
+        </h2>
+
+        <form class="filters" method="get" th:action="@{/stock}">
+            <div class="field">
+                <label for="stock">Show</label>
+                <select id="stock" name="view">
+                    <option value="all" th:selected="${view == 'all'}">Everything</option>
+                    <option value="low" th:selected="${view == 'low'}">Below reorder</option>
+                    <option value="expiring" th:selected="${view == 'expiring'}">Expiring soon</option>
+                </select>
+            </div>
+            <div class="field">
+                <label for="category">Category</label>
+                <select id="category" name="category">
+                    <option value="">All</option>
+                    <option th:each="c : ${categories}" th:value="${c}" th:text="${c.label}">Frames</option>
+                </select>
+            </div>
+            <div class="field">
+                <label for="q">Code, name or brand</label>
+                <input id="q" name="q" type="text" th:value="${q}">
+            </div>
+            <button class="btn" type="submit">Filter</button>
+            <a class="btn ghost" th:href="@{/stock/new}">Add an item</a>
+        </form>
+
+        <table>
+            <thead>
+            <tr>
+                <th>Code</th><th>Item</th><th>Category</th>
+                <th class="num">In stock</th><th class="num">Reserved</th>
+                <th class="num">Reorder at</th><th class="num">Price</th>
+                <th>Expires</th><th>State</th><th class="num">Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="i : ${items}">
+                <td class="mono" th:text="${i.itemCode}">TR-204</td>
+                <td th:text="${i.name}">Titan TR-204</td>
+                <td th:text="${i.category.label}">Frames</td>
+                <td class="num" th:text="${i.quantity}">2</td>
+                <td class="num" th:text="${i.reserved}">0</td>
+                <td class="num" th:text="${i.reorderLevel}">4</td>
+                <td class="num" th:text="${i.unitPrice}">6500</td>
+                <td th:text="${i.expiresOn}">—</td>
+                <td>
+                    <span class="tag bad" th:if="${i.quantity == 0}">Out</span>
+                    <span class="tag warn" th:if="${i.quantity > 0 and i.low}">Low</span>
+                    <span class="tag good" th:if="${i.quantity > 0 and !i.low}">OK</span>
+                </td>
+                <td class="num">
+                    <a class="btn sm ghost" th:href="@{/stock/{id}/edit(id=${i.id})}">Edit</a>
+                    <a class="btn sm ghost" th:href="@{/stock/{id}/count(id=${i.id})}">Count</a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
+        <p class="empty" th:if="${#lists.isEmpty(items)}">
+            Nothing matches. Try “Everything”, or
+            <a th:href="@{/stock/new}">add the first item</a>.
+        </p>
+
+        <p class="note pad">
+            Reserved units are held by open orders and are not free stock. A
+            stock count records what is on the shelf — it does not release
+            anything a live order is holding.
+        </p>
+    </div>
+</div>
+</body>
+</html>

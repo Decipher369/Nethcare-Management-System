@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head(title)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${title} + ' — Nethcare'">Nethcare</title>
+    <link rel="stylesheet" th:href="@{/css/site.css}">
+</head>
+<body>
+
+<!-- Nav: every public page, so it is written once. -->
+<header class="site-head" th:fragment="nav(active)">
+    <div class="wrap head-in">
+        <a class="brand" th:href="@{/}">
+            <strong>Nethcare</strong>
+            <span th:text="${biz.NAME}">Neth Opticians</span>
+        </a>
+        <nav>
+            <a th:href="@{/}"      th:classappend="${active == 'home'}    ? ' on' : ''">Home</a>
+            <a th:href="@{/about}" th:classappend="${active == 'about'}   ? ' on' : ''">About</a>
+            <a th:href="@{/frames}" th:classappend="${active == 'frames'}  ? ' on' : ''">Frames</a>
+            <a th:href="@{/contact}" th:classappend="${active == 'contact'} ? ' on' : ''">Contact</a>
+        </nav>
+        <a class="staff" th:href="@{/login}">Staff login</a>
+    </div>
+</header>
+
+<footer class="site-foot" th:fragment="foot">
+    <div class="wrap foot-in">
+        <p>
+            <strong th:text="${biz.NAME}">Neth Opticians</strong> ·
+            <span th:text="${biz.LOCATION}">Kolonnawa</span>
+        </p>
+        <p class="fine">
+            Eye examinations, prescription eyewear and contact lenses.
+            <a th:href="@{/login}">Staff login</a>
+        </p>
+    </div>
+</footer>
+
+</body>
+</html>

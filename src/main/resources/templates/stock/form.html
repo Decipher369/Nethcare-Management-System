@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{staff/fragments :: head('Stock item')}"></head>
+<body>
+<div th:replace="~{staff/fragments :: bar('stock', ${user})}"></div>
+
+<div class="wrap">
+    <h1 th:text="${item.id == null} ? 'Add a stock item' : 'Edit ' + ${item.itemCode}">Add a stock item</h1>
+
+    <div class="panel" style="max-width:720px;">
+        <form method="post"
+              th:action="${item.id == null} ? @{/stock} : @{/stock/{id}(id=${item.id})}">
+            <div class="pad">
+                <div class="grid">
+                    <div class="field">
+                        <label for="itemCode">Item code</label>
+                        <input id="itemCode" name="itemCode" required
+                               th:value="${item.itemCode}" placeholder="TR-204">
+                    </div>
+                    <div class="field">
+                        <label for="category">Category</label>
+                        <select id="category" name="category" required>
+                            <option th:each="c : ${categories}" th:value="${c}"
+                                    th:text="${c.label}"
+                                    th:selected="${item.category == c}">Frames</option>
+                        </select>
+                    </div>
+                    <div class="field wide">
+                        <label for="name">Name</label>
+                        <input id="name" name="name" required
+                               th:value="${item.name}" placeholder="Titan TR-204">
+                    </div>
+                    <div class="field">
+                        <label for="brand">Brand</label>
+                        <input id="brand" name="brand" th:value="${item.brand}">
+                    </div>
+                    <div class="field">
+                        <label for="unitPrice">Unit price (LKR)</label>
+                        <input id="unitPrice" name="unitPrice" type="number" step="0.01" min="0"
+                               th:value="${item.unitPrice}">
+                    </div>
+                    <div class="field">
+                        <label for="quantity">In stock</label>
+                        <input id="quantity" name="quantity" type="number" min="0"
+                               th:value="${item.quantity}">
+                    </div>
+                    <div class="field">
+                        <label for="reorderLevel">Reorder at</label>
+                        <input id="reorderLevel" name="reorderLevel" type="number" min="0"
+                               th:value="${item.reorderLevel}">
+                    </div>
+                    <div class="field">
+                        <label for="expiresOn">Expires on</label>
+                        <input id="expiresOn" name="expiresOn" type="date"
+                               th:value="${item.expiresOn}">
+                    </div>
+                    <div class="field">
+                        <label for="imageName">Image file name</label>
+                        <input id="imageName" name="imageName" th:value="${item.imageName}"
+                               placeholder="frames/tr-204.jpg">
+                    </div>
+                    <div class="field wide">
+                        <label for="description">Description</label>
+                        <textarea id="description" name="description"
+                                  th:text="${item.description}"></textarea>
+                    </div>
+                </div>
+
+                <div style="margin-top:1.2rem;display:flex;gap:.6rem;">
+                    <button class="btn" type="submit">Save</button>
+                    <a class="btn ghost" th:href="@{/stock}">Cancel</a>
+                </div>
+            </div>
+        </form>
+
+        <div class="pad" th:if="${item.id != null}">
+            <p class="note" style="margin:0;">
+                To change the count, use the stock count page — it keeps the
+                reserved units and records why the number moved.
+                <a th:href="@{/stock/{id}/count(id=${item.id})}">Count this item</a>.
+            </p>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -74,18 +74,203 @@ nethcare-management-system/
 - Order status tracking: placed → lab → ready → collected
 - Stock deducted on issue with low-stock alerts for frames and lenses
 
+Module 3 builds the stock catalogue first, since the frame gallery and the
+order screen both read from it.
+
+| Entity | What it holds |
+|---|---|
+| `StockItem` | One product — code, brand, category, price, quantity, reserved, reorder level, expiry, image |
+| `Order` | Order number, customer, lens spec, priority, status, promised date |
+| `OrderItem` | One line — stock item, quantity, and the unit price *as it was on the day* |
+
+Categories are the five the client asked to see on the dashboard: `FRAME`,
+`SINGLE_VISION_LENS`, `BIFOCAL_LENS`, `CONTACT_LENS`, `CASE`.
+
+`quantity` is what is on the shelf. `reserved` is what an open order has
+claimed but not yet taken. The counter works from `available()`, which is the
+difference — a frame that is on the shelf but already spoken for must not be
+offered to the next customer.
+
+`StockService` keeps the three movements apart, because merging them is how a
+shop ends up selling the same frame twice:
+
+| Method | Shelf count | Reserved | When |
+|---|---|---|---|
+| `reserve` | unchanged | up | order placed — set aside, still on the shelf |
+| `deduct` | down | down | customer collects — the item actually leaves |
+| `release` | unchanged | down | order cancelled — the reservation goes back |
+
+`adjustQuantity` is the counter recount. The staff member is stating what is
+really there, so their number wins — but a count *below* what is already
+reserved is refused, since that would hand an open order's frame to somebody
+else without anyone noticing.
+
+Low stock is `available() <= reorderLevel`, so an item flagged while fully in
+stock still shows once somebody claims the last one.
+
+An order runs `PLACED → LAB → READY → COLLECTED`, with `CANCELLED` reachable
+from anywhere before collection. `OrderStatus.next()` is the only place that
+knows which step follows which — the tracker reads from it rather than
+hard-coding the chain a second time.
+
+`OrderItem.unitPrice` is written once and never re-read from the price list.
+The admin can change a frame's price next month, but this order still cost
+what it cost on the day; otherwise an old bill would quietly stop adding up
+and the customer's receipt would disagree with our records.
+
+The lens specification (type, coating) is copied onto the order rather than
+looked up through the prescription, for the same reason. A prescription gets
+reissued next year — the glasses already made to last year's spec must not
+change with it.
+
+`Order` currently carries `customerName` and `customerPhone` directly. Linking
+orders to the merged patient and prescription records remains integration work.
+
+A bill is `INV-xxxx` and stores its own totals — subtotal, discount, urgent
+surcharge, total. Same reasoning as the order line price: a bill is a document
+the customer keeps, so reprinting it next year must show what they actually
+owed. The arithmetic is worked out once, when the bill is raised, and the
+figures sit on the row.
+
+Payments are a separate append-only table. A bill's paid amount is the sum of
+its payments rather than a column that gets overwritten, so the advance taken
+before the lab and the balance settled on collection stay as two entries —
+which is what M4's financial report reads.
+
+`PaymentMethod` is cash or card, recorded by staff. There is no gateway and no
+card details are stored anywhere; the row records that money was taken, not
+how it moved.
+
+`OrderService` is where the client's rules are actually enforced — each one is
+a decision the system makes, so none of them are left to a screen:
+
+| Rule | Where it lives |
+|---|---|
+| Price frozen on the day | `place` copies the catalogue price onto each line |
+| 40% advance before the lab | `advance` checks the bill and says how much is short |
+| Stock reserved at order, deducted at collection | `place` reserves, `advance` deducts on `COLLECTED` |
+| Low stock flags itself | `StockItem.isLow()` — `available() <= reorderLevel` |
+| Cancel releases stock, writes a credit note | `cancel` releases, then raises `CN-xxxx` if money was taken |
+
+The 40% comes from `nethcare.order.advance-percentage` in
+`application.properties`, not a number typed into a screen, so changing the
+client's terms is a config change. Urgent orders carry a 15% surcharge on top
+of the discount, per FR-3.3.
+
+Money rounds to two decimals at every step, so the customer adding up the
+printed bill gets the same figure we hold.
+
+Overpayment is refused rather than absorbed. If somebody hands over a note for
+a 500 balance, the counter needs to know before the change is given, not after.
+
+Cancelling an order that took money raises a credit note. It is marked, not
+deleted — the money genuinely moved, and M4 reports on it.
+
+## M3 — public shop front
+
+The public side needs no login. Four pages, all reading from the same
+catalogue the counter works from — so the gallery is not a hand-kept list
+that drifts out of date.
+
+| Page | Path | Shows |
+|---|---|---|
+| Home | `/` | Shop name, location, services, link to the gallery |
+| About | `/about` | Business details and the full service list |
+| Frames | `/frames` | Live gallery, filterable by category, searchable |
+| Contact | `/contact` | Contact details |
+
+`/` used to be the post-login redirect. It is now the shop front, and
+`/dashboard` does the role routing instead — a signed-in user opening the home
+page sees the shop, not a redirect loop. `/dashboard` routes admin and staff to
+the management console, the optician to patients, the surgeon to referrals,
+and the patient to their portal.
+
+**The gallery shows "Available" or "Ask us — on order", never the exact count.**
+Printing "2 left" on a public page is a countdown for somebody else to beat us
+to. The staff screen is where the numbers live.
+
+**`BusinessProfile` holds only what the client actually told us** — the shop
+name, Kolonnawa, the owner's name and the three premises. Phone, street
+address, email and opening hours appear nowhere in the proposal or the deck, so
+those fields are `null` and the page prints "To be confirmed" instead. An
+invented phone number on a real business is worse than a blank.
+
+If the client supplies the missing details, they go in `BusinessProfile` and
+every page updates. The templates already read every value from there rather
+than hard-coding text, so promoting it to an editable settings screen later
+means changing one class, not five templates.
+
+Stock items with no photo render a neutral "No photo yet" tile. Real frame
+photographs go in `src/main/resources/static/images/frames/` and are picked up
+by `imageName` — no template change needed.
+
+## M3 — staff stock screen
+
+`/stock`, behind the login. This is the screen the counter actually works on,
+and it writes to the same catalogue the public gallery reads.
+
+| Page | Path | Does |
+|---|---|---|
+| Catalogue | `/stock` | Every item, filterable by state, category or search |
+| Add / edit | `/stock/new`, `/stock/{id}/edit` | Price, reorder level, expiry, image file |
+| Stock count | `/stock/{id}/count` | Records what is on the shelf, with a reason |
+
+Open to `ADMIN` and `STAFF_NURSE`. The optician, surgeon and patient get 403.
+
+**A stock count does not touch reserved units.** Reserved stock belongs to an
+open order, so a recount of the shelf must not silently hand that frame to
+somebody else. If the count lands below what is already reserved the service
+refuses it rather than papering over the conflict.
+
+**Adding an item lists it for sale immediately** — `is_active` starts true, so a
+newly added frame appears on the public gallery. That is the point of the shared
+catalogue, but it means a frame cannot be stocked before it has physically
+arrived.
+
+## M3 — order and bill screens
+
+`/orders` and `/bills`, behind the login. These drive the order pipeline that
+`OrderService` already enforced, so the counter can work an order through
+placed → lab → ready → collected without touching the console.
+
+| Page | Path | Does |
+|---|---|---|
+| Order list | `/orders` | Filter by Open / Overdue / All / Collected / Cancelled, or search the order number and customer |
+| New order | `/orders/new` | Lens type, coating, promised date, priority, and a quantity against each catalogue item |
+| Order detail | `/orders/{id}` | The lines, the next step, raise the bill, cancel with a reason |
+| Bill list | `/bills` | Filter by Outstanding / Settled / Cancelled / All |
+| Bill detail | `/bills/{id}` | Itemised subtotal, discount, urgent surcharge, total, balance, and the receipts taken |
+
+Open to `ADMIN` and `STAFF_NURSE` — the same two roles as the stock screen. The
+optician, surgeon and patient get 403.
+
+**The 40% advance is enforced at the lab step.** An order cannot go from placed
+to the lab until 40% of the bill is paid, and the page says how much is still
+short. Urgent orders add a 15% surcharge, so the advance is calculated on the
+surcharged total rather than the subtotal.
+
+**Collection is stricter than the advance — the bill must be settled in full.**
+The glasses do not leave the shop while money is still owing, so the counter
+cannot hand over an unpaid order. The order page says what is outstanding and
+why the step is refused, rather than making staff click through to find out.
+
+**Stock is reserved when the order is placed, and deducted when it is
+collected.** A reserved unit cannot be sold twice, and it comes back to the
+shelf if the order is cancelled.
+
+**Nothing here stores a card number.** A `CARD` payment only records that
+someone paid by card at the counter.
+
 ### M4 — Follow-up, Reporting & Audit
 - Weekly follow-up list of patients due for a re-check (12 months / 6 months for contact lens users)
 - SMS / email notifications: order ready, appointment, reminder
 - Management reports: monthly sales, patients attended, order status, stock summary
 - Immutable audit log of every create, update, and delete
 
-**Status: screens built, data pending.** This module is on its own branch off
-`main`, so the tables these screens read — patients from M1, examinations from
-M2, orders and bills from M3 — are not in the tree yet. The layouts, columns,
-filters and buttons are finished; the figures are placeholders from the deck's
-own mock-up, and every screen says so at the top. The live queries get wired
-up once M1–M3 are merged into `main`.
+**Status: screens built, live reporting pending.** The layouts, columns,
+filters and buttons are finished, but the figures are still placeholders from
+the deck's mock-up. The merged patient, examination, order and billing tables
+now provide the data sources needed to replace them with live queries.
 
 ## Tech Stack
 
@@ -222,13 +407,12 @@ call on every create, update and delete. It uses `REQUIRES_NEW` so an entry
 survives even when the operation it describes rolls back — a failed create is
 still worth having on record.
 
-#### What waits for the merge
+#### Integration still required
 
-Building the follow-up *list* from real examinations, and the four report
-aggregates, need the patients, examinations, orders and bills tables. Those
-belong to M1, M2 and M3 and are not in this branch — M4 was started from
-`main`, before any of them existed. The rules above are all testable against
-hand-seeded rows now, and the live queries drop in at the merge.
+Building the follow-up *list* from real examinations and calculating the four
+report aggregates still need to be wired to the merged patient, examination,
+order and billing repositories. The rules above can currently be exercised
+against hand-seeded rows.
 
 ### Where each role lands after login
 
@@ -242,8 +426,8 @@ Sign-in redirects by role, so nobody reaches a page they cannot use:
 | SURGEON | `/referrals` | Referred patients, surgical notes |
 | PATIENT | `/portal` | Own profile, prescriptions, order status |
 
-The M4 console screens are built — see the table above. The other modules'
-screens are still being built under their module issues.
+The patient, order, billing, stock and M4 console screens are built. Referrals
+and the patient portal still use placeholder landing pages.
 
 ### Patient registration (M1)
 
@@ -261,8 +445,8 @@ them — so closing an account leaves the visit history intact. Tick "also creat
 a login" during registration and a `PATIENT` account is made with a random
 password that the front desk writes on a slip.
 
-The visit history on a patient's record is empty for now. It fills in when
-examinations and prescriptions land with M2.
+The patient detail page reads its examination and prescription history from
+M2.
 
 ### Clinical API (M2)
 
@@ -318,25 +502,6 @@ cannot record an operation that did not happen through their account.
 `/api/prescriptions/compare` moved into `ClinicalService.compareRx` so the
 controller and any later view describe a change the same way.
 
-### Patient registration (M1)
-
-Opticians and admins work the register at `/patients`:
-
-| Page | What it does |
-|---|---|
-| `/patients` | The list, with a search box over name, phone and patient number |
-| `/patients/new` | Registration form |
-| `/patients/{id}` | One patient's record and visit history |
-
-A patient row is separate from their login. The `users` entry is the account
-and password, the `patients` entry is the clinical record, and `user_id` links
-them — so closing an account leaves the visit history intact. Tick "also create
-a login" during registration and a `PATIENT` account is made with a random
-password that the front desk writes on a slip.
-
-The visit history on a patient's record is empty for now. It fills in when
-examinations and prescriptions land with M2.
-
 ### Patient API (M1)
 
 The same register over JSON, for anything that is not a browser form. Every
@@ -349,7 +514,7 @@ use — `OPTICIAN` and `ADMIN` on patients, `ADMIN` only on users.
 | GET | `/api/patients/{id}` | One patient |
 | POST | `/api/patients` | Register a patient |
 | PUT | `/api/patients/{id}` | Correct a patient's details |
-| GET | `/api/patients/{id}/history` | Visit history — empty until M2 |
+| GET | `/api/patients/{id}/history` | Visit-history API placeholder; the HTML detail page already reads M2 |
 | GET | `/api/users` | List staff accounts (admin) |
 | POST | `/api/users` | Create a staff account (admin) |
 | PUT | `/api/users/{id}/role` | Change someone's role (admin) |

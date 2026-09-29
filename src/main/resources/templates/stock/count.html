@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{staff/fragments :: head(${item.name})}"></head>
+<body>
+<div th:replace="~{staff/fragments :: bar('stock', ${user})}"></div>
+
+<div class="wrap">
+    <h1>Stock count</h1>
+
+    <div class="panel" style="max-width:640px;">
+        <h2 th:text="${item.itemCode} + ' — ' + ${item.name}">TR-204 — Titan TR-204</h2>
+
+        <div class="pad">
+            <p class="note" style="margin-top:0;">
+                Type what is actually on the shelf. Anything held by an open
+                order stays reserved.
+            </p>
+            <table style="margin-bottom:1rem;">
+                <tr><th>System says</th><td class="num" th:text="${item.quantity} + ' in stock'">4 in stock</td></tr>
+                <tr><th>Reserved</th><td class="num" th:text="${item.reserved}">0</td></tr>
+                <tr><th>Free to use</th><td class="num" th:text="${item.quantity - item.reserved}">4</td></tr>
+                <tr><th>Reorder at</th><td class="num" th:text="${item.reorderLevel}">2</td></tr>
+            </table>
+
+            <form method="post" th:action="@{/stock/{id}/count(id=${item.id})}">
+                <div class="grid">
+                    <div class="field">
+                        <label for="counted">Counted on the shelf</label>
+                        <input id="counted" name="counted" type="number" min="0" required
+                               th:value="${item.quantity}">
+                    </div>
+                    <div class="field wide">
+                        <label for="reason">Reason</label>
+                        <input id="reason" name="reason" type="text"
+                               placeholder="Monthly count, breakage, stock take…" required>
+                    </div>
+                </div>
+                <div style="margin-top:1rem;display:flex;gap:.6rem;">
+                    <button class="btn" type="submit">Save the count</button>
+                    <a class="btn ghost" th:href="@{/stock}">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>

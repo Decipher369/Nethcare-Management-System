@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{public/fragments :: head('Home')}"></head>
+<body>
+
+<header th:replace="~{public/fragments :: nav('home')}"></header>
+
+<section class="hero">
+    <div class="wrap">
+        <h1 th:text="${biz.NAME} + ' — ' + ${biz.LOCATION}">Neth Opticians</h1>
+        <p th:text="${biz.TAGLINE}">Optometrist and prescription eyewear.</p>
+        <a class="btn" th:href="@{/frames}">See the frames we stock</a>
+    </div>
+</section>
+
+<section class="band">
+    <div class="wrap">
+        <h2>What we do</h2>
+        <p class="lede">Everything below happens in the shop, on the same visit.</p>
+
+        <div class="grid three">
+            <div class="svc" th:each="s : ${biz.services()}" th:fragment="svc(s)">
+                <h3 th:text="${s.title}">Service</h3>
+                <p th:text="${s.detail()}">Detail</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="band soft">
+    <div class="wrap">
+        <h2>Come in and be measured</h2>
+        <p class="lede">
+            We have <span th:text="${biz.PREMISES}">reception, examination room and counter</span>.
+            Walk in during opening hours, or call the shop if you want to book a slot for
+            an examination.
+        </p>
+        <a class="btn ghost" th:href="@{/contact}">Contact us</a>
+    </div>
+</section>
+
+<footer th:replace="~{public/fragments :: foot}"></footer>
+
+</body>
+</html>

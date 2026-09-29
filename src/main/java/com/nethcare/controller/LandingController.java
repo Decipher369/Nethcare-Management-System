@@ -1,6 +1,5 @@
 package com.nethcare.controller;
 
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,31 +10,11 @@ import java.util.List;
  * Placeholder pages each role lands on after login.
  *
  * They list what the person is allowed to do so the access rules can be
- * checked before the real screens exist. The real pages belong to their own
- * module: /orders is #28, /referrals is #26, /patients is #24 and lives in
- * PatientController.
+ * checked before the real screens exist. Patient registration and orders now
+ * have their own screens; referrals and the patient portal remain placeholders.
  */
 @Controller
 public class LandingController {
-
-    @GetMapping("/admin")
-    public String admin(Model model) {
-        return page(model, "Admin", "ADMIN", List.of(
-                "User accounts and roles",
-                "Pricing and settings",
-                "Stock",
-                "Management reports",
-                "Audit log"));
-    }
-
-    @GetMapping("/orders")
-    public String orders(Model model) {
-        return page(model, "Orders & Billing", "STAFF_NURSE", List.of(
-                "Create an order from a prescription",
-                "Printable bills and receipts",
-                "Order status: placed, lab, ready, collected",
-                "Stock levels and low-stock alerts"));
-    }
 
     @GetMapping("/referrals")
     public String referrals(Model model) {

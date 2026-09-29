@@ -32,6 +32,10 @@ public class SecurityConfig {
                 .requestMatchers("/login", "/css/**", "/js/**", "/images/**", "/error").permitAll()
                 .requestMatchers("/api/health").permitAll()
 
+                // M3 — the public shop front. No account needed to look at the
+                // frames or find the shop's details.
+                .requestMatchers("/", "/about", "/frames/**", "/contact").permitAll()
+
                 // M1 — patient records
                 .requestMatchers("/api/patients/**", "/patients/**").hasAnyRole("ADMIN", "OPTICIAN")
 
@@ -41,7 +45,8 @@ public class SecurityConfig {
 
                 // M3 — orders, billing, stock
                 .requestMatchers("/api/orders/**", "/api/bills/**", "/api/payments/**",
-                                 "/api/stock/**", "/orders/**").hasAnyRole("ADMIN", "STAFF_NURSE")
+                                 "/api/stock/**", "/orders/**", "/stock/**", "/bills/**")
+                                 .hasAnyRole("ADMIN", "STAFF_NURSE")
 
                 // M4 — follow-ups, reports, audit
                 .requestMatchers("/api/followups/**", "/api/reports/**", "/api/audit/**").hasAnyRole("ADMIN", "OPTICIAN", "STAFF_NURSE")
@@ -64,7 +69,7 @@ public class SecurityConfig {
                 .loginProcessingUrl("/login")
                 .usernameParameter("username")
                 .passwordParameter("password")
-                .defaultSuccessUrl("/", true)   // "/" then routes by role
+                .defaultSuccessUrl("/dashboard", true)   // then routes by role
                 .failureUrl("/login?error")
                 .permitAll()
             )

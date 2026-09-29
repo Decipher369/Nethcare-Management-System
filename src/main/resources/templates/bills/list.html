@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{staff/fragments :: head('Bills')}"></head>
+<body>
+<div th:replace="~{staff/fragments :: bar('bills', ${user})}"></div>
+
+<main class="wrap">
+    <h1>Bills</h1>
+
+    <div class="filters">
+        <a class="tag" th:href="@{/bills(view='outstanding')}" th:classappend="${view == 'outstanding'} ? ' <b>' : ''">Outstanding</a>
+        <a class="tag" th:href="@{/bills(view='settled')}"      th:classappend="${view == 'settled'} ? ' <b>' : ''">Settled</a>
+        <a class="tag" th:href="@{/bills(view='cancelled')}"    th:classappend="${view == 'cancelled'} ? ' <b>' : ''">Cancelled</a>
+        <a class="tag" th:href="@{/bills(view='all')}"          th:classappend="${view == 'all'} ? ' <b>' : ''">All</a>
+    </div>
+
+    <p class="empty" th:if="${#lists.isEmpty(bills)}">No bills here.</p>
+
+    <table class="panel" th:unless="${#lists.isEmpty(bills)}">
+        <thead>
+        <tr><th>Bill</th><th>Order</th><th>Total</th><th>Paid</th><th>Balance</th><th>State</th></tr>
+        </thead>
+        <tbody>
+        <tr th:each="b : ${bills}">
+            <td><a th:href="@{/bills/{id}(id=${b.id})}" th:text="${b.billNo}">INV-0001</a></td>
+            <td class="mono" th:text="'#' + ${b.orderId}">1</td>
+            <td class="num" th:text="'LKR ' + ${b.total}">0.00</td>
+            <td class="num" th:text="'LKR ' + ${b.paid}">0.00</td>
+            <td class="num" th:text="'LKR ' + ${b.balance()}">0.00</td>
+            <td>
+                <span class="tag" th:if="${b.creditNote}" th:text="${b.creditNoteNo}">CN-0001</span>
+                <span class="tag bad" th:unless="${b.creditNote}" th:if="${b.cancelled}">Cancelled</span>
+                <span class="tag warn" th:unless="${b.cancelled}" th:if="${b.settled}">Paid</span>
+                <span th:unless="${b.cancelled or b.settled}">Outstanding</span>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <p class="note">Nothing here stores a card number. "Card" only records how the customer
+        paid at the counter.</p>
+</main>
+</body>
+</html>

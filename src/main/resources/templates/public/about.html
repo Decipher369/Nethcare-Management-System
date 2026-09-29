@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{public/fragments :: head('About')}"></head>
+<body>
+
+<header th:replace="~{public/fragments :: nav('about')}"></header>
+
+<section class="band">
+    <div class="wrap">
+        <h1 th:text="${biz.NAME}">Neth Opticians</h1>
+        <p class="lede" th:text="${biz.TAGLINE}">Optometrist and prescription eyewear.</p>
+
+        <ul class="facts">
+            <li><span class="k">Business</span><span class="v" th:text="${biz.NAME}">Name</span></li>
+            <li><span class="k">Location</span><span class="v" th:text="${biz.LOCATION}">Town</span></li>
+            <li><span class="k">Owner</span><span class="v" th:text="${biz.OWNER}">Owner</span></li>
+            <li><span class="k">Premises</span><span class="v" th:text="${biz.PREMISES}">Rooms</span></li>
+        </ul>
+
+        <p class="pending" th:if="${biz.isPending(biz.PHONE) or biz.isPending(biz.ADDRESS_LINE)
+                                    or biz.isPending(biz.OPENING_HOURS)}">
+            Some shop details are still to be confirmed by the client. Staff can fill these
+            in from the admin console.
+        </p>
+    </div>
+</section>
+
+<section class="band soft">
+    <div class="wrap">
+        <h2>Our services</h2>
+        <div class="grid three">
+            <div class="svc" th:each="s : ${biz.services()}">
+                <h3 th:text="${s.title}">Service</h3>
+                <p th:text="${s.detail()}">Detail</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<footer th:replace="~{public/fragments :: foot}"></footer>
+
+</body>
+</html>

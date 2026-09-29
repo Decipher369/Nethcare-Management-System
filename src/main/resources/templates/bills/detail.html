@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{staff/fragments :: head('Bill')}"></head>
+<body>
+<div th:replace="~{staff/fragments :: bar('bills', ${user})}"></div>
+
+<main class="wrap">
+    <p><a th:href="@{/bills}">← All bills</a></p>
+    <h1 th:text="${bill.billNo}">INV-0001</h1>
+
+    <div class="flash" th:if="${msg}" th:text="${msg}"></div>
+    <div class="flash" th:if="${error}" th:text="${error}"></div>
+
+    <div th:if="${bill.creditNote}" class="panel">
+        <strong th:text="${'Credit note ' + bill.creditNoteNo}">CN</strong>
+        <div class="note">Raised when the order was cancelled. The money was taken, so it is
+            recorded rather than deleted.</div>
+    </div>
+
+    <div class="grid">
+        <div class="panel">
+            <span class="note">Order</span>
+            <a th:href="@{/orders/{id}(id=${order.id})}" th:text="${order.orderNo}">ORD-0001</a>
+            <div class="note" th:text="${order.customerName}">Customer</div>
+        </div>
+        <div class="panel">
+            <span class="note">Subtotal</span>
+            <strong th:text="'LKR ' + ${bill.subtotal}">0.00</strong>
+        </div>
+        <div class="panel">
+            <span class="note">Discount</span>
+            <strong th:text="'LKR ' + ${bill.discount}">0.00</strong>
+        </div>
+        <div class="panel" th:if="${bill.surcharge > 0}">
+            <span class="note">Urgent surcharge</span>
+            <strong th:text="'LKR ' + ${bill.surcharge}">0.00</strong>
+        </div>
+        <div class="panel">
+            <span class="note">Total</span>
+            <strong th:text="'LKR ' + ${bill.total}">0.00</strong>
+        </div>
+        <div class="panel">
+            <span class="note">Balance</span>
+            <strong th:text="'LKR ' + ${bill.balance()}">0.00</strong>
+        </div>
+    </div>
+
+    <div class="panel" th:if="${order.status.name() == 'PLACED' and !bill.cancelled}">
+        <span class="note">Before this order can go to the lab it needs
+            <strong th:text="'LKR ' + ${advanceRequired}">0.00</strong> paid.</span>
+        <div class="note" th:if="${bill.paid < advanceRequired}"
+             th:text="'Still short LKR ' + ${advanceRequired - bill.paid}">short</div>
+        <div class="note" th:if="${bill.paid >= advanceRequired}">Advance met.</div>
+    </div>
+
+    <h2>Take a payment</h2>
+    <form method="post" th:if="${!bill.cancelled and !bill.settled}" th:action="@{/bills/{id}/pay(id=${bill.id})}">
+        <div class="grid">
+            <label class="field">Amount (LKR)
+                <input type="number" name="amount" step="0.01" min="0" required>
+            </label>
+            <label class="field">Method
+                <select name="method">
+                    <option th:each="m : ${methods}" th:value="${m}" th:text="${m.label()}">Cash</option>
+                </select>
+            </label>
+            <label class="field">This is the advance
+                <select name="advance">
+                    <option value="false">No</option>
+                    <option value="true">Yes</option>
+                </select>
+            </label>
+        </div>
+        <button class="btn" type="submit">Record it</button>
+        <span class="note">A card payment is a note of how they paid. No card number is kept.</span>
+    </form>
+    <p class="empty" th:if="${bill.cancelled}">This bill is cancelled — it cannot take payment.</p>
+    <p class="empty" th:if="${bill.settled and !bill.cancelled}">Settled in full.</p>
+
+    <h2>Payments</h2>
+    <p class="empty" th:if="${#lists.isEmpty(payments)}">Nothing taken yet.</p>
+    <table class="panel" th:unless="${#lists.isEmpty(payments)}">
+        <thead>
+        <tr><th>Receipt</th><th>Amount</th><th>Method</th><th>Advance</th><th>Taken by</th></tr>
+        </thead>
+        <tbody>
+        <tr th:each="p : ${payments}">
+            <td class="mono" th:text="${p.receiptNo}">RCP-0001</td>
+            <td class="num" th:text="'LKR ' + ${p.amount}">0.00</td>
+            <td th:text="${p.method.label()}">Cash</td>
+            <td th:text="${p.advance} ? 'Yes' : 'No'">No</td>
+            <td th:text="${p.takenBy}">staff</td>
+        </tr>
+        </tbody>
+    </table>
+</main>
+</body>
+</html>

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{public/fragments :: head('Frames')}"></head>
+<body>
+
+<header th:replace="~{public/fragments :: nav('frames')}"></header>
+
+<section class="band">
+    <div class="wrap">
+        <h1>Frames we stock</h1>
+        <p class="lede">
+            This is the live list — it is the same catalogue the counter works from, so
+            anything shown here is genuinely on our shelves. If a frame is not listed,
+            ask us and we will order it in.
+        </p>
+
+        <div class="filters">
+            <a class="chip" th:href="@{/frames}"
+               th:classappend="${selected == null} ? ' on' : ''">All</a>
+            <a class="chip" th:each="c : ${categories}"
+               th:href="@{/frames(category=${c})}"
+               th:text="${c.label()}"
+               th:classappend="${selected == c} ? ' on' : ''">Category</a>
+
+            <form class="search" th:action="@{/frames}" method="get">
+                <input type="search" name="q" th:value="${query}"
+                       placeholder="Search by name, brand or code" aria-label="Search frames">
+                <button type="submit">Search</button>
+            </form>
+        </div>
+
+        <div class="grid three" th:if="${!items.isEmpty()}">
+            <div class="card" th:each="i : ${items}">
+                <div class="shot">
+                    <img th:if="${i.imageName != null}"
+                         th:src="@{'/images/frames/' + ${i.imageName}}"
+                         th:alt="${i.name}" loading="lazy">
+                    <span th:if="${i.imageName == null}">No photo yet</span>
+                </div>
+                <div class="body">
+                    <h3 th:text="${i.name}">Frame</h3>
+                    <p class="brand-line" th:text="${i.brand}">Brand</p>
+                    <p class="code" th:text="${i.itemCode}">CODE</p>
+                    <p class="note" th:if="${i.description}" th:text="${i.description}">Note</p>
+                    <p class="price">
+                        LKR <span th:text="${#numbers.formatDecimal(i.unitPrice, 1, 'COMMA', 2, 'POINT')}">0.00</span>
+                        <small th:text="${i.available() > 0} ? '— in stock' : '— on order'">in stock</small>
+                    </p>
+                    <p th:if="${i.available() > 0}"><span class="tag in">Available</span></p>
+                    <p th:unless="${i.available() > 0}"><span class="tag">Ask us — on order</span></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="empty" th:if="${items.isEmpty()}">
+            <p><strong>Nothing matches that yet.</strong></p>
+            <p>Try a different search, or
+               <a th:href="@{/frames}">show everything</a>.</p>
+        </div>
+    </div>
+</section>
+
+<footer th:replace="~{public/fragments :: foot}"></footer>
+
+</body>
+</html>

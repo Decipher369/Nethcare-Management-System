@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{public/fragments :: head('Contact')}"></head>
+<body>
+
+<header th:replace="~{public/fragments :: nav('contact')}"></header>
+
+<section class="band">
+    <div class="wrap">
+        <h1>Contact us</h1>
+        <p class="lede">Come and see us, or get in touch about an examination or a repair.</p>
+
+        <ul class="facts">
+            <li><span class="k">Business</span><span class="v" th:text="${biz.NAME}">Name</span></li>
+            <li><span class="k">Location</span><span class="v" th:text="${biz.LOCATION}">Town</span></li>
+
+            <li th:if="${!biz.isPending(biz.ADDRESS_LINE)}">
+                <span class="k">Address</span><span class="v" th:text="${biz.ADDRESS_LINE}">Street</span>
+            </li>
+            <li th:if="${biz.isPending(biz.ADDRESS_LINE)}">
+                <span class="k">Address</span><span class="v note">To be confirmed</span>
+            </li>
+
+            <li th:if="${!biz.isPending(biz.PHONE)}">
+                <span class="k">Phone</span><span class="v" th:text="${biz.PHONE}">Number</span>
+            </li>
+            <li th:if="${biz.isPending(biz.PHONE)}">
+                <span class="k">Phone</span><span class="v note">To be confirmed</span>
+            </li>
+
+            <li th:if="${!biz.isPending(biz.EMAIL)}">
+                <span class="k">Email</span><span class="v" th:text="${biz.EMAIL}">Email</span>
+            </li>
+            <li th:if="${biz.isPending(biz.EMAIL)}">
+                <span class="k">Email</span><span class="v note">To be confirmed</span>
+            </li>
+
+            <li th:if="${!biz.isPending(biz.OPENING_HOURS)}">
+                <span class="k">Opening hours</span><span class="v" th:text="${biz.OPENING_HOURS}">Hours</span>
+            </li>
+            <li th:if="${biz.isPending(biz.OPENING_HOURS)}">
+                <span class="k">Opening hours</span><span class="v note">To be confirmed</span>
+            </li>
+
+            <li><span class="k">Owner</span><span class="v" th:text="${biz.OWNER}">Owner</span></li>
+        </ul>
+
+        <div class="pending" th:if="${biz.isPending(biz.PHONE) or biz.isPending(biz.ADDRESS_LINE)
+                                    or biz.isPending(biz.OPENING_HOURS) or biz.isPending(biz.EMAIL)}">
+            These details have not been supplied by the client yet, so the page leaves them
+            blank rather than printing a guessed number on a real shop.
+        </div>
+
+        <p style="margin-top:2rem">
+            <a class="btn" th:href="@{/frames}">Browse the frames we stock</a>
+        </p>
+    </div>
+</section>
+
+<footer th:replace="~{public/fragments :: foot}"></footer>
+
+</body>
+</html>
