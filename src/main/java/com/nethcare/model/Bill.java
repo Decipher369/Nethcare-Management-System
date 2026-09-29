@@ -2,7 +2,12 @@ package com.nethcare.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Table;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Index;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 
 import java.math.BigDecimal;
 
@@ -17,7 +22,10 @@ import java.math.BigDecimal;
  * The bill number carries an "INV-" prefix as the client asked.
  */
 @Entity
-@Table(name = "bills")
+@Table(name = "bills", indexes = {
+        @Index(name = "idx_bill_patient", columnList = "patient_id"),
+        @Index(name = "idx_bill_payment_status", columnList = "payment_status")
+})
 public class Bill extends BaseEntity {
 
     @Column(name = "bill_no", nullable = false, unique = true, length = 30)
@@ -25,6 +33,33 @@ public class Bill extends BaseEntity {
 
     @Column(name = "order_id", nullable = false, unique = true)
     private Long orderId;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "order_id", insertable = false, updatable = false)
+    private Order order;
+
+    @Column(name = "patient_id", nullable = false)
+    private Long patientId;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "patient_id", insertable = false, updatable = false)
+    private Patient patient;
+
+    @Column(name = "examination_id")
+    private Long examinationId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "examination_id", insertable = false, updatable = false)
+    private Examination examination;
+
+    @Column(name = "frame_charges", nullable = false, precision = 12, scale = 2)
+    private BigDecimal frameCharges = BigDecimal.ZERO;
+
+    @Column(name = "lens_charges", nullable = false, precision = 12, scale = 2)
+    private BigDecimal lensCharges = BigDecimal.ZERO;
+
+    @Column(name = "other_charges", nullable = false, precision = 12, scale = 2)
+    private BigDecimal otherCharges = BigDecimal.ZERO;
 
     @Column(name = "subtotal", nullable = false, precision = 12, scale = 2)
     private BigDecimal subtotal = BigDecimal.ZERO;
@@ -41,6 +76,10 @@ public class Bill extends BaseEntity {
 
     @Column(name = "paid", nullable = false, precision = 12, scale = 2)
     private BigDecimal paid = BigDecimal.ZERO;
+
+    @Enumerated(jakarta.persistence.EnumType.STRING)
+    @Column(name = "payment_status", nullable = false, length = 20)
+    private PaymentStatus paymentStatus = PaymentStatus.PENDING;
 
     /**
      * Follow-up date printed on the bill (FR-4.1) — when the customer should
@@ -90,6 +129,16 @@ public class Bill extends BaseEntity {
 
     public Long getOrderId() { return orderId; }
     public void setOrderId(Long orderId) { this.orderId = orderId; }
+    public Long getPatientId() { return patientId; }
+    public void setPatientId(Long patientId) { this.patientId = patientId; }
+    public Long getExaminationId() { return examinationId; }
+    public void setExaminationId(Long examinationId) { this.examinationId = examinationId; }
+    public BigDecimal getFrameCharges() { return frameCharges; }
+    public void setFrameCharges(BigDecimal frameCharges) { this.frameCharges = frameCharges; }
+    public BigDecimal getLensCharges() { return lensCharges; }
+    public void setLensCharges(BigDecimal lensCharges) { this.lensCharges = lensCharges; }
+    public BigDecimal getOtherCharges() { return otherCharges; }
+    public void setOtherCharges(BigDecimal otherCharges) { this.otherCharges = otherCharges; }
 
     public BigDecimal getSubtotal() { return subtotal; }
     public void setSubtotal(BigDecimal subtotal) { this.subtotal = subtotal; }
@@ -105,6 +154,8 @@ public class Bill extends BaseEntity {
 
     public BigDecimal getPaid() { return paid; }
     public void setPaid(BigDecimal paid) { this.paid = paid; }
+    public PaymentStatus getPaymentStatus() { return paymentStatus; }
+    public void setPaymentStatus(PaymentStatus paymentStatus) { this.paymentStatus = paymentStatus; }
 
     public java.time.LocalDate getFollowUpOn() { return followUpOn; }
     public void setFollowUpOn(java.time.LocalDate followUpOn) { this.followUpOn = followUpOn; }

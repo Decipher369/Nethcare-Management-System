@@ -9,6 +9,8 @@ import com.nethcare.model.OrderPriority;
 import com.nethcare.model.OrderStatus;
 import com.nethcare.service.OrderService;
 import com.nethcare.service.StockService;
+import com.nethcare.repository.PatientRepository;
+import com.nethcare.repository.PrescriptionRepository;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -35,10 +37,15 @@ public class OrderController {
 
     private final OrderService orders;
     private final StockService stock;
+    private final PatientRepository patients;
+    private final PrescriptionRepository prescriptions;
 
-    public OrderController(OrderService orders, StockService stock) {
+    public OrderController(OrderService orders, StockService stock,
+                           PatientRepository patients, PrescriptionRepository prescriptions) {
         this.orders = orders;
         this.stock = stock;
+        this.patients = patients;
+        this.prescriptions = prescriptions;
     }
 
     /**
@@ -79,12 +86,12 @@ public class OrderController {
     }
 
     @GetMapping("/orders/new")
-    public String newOrderForm(Authentication auth, Model model) {
-        model.addAttribute("order", new Order());
-        model.addAttribute("stock", stock.listed());
-        model.addAttribute("priorities", OrderPriority.values());
-        model.addAttribute("user", auth == null ? "staff" : auth.getName());
-        model.addAttribute("active", "orders");
+    public String newOrderForm(Authentication auth, Model model,
+                               @RequestParam(name = "patientId", required = false) Long patientId) {
+        Order order = new Order();
+        order.setPatientId(patientId);
+        model.addAttribute("order", order);
+        populateOrderForm(model, patientId, auth);
         return "orders/form";
     }
 
@@ -102,10 +109,7 @@ public class OrderController {
             // The service already refused. Send the form back as it was typed so
             // the counter does not have to retype the order.
             model.addAttribute("order", order);
-            model.addAttribute("stock", stock.listed());
-            model.addAttribute("priorities", OrderPriority.values());
-            model.addAttribute("user", auth == null ? "staff" : auth.getName());
-            model.addAttribute("active", "orders");
+            populateOrderForm(model, order.getPatientId(), auth);
             model.addAttribute("error", ex.getMessage());
             return "orders/form";
         }
@@ -150,7 +154,7 @@ public class OrderController {
     public String advance(Authentication auth, @PathVariable Long id, Model model) {
         Order order = orders.get(id);
         try {
-            Order saved = orders.advance(id);
+            Order saved = orders.advance(id, auth == null ? "staff" : auth.getName());
             model.addAttribute("msg", order.getOrderNo() + " is now " + saved.getStatus().label().toLowerCase() + ".");
         } catch (BusinessException ex) {
             model.addAttribute("error", ex.getMessage());
@@ -161,10 +165,11 @@ public class OrderController {
     @PostMapping("/orders/{id}/cancel")
     public String cancel(@PathVariable Long id,
                          @RequestParam(name = "reason", required = false) String reason,
+                         Authentication auth,
                          Model model) {
         Order order = orders.get(id);
         try {
-            orders.cancel(id, reason);
+            orders.cancel(id, reason, auth == null ? "staff" : auth.getName());
             model.addAttribute("msg", "Order " + order.getOrderNo() + " cancelled. Reserved stock was released.");
         } catch (BusinessException ex) {
             model.addAttribute("error", ex.getMessage());
@@ -199,6 +204,18 @@ public class OrderController {
         } catch (ResourceNotFoundException ex) {
             return null;
         }
+    }
+
+    private void populateOrderForm(Model model, Long patientId, Authentication auth) {
+        model.addAttribute("patients", patients.findAllByOrderByFullNameAsc());
+        model.addAttribute("selectedPatient", patientId == null
+                ? null : patients.findById(patientId).orElse(null));
+        model.addAttribute("prescriptions", patientId == null
+                ? List.of() : prescriptions.findByPatientIdOrderByIssuedOnDesc(patientId));
+        model.addAttribute("stock", stock.listed());
+        model.addAttribute("priorities", OrderPriority.values());
+        model.addAttribute("user", auth == null ? "staff" : auth.getName());
+        model.addAttribute("active", "orders");
     }
 
     // The form posts one quantity box per catalogue row, so an untouched row
