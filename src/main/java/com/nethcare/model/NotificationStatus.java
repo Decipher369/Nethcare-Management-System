@@ -10,17 +10,21 @@ package com.nethcare.model;
  */
 public enum NotificationStatus {
 
-    QUEUED,
+    PENDING,
     SENT,
     FAILED,
-    SKIPPED;
+    DELIVERED,
+    RETRY_PENDING,
+    EXCLUDED;
 
     public String label() {
         return switch (this) {
-            case QUEUED -> "Queued";
+            case PENDING -> "Pending";
             case SENT -> "Sent";
             case FAILED -> "Failed";
-            case SKIPPED -> "Skipped";
+            case DELIVERED -> "Delivered";
+            case RETRY_PENDING -> "Retry pending";
+            case EXCLUDED -> "Excluded";
         };
     }
 }

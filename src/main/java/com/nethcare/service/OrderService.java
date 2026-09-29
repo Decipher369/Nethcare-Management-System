@@ -50,9 +50,6 @@ public class OrderService {
     @Value("${nethcare.order.advance-percentage:40}")
     private BigDecimal advancePercent;
 
-    @Value("${nethcare.followup.regular-months:12}")
-    private int followUpMonths;
-
     public OrderService(OrderRepository orders, BillRepository bills,
                         PaymentRepository payments, StockService stock) {
         this.orders = orders;
@@ -102,6 +99,7 @@ public class OrderService {
         }
 
         Order saved = orders.save(order);
+
         log.info("Order {} placed for {} with {} line(s)",
                 saved.getOrderNo(), saved.getCustomerName(), saved.getItems().size());
 
@@ -293,8 +291,7 @@ public class OrderService {
         bill.setSurcharge(surcharge);
         bill.setTotal(money(afterDiscount.add(surcharge)));
         bill.setPaid(BigDecimal.ZERO);
-        bill.setFollowUpOn(followUpOn != null ? followUpOn
-                : LocalDate.now().plusMonths(followUpMonths));
+        bill.setFollowUpOn(followUpOn);
 
         Bill saved = bills.save(bill);
         log.info("Bill {} raised for order {}: subtotal {} discount {} surcharge {} total {}",

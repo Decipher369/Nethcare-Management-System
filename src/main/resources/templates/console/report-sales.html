@@ -15,23 +15,23 @@
         <h2>Period</h2>
         <form class="filters" method="get" th:action="@{/reports/sales}">
             <div class="field">
-                <label for="m">Month</label>
-                <input id="m" name="month" type="month" value="2026-08">
+                <label for="from">From</label>
+                <input id="from" name="from" type="date" th:value="${from}">
             </div>
             <div class="field">
-                <label for="c">Category</label>
-                <select id="c" name="category">
-                    <option>All</option>
-                    <option>Spectacles</option>
-                    <option>Contact lenses</option>
-                    <option>Clinical fees</option>
-                    <option>Repairs &amp; adjustments</option>
-                </select>
+                <label for="to">To</label>
+                <input id="to" name="to" type="date" th:value="${to}">
             </div>
             <button class="btn" type="submit">Run report</button>
-            <button class="btn ghost" type="button" disabled>Print</button>
-            <button class="btn ghost" type="button" disabled>Export CSV</button>
+            <button class="btn ghost" type="button" onclick="window.print()">Print / PDF</button>
+            <a class="btn ghost" th:href="@{/reports/sales.csv(from=${from},to=${to})}">Export CSV</a>
         </form>
+    </div>
+
+    <div class="panel" th:if="${orphanPayments > 0}">
+        <p class="readonly pad" th:text="${orphanPayments} + ' payment record(s) reference a missing bill and require reconciliation.'">
+            Orphan payments require reconciliation.
+        </p>
     </div>
 
     <div class="kpis">

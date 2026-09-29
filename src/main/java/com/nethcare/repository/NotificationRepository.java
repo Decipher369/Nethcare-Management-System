@@ -6,6 +6,7 @@ import com.nethcare.model.NotificationStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
+import java.time.LocalDateTime;
 
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
 
@@ -20,4 +21,11 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
     List<Notification> findAllByOrderByIdDesc();
 
     long countByStatusIn(List<NotificationStatus> statuses);
+
+    boolean existsByFollowUpIdAndStatusIn(Long followUpId, List<NotificationStatus> statuses);
+
+    boolean existsByOrderId(Long orderId);
+
+    List<Notification> findByStatusInAndScheduledForLessThanEqualOrderByScheduledForAsc(
+            List<NotificationStatus> statuses, LocalDateTime scheduledFor);
 }

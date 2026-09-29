@@ -49,11 +49,13 @@ public class SecurityConfig {
                                  .hasAnyRole("ADMIN", "STAFF_NURSE")
 
                 // M4 — follow-ups, reports, audit
-                .requestMatchers("/api/followups/**", "/api/reports/**", "/api/audit/**").hasAnyRole("ADMIN", "OPTICIAN", "STAFF_NURSE")
+                .requestMatchers("/api/reports/**", "/api/audit/**").hasAnyRole("ADMIN", "AUDITOR")
+                .requestMatchers("/api/followups/**", "/api/clinical-advice/**").hasAnyRole("ADMIN", "OPTICIAN")
                 // M4 console screens. No surgeon: the audit trail and the money
                 // figures are not the clinical role's business.
-                .requestMatchers("/followups/**", "/notifications/**", "/reports/**",
-                                 "/audit/**", "/dashboard/console").hasAnyRole("ADMIN", "OPTICIAN", "STAFF_NURSE")
+                .requestMatchers("/reports/**", "/audit/**").hasAnyRole("ADMIN", "AUDITOR")
+                .requestMatchers("/followups/**", "/notifications/**").hasAnyRole("ADMIN", "OPTICIAN")
+                .requestMatchers("/dashboard/console").hasAnyRole("ADMIN", "OPTICIAN", "STAFF_NURSE", "AUDITOR")
 
                 // Admin console
                 .requestMatchers("/api/users/**", "/admin/**").hasRole("ADMIN")

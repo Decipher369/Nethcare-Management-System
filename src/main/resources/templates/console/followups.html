@@ -15,7 +15,7 @@
         <div class="kpi">
             <div class="k">Due for review</div>
             <div class="v" th:text="${dueCount}">23</div>
-            <div class="sub">12-month and 6-month rules</div>
+            <div class="sub">explicit scheduled review dates</div>
         </div>
         <div class="kpi alert">
             <div class="k">Invalid contacts</div>
@@ -31,26 +31,12 @@
 
         <form class="filters" method="get" th:action="@{/followups}">
             <div class="field">
-                <label for="rule">Rule</label>
-                <select id="rule" name="rule">
-                    <option>All — 12 and 6 month</option>
-                    <option>12 months (regular)</option>
-                    <option>6 months (contact lens)</option>
-                </select>
+                <label for="from">From</label>
+                <input id="from" name="from" type="date" th:value="${from}">
             </div>
             <div class="field">
-                <label for="q">Search name or number</label>
-                <input id="q" name="q" type="text" placeholder="P-0148 or Perera">
-            </div>
-            <div class="field">
-                <label for="status">Contact status</label>
-                <select id="status" name="status">
-                    <option>Any</option>
-                    <option>Not contacted</option>
-                    <option>Reminder sent</option>
-                    <option>Booked</option>
-                    <option>Invalid contact</option>
-                </select>
+                <label for="to">To</label>
+                <input id="to" name="to" type="date" th:value="${to}">
             </div>
             <button class="btn" type="submit">Apply</button>
             <a class="btn ghost" th:href="@{/notifications}">Reminder queue</a>
@@ -64,32 +50,31 @@
                 <th>Contact</th>
                 <th>Last exam</th>
                 <th>Due</th>
-                <th>Rule</th>
+                <th>Category</th>
                 <th>Status</th>
                 <th class="num">Action</th>
             </tr>
             </thead>
             <tbody>
             <tr th:each="r : ${rows}">
-                <td class="mono" th:text="${r[0]}">P-0148</td>
-                <td th:text="${r[1]}">K. N. Perera</td>
-                <td th:text="${r[2]}">071 234 5678</td>
-                <td th:text="${r[3]}">12 Aug 2025</td>
-                <td th:text="${r[4]}">12 Aug 2026</td>
-                <td th:text="${r[5]}">6 months</td>
-                <td><span class="tag" th:classappend="${r[6]}" th:text="${r[7]}">Call today</span></td>
+                <td class="mono" th:text="${r.patientId}">P-0148</td>
+                <td th:text="${r.patientName}">K. N. Perera</td>
+                <td th:text="${r.phone} ?: 'Invalid / missing'">071 234 5678</td>
+                <td th:text="${r.lastExamOn}">12 Aug 2025</td>
+                <td th:text="${r.dueOn}">12 Aug 2026</td>
+                <td th:text="${r.dueForWho}">Routine review</td>
+                <td><span class="tag" th:classappend="${r.highRisk} ? 'bad' : 'info'" th:text="${r.status.label()}">Active</span></td>
                 <td class="num">
-                    <button class="btn sm ghost" type="button"
-                            th:disabled="${r[6] == 'bad'}"
-                            th:text="${r[6] == 'bad'} ? 'Unavailable' : 'Send reminder'">Send reminder</button>
+                    <form method="post" th:action="@{/followups/{id}/queue(id=${r.id})}">
+                        <button class="btn sm ghost" type="submit">Queue reminder</button>
+                    </form>
                 </td>
             </tr>
             </tbody>
         </table>
 
         <p class="note pad">
-            The Send reminder button is disabled where the contact is invalid —
-            those rows are for a manual phone call instead.
+            Invalid numbers are recorded as failed dispatches so staff can resolve them on the exceptions list.
         </p>
     </div>
 

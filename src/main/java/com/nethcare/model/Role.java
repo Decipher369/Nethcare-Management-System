@@ -8,11 +8,13 @@ package com.nethcare.model;
  * STAFF_NURSE orders, bills, stock
  * SURGEON     referrals and their own notes
  * PATIENT     own records only
+ * AUDITOR     reports and immutable audit evidence
  */
 public enum Role {
     ADMIN,
     OPTICIAN,
     STAFF_NURSE,
     SURGEON,
-    PATIENT
+    PATIENT,
+    AUDITOR
 }

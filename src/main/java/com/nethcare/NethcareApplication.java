@@ -2,6 +2,7 @@ package com.nethcare;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
  * Nethcare Management System — SE2012 OOAD Group Project
@@ -14,6 +15,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  *   M4 — Follow-up, Reporting & Audit         (Edwien)
  */
 @SpringBootApplication
+@EnableScheduling
 public class NethcareApplication {
 
     public static void main(String[] args) {

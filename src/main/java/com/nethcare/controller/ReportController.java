@@ -1,236 +1,215 @@
 package com.nethcare.controller;
 
+import com.nethcare.model.*;
+import com.nethcare.repository.*;
+import com.nethcare.service.*;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Map;
 
-/**
- * Module 4 — Follow-up, Reporting & Audit.
- *
- * These screens are built on their own branch off main, so the tables they
- * read (patients from M1, examinations from M2, orders and bills from M3) are
- * not in the tree yet. Every figure below is therefore a placeholder drawn
- * from the client's own mock-up — LKR 842K, 196 patients, 141 orders, 7 items
- * below reorder — and each screen says so at the top rather than passing the
- * numbers off as real.
- *
- * What is not a placeholder is the layout, the columns, the filter controls
- * and the wording. Those are the screen design, and they carry over to the
- * live queries unchanged; only the numbers get replaced at the merge.
- *
- * Edwien — Follow-up, Reporting & Audit.
- */
 @Controller
 public class ReportController {
+    private static final DateTimeFormatter DATE = DateTimeFormatter.ofPattern("dd MMM yyyy");
+    private static final DateTimeFormatter DATE_TIME = DateTimeFormatter.ofPattern("dd MMM yyyy HH:mm");
+    private final FollowUpService followUpService;
+    private final FollowUpRepository followUps;
+    private final NotificationRepository notifications;
+    private final AuditLogRepository auditLogs;
+    private final AuditService auditService;
+    private final ReportingService reporting;
+    private final UserRepository users;
 
-    /** Monthly sales, Apr–Aug, from the deck's dashboard sketch. */
-    private static final Map<String, BigDecimal> SALES = Map.of(
-            "Apr", new BigDecimal("610000"),
-            "May", new BigDecimal("724000"),
-            "Jun", new BigDecimal("688000"),
-            "Jul", new BigDecimal("795000"),
-            "Aug", new BigDecimal("842000"));
-
-    private static final Map<String, Long> ORDER_STATUS = Map.of(
-            "Collected", 84L,
-            "At lab", 26L,
-            "Ready", 22L,
-            "Placed", 9L);
-
-    private static final List<String[]> LOW_STOCK = List.of(
-            new String[]{"TR-204", "Titan TR-204", "Frames", "2", "4"},
-            new String[]{"SV156-CLR", "SV lens 1.56 clear", "SV lens", "1", "5"},
-            new String[]{"BF-173", "Bifocal 1.67", "Bifocal", "3", "3"},
-            new String[]{"CL-MOIST", "Monthly contacts", "Contacts", "0", "10"},
-            new String[]{"CL-DAILY", "Daily contacts", "Contacts", "4", "6"},
-            new String[]{"CS-009", "Hard case", "Cases", "2", "8"},
-            new String[]{"LN-SPG", "Progressive 1.74", "SV lens", "1", "3"});
-
-    // ------------------------------------------------------------ dashboard
+    public ReportController(FollowUpService followUpService, FollowUpRepository followUps,
+                            NotificationRepository notifications, AuditLogRepository auditLogs,
+                            AuditService auditService, ReportingService reporting, UserRepository users) {
+        this.followUpService = followUpService; this.followUps = followUps;
+        this.notifications = notifications; this.auditLogs = auditLogs;
+        this.auditService = auditService; this.reporting = reporting; this.users = users;
+    }
 
     @GetMapping("/dashboard/console")
     public String dashboard(Authentication auth, Model model) {
-        who(auth, model, "Dashboard");
-        model.addAttribute("active", "dashboard");
-        model.addAttribute("salesThisMonth", money(SALES.get("Aug")));
-        model.addAttribute("patientsAttended", 196L);
-        model.addAttribute("ordersCompleted", 141L);
-        model.addAttribute("lowStockCount", LOW_STOCK.size());
-        model.addAttribute("trend", barTrend());
-        model.addAttribute("orderSplit", List.of(
-                new String[]{"Collected", "84", "s1"},
-                new String[]{"At lab", "26", "s2"},
-                new String[]{"Ready", "22", "s3"},
-                new String[]{"Placed", "9", "s4"}));
-        model.addAttribute("totalOrders", 141L);
-        model.addAttribute("lowStock", LOW_STOCK.subList(0, 5));
-        model.addAttribute("dueForReview", 23L);
+        who(auth, model, "Dashboard", "dashboard");
+        ReportingService.SalesSummary sales = reporting.sales(YearMonth.now().atDay(1), LocalDate.now());
+        ReportingService.OrderSummary orders = reporting.orders();
+        ReportingService.StockSummary stock = reporting.stock();
+        model.addAttribute("salesThisMonth", money(sales.billed()));
+        model.addAttribute("patientsAttended", followUps.countByStatusIn(List.of(FollowUpStatus.ATTENDED)));
+        model.addAttribute("ordersCompleted", orders.byStatus().get(OrderStatus.COLLECTED));
+        model.addAttribute("lowStockCount", stock.lowCount());
+        model.addAttribute("trend", salesTrend());
+        model.addAttribute("orderSplit", orderRows(orders));
+        model.addAttribute("totalOrders", orders.total());
+        model.addAttribute("lowStock", stockRows(stock.lowStock().stream().limit(5).toList()));
+        model.addAttribute("dueForReview", followUpService.open().size());
         return "console/dashboard";
     }
 
-    // ------------------------------------------------------------- follow-up
-
     @GetMapping("/followups")
-    public String followUps(Model model) {
-        who(null, model, "Patients Due for Review");
-        model.addAttribute("active", "followups");
-        model.addAttribute("dueCount", 23L);
-        model.addAttribute("invalidContacts", 4L);
-        model.addAttribute("rows", List.of(
-                new String[]{"P-0148", "K. N. Perera", "071 234 5678", "12 Aug 2025",
-                             "12 Aug 2026", "6 months", "warn", "Call today"},
-                new String[]{"P-0203", "S. Fernando", "077 998 2211", "03 Mar 2025",
-                             "03 Mar 2026", "12 months", "bad", "Number invalid"},
-                new String[]{"P-0111", "N. Wickramasinghe", "070 123 4455", "21 Jan 2026",
-                             "21 Jan 2027", "6 months", "good", "Reminder sent"},
-                new String[]{"P-0452", "A. Silva", "071 445 8890", "19 Apr 2025",
-                             "19 Apr 2026", "12 months", "info", "No response"},
-                new String[]{"P-0301", "R. Jayawardena", "076 332 1098", "28 Feb 2026",
-                             "28 Feb 2027", "6 months", "good", "Booked 04 Oct"}));
+    public String followUps(Authentication auth, Model model,
+                            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+                            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
+        who(auth, model, "Patients Due for Review", "followups");
+        LocalDate start = from == null ? LocalDate.now() : from;
+        LocalDate end = to == null ? start.plusDays(7) : to;
+        List<FollowUp> cases = followUpService.weeklyList(start, end);
+        model.addAttribute("from", start); model.addAttribute("to", end);
+        model.addAttribute("dueCount", cases.size());
+        model.addAttribute("invalidContacts", cases.stream().filter(f -> !f.isContactReachable()).count());
+        model.addAttribute("rows", cases);
         return "console/followups";
     }
 
+    @PostMapping("/followups/{id}/queue")
+    public String queueOne(@PathVariable Long id, Authentication auth) {
+        followUpService.notify(id, auth.getName());
+        return "redirect:/notifications";
+    }
+
+    @PostMapping("/followups/queue")
+    public String queueCohort(@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+                              @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
+                              Authentication auth) {
+        followUpService.queueCohort(from, to, auth.getName());
+        return "redirect:/notifications";
+    }
+
     @GetMapping("/notifications")
-    public String notifications(Model model) {
-        who(null, model, "Reminder Queue");
-        model.addAttribute("active", "notifications");
-        model.addAttribute("queued", 12L);
-        model.addAttribute("sent", 178L);
-        model.addAttribute("failed", 4L);
-        model.addAttribute("optedOut", 7L);
-        model.addAttribute("rows", List.of(
-                new String[]{"RCP-0311", "SMS", "K. N. Perera", "12 Aug 2026 08:00",
-                             "good", "Sent", "Delivered"},
-                new String[]{"RCP-0312", "Email", "S. Fernando", "12 Aug 2026 08:00",
-                             "mute", "Skipped", "Opted out"},
-                new String[]{"RCP-0313", "SMS", "N. Wickramasinghe", "12 Aug 2026 08:00",
-                             "good", "Sent", "Delivered"},
-                new String[]{"RCP-0314", "SMS", "A. Silva", "12 Aug 2026 08:00",
-                             "bad", "Failed", "Invalid number"},
-                new String[]{"RCP-0315", "Email", "R. Jayawardena", "12 Aug 2026 08:00",
-                             "info", "Queued", "Runs 08:00 Monday"}));
+    public String notifications(Authentication auth, Model model) {
+        who(auth, model, "Reminder Queue", "notifications");
+        List<Notification> rows = notifications.findAllByOrderByIdDesc();
+        model.addAttribute("queued", rows.stream().filter(Notification::isQueued).count());
+        model.addAttribute("sent", rows.stream().filter(n -> n.getStatus() == NotificationStatus.SENT || n.getStatus() == NotificationStatus.DELIVERED).count());
+        model.addAttribute("failed", rows.stream().filter(n -> n.getStatus() == NotificationStatus.FAILED).count());
+        model.addAttribute("optedOut", rows.stream().filter(n -> n.getStatus() == NotificationStatus.EXCLUDED).count());
+        model.addAttribute("rows", rows);
         return "console/notifications";
     }
 
-    // --------------------------------------------------------------- reports
+    @PostMapping("/notifications/{id}/sent")
+    public String sent(@PathVariable Long id, @RequestParam String receipt, Authentication auth) {
+        followUpService.markSent(id, receipt, auth.getName());
+        return "redirect:/notifications";
+    }
+
+    @PostMapping("/notifications/{id}/delivered")
+    public String delivered(@PathVariable Long id, Authentication auth) {
+        followUpService.markDelivered(id, auth.getName());
+        return "redirect:/notifications";
+    }
 
     @GetMapping("/reports/sales")
-    public String sales(Model model) {
-        who(null, model, "Sales Report");
-        model.addAttribute("active", "sales");
-        model.addAttribute("trend", barTrend());
-        model.addAttribute("monthTotal", "842,000");
-        model.addAttribute("monthBills", 141L);
-        model.addAttribute("monthAdvances", "398,000");
-        model.addAttribute("monthOutstanding", "61,500");
-        model.addAttribute("byCategory", List.of(
-                new String[]{"Spectacles", "612,000", "72.7%"},
-                new String[]{"Contact lenses", "141,000", "16.7%"},
-                new String[]{"Clinical fees", "58,000", "6.9%"},
-                new String[]{"Repairs & adjustments", "31,000", "3.7%"}));
+    public String sales(Authentication auth, Model model,
+                        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+                        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
+        who(auth, model, "Sales Report", "sales");
+        LocalDate start = from == null ? YearMonth.now().atDay(1) : from;
+        LocalDate end = to == null ? YearMonth.from(start).atEndOfMonth() : to;
+        ReportingService.SalesSummary s = reporting.sales(start, end);
+        model.addAttribute("from", start); model.addAttribute("to", end);
+        model.addAttribute("monthTotal", money(s.billed()));
+        model.addAttribute("monthBills", s.billCount()); model.addAttribute("monthAdvances", money(s.advances()));
+        model.addAttribute("monthOutstanding", money(s.outstanding()));
+        model.addAttribute("orphanPayments", s.orphanPayments()); model.addAttribute("trend", salesTrend());
+        model.addAttribute("byCategory", categoryRows(s));
         return "console/report-sales";
     }
 
+    @GetMapping(value = "/reports/sales.csv", produces = "text/csv")
+    @ResponseBody
+    public ResponseEntity<String> salesCsv(Authentication auth,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
+        ReportingService.SalesSummary s = reporting.sales(from, to);
+        Long userId = users.findByUsername(auth.getName()).orElseThrow().getId();
+        reporting.saveSalesSnapshot(s.from(), s.to(), userId, auth.getName());
+        String csv = "period_start,period_end,bills,total_billed,total_collected,advances,outstanding,orphan_payments\n"
+                + s.from() + "," + s.to() + "," + s.billCount() + "," + s.billed() + ","
+                + s.collected() + "," + s.advances() + "," + s.outstanding() + "," + s.orphanPayments() + "\n";
+        return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,
+                "attachment; filename=nethcare-sales-" + from + "-to-" + to + ".csv")
+                .contentType(MediaType.parseMediaType("text/csv")).body(csv);
+    }
+
     @GetMapping("/reports/orders")
-    public String orders(Model model) {
-        who(null, model, "Order Status");
-        model.addAttribute("active", "orders");
-        model.addAttribute("orderSplit", List.of(
-                new String[]{"Collected", "84", "s1"},
-                new String[]{"At lab", "26", "s2"},
-                new String[]{"Ready", "22", "s3"},
-                new String[]{"Placed", "9", "s4"}));
-        model.addAttribute("totalOrders", 141L);
-        model.addAttribute("avgDays", 9L);
-        model.addAttribute("overdue", 3L);
-        model.addAttribute("urgent", 12L);
+    public String orders(Authentication auth, Model model) {
+        who(auth, model, "Order Status", "orders");
+        ReportingService.OrderSummary s = reporting.orders();
+        model.addAttribute("orderSplit", orderRows(s)); model.addAttribute("totalOrders", s.open());
+        model.addAttribute("avgDays", 0); model.addAttribute("overdue", s.overdue()); model.addAttribute("urgent", s.urgent());
         return "console/report-orders";
     }
 
     @GetMapping("/reports/stock")
-    public String stock(Model model) {
-        who(null, model, "Stock Summary");
-        model.addAttribute("active", "stock");
-        model.addAttribute("rows", LOW_STOCK);
-        model.addAttribute("lowCount", LOW_STOCK.size());
-        model.addAttribute("totalItems", 63L);
-        model.addAttribute("stockValue", "1,284,000");
+    public String stock(Authentication auth, Model model) {
+        who(auth, model, "Stock Summary", "stock");
+        ReportingService.StockSummary s = reporting.stock();
+        model.addAttribute("rows", stockRows(s.lowStock())); model.addAttribute("lowCount", s.lowCount());
+        model.addAttribute("totalItems", s.totalItems()); model.addAttribute("stockValue", money(s.stockValue()));
         return "console/report-stock";
     }
 
-    // ----------------------------------------------------------------- audit
-
     @GetMapping("/audit")
-    public String audit(Model model) {
-        who(null, model, "Audit Trail");
-        model.addAttribute("active", "audit");
-        model.addAttribute("rows", List.of(
-                new String[]{"2026-09-28 14:02", "optician", "Examination", "CREATE", "#2411", "—"},
-                new String[]{"2026-09-28 13:47", "staff", "Order", "UPDATE", "ORD-0091", "PLACED → LAB"},
-                new String[]{"2026-09-28 11:20", "admin", "StockItem", "UPDATE", "TR-204", "price 6,200 → 6,500"},
-                new String[]{"2026-09-28 10:05", "staff", "Payment", "CREATE", "RCP-0311", "LKR 5,000"},
-                new String[]{"2026-09-27 16:33", "surgeon", "Referral", "UPDATE", "RF-0088", "feedback added"},
-                new String[]{"2026-09-27 15:12", "optician", "Patient", "UPDATE", "P-0148", "phone changed"},
-                new String[]{"2026-09-27 09:44", "admin", "User", "CREATE", "surgeon", "role SURGEON"}));
+    public String audit(Authentication auth, Model model,
+                        @RequestParam(required = false) String user,
+                        @RequestParam(required = false) String entity,
+                        @RequestParam(required = false) AuditAction action,
+                        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+                        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
+        who(auth, model, "Audit Trail", "audit");
+        List<AuditLog> logs = auditLogs.search(blankNull(user), blankNull(entity), action,
+                from == null ? null : from.atStartOfDay(), to == null ? null : to.plusDays(1).atStartOfDay());
+        model.addAttribute("rows", logs); model.addAttribute("chainValid", auditService.verifyChain());
         return "console/audit";
     }
 
-    // ---------------------------------------------------------------- shared
-
-    /**
-     * Fills the sidebar and topbar. When there is no session — which is the
-     * case while these screens are still wireframes — it shows a placeholder
-     * rather than failing, so the layout can be reviewed before the security
-     * rules are wired in.
-     */
-    private void who(Authentication auth, Model model, String title) {
-        model.addAttribute("title", title);
-        model.addAttribute("user", auth == null ? "staff" : auth.getName());
-        model.addAttribute("role", auth == null ? "STAFF_NURSE" : roleOf(auth));
-        model.addAttribute("mock", true);
+    private void who(Authentication auth, Model model, String title, String active) {
+        model.addAttribute("title", title); model.addAttribute("active", active);
+        model.addAttribute("user", auth.getName()); model.addAttribute("role", roleOf(auth));
+        model.addAttribute("mock", false);
     }
-
-    private String roleOf(Authentication auth) {
-        for (GrantedAuthority a : auth.getAuthorities()) {
-            if (a.getAuthority().startsWith("ROLE_")) {
-                return a.getAuthority().substring(5);
-            }
-        }
-        return "STAFF_NURSE";
+    private String roleOf(Authentication auth) { return auth.getAuthorities().stream().map(GrantedAuthority::getAuthority)
+            .filter(a -> a.startsWith("ROLE_")).map(a -> a.substring(5)).findFirst().orElse("STAFF_NURSE"); }
+    private String money(BigDecimal amount) { return String.format("%,.2f", amount); }
+    private String blankNull(String value) { return value == null || value.isBlank() ? null : value; }
+    private List<String[]> orderRows(ReportingService.OrderSummary s) {
+        return List.of(new String[]{"Collected", s.byStatus().get(OrderStatus.COLLECTED).toString(), "s1"},
+                new String[]{"At lab", s.byStatus().get(OrderStatus.LAB).toString(), "s2"},
+                new String[]{"Ready", s.byStatus().get(OrderStatus.READY).toString(), "s3"},
+                new String[]{"Placed", s.byStatus().get(OrderStatus.PLACED).toString(), "s4"});
     }
-
-    /** 842000 -> "842,000". Money is easier to read grouped. */
-    private static String money(BigDecimal amount) {
-        return String.format("%,d", amount.longValue());
+    private List<String[]> stockRows(List<StockItem> items) { return items.stream().map(i -> new String[]{
+            i.getItemCode(), i.getName(), i.getCategory().label(), String.valueOf(i.available()), String.valueOf(i.getReorderLevel())}).toList(); }
+    private List<String[]> categoryRows(ReportingService.SalesSummary summary) {
+        return summary.byCategory().entrySet().stream().map(entry -> {
+            BigDecimal share = summary.billed().signum() == 0 ? BigDecimal.ZERO
+                    : entry.getValue().multiply(BigDecimal.valueOf(100))
+                    .divide(summary.billed(), 1, java.math.RoundingMode.HALF_UP);
+            return new String[]{entry.getKey(), money(entry.getValue()), share + "%"};
+        }).toList();
     }
-
-    /**
-     * Bar heights in pixels, tallest month = 150px. Doing the division here
-     * keeps the arithmetic out of the template.
-     */
-    private List<String[]> barTrend() {
-        BigDecimal top = SALES.values().stream()
-                .max(BigDecimal::compareTo).orElse(BigDecimal.ONE);
-        return SALES.entrySet().stream()
-                .sorted(java.util.Map.Entry.comparingByKey())
-                .map(e -> new String[]{
-                        e.getKey(),
-                        money(e.getValue()),
-                        e.getValue().multiply(BigDecimal.valueOf(150))
-                                .divide(top, 0, BigDecimal.ROUND_HALF_UP)
-                                .intValue() + "px"})
-                .toList();
-    }
-
-    /** Used by the templates for "days until" style hints. */
-    static LocalDate today() {
-        return LocalDate.now();
+    private List<String[]> salesTrend() {
+        List<YearMonth> months = java.util.stream.IntStream.rangeClosed(0, 4)
+                .mapToObj(i -> YearMonth.now().minusMonths(4L - i)).toList();
+        List<BigDecimal> totals = months.stream()
+                .map(month -> reporting.sales(month.atDay(1), month.atEndOfMonth()).billed()).toList();
+        BigDecimal top = totals.stream().max(BigDecimal::compareTo).orElse(BigDecimal.ZERO);
+        return java.util.stream.IntStream.range(0, months.size()).mapToObj(i -> {
+            int height = top.signum() == 0 ? 0 : totals.get(i).multiply(BigDecimal.valueOf(150))
+                    .divide(top, 0, java.math.RoundingMode.HALF_UP).intValue();
+            return new String[]{months.get(i).getMonth().toString().substring(0, 3), money(totals.get(i)), height + "px"};
+        }).toList();
     }
 }

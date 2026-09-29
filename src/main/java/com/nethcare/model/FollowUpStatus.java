@@ -3,27 +3,28 @@ package com.nethcare.model;
 /**
  * Where a follow-up is in the process.
  *
- * PENDING means nobody has been reached yet. Once the patient answers it
- * becomes either BOOKED or DECLINED, and CLOSED is for the ones that came and
- * went without booking — those stay on the report as a response rate.
+ * ACTIVE cases have not been queued. REVIEW_QUEUED and NOTIFIED retain the
+ * communication state; ATTENDED and DEFAULTED close the clinical workflow.
  */
 public enum FollowUpStatus {
 
-    PENDING,
-    BOOKED,
-    DECLINED,
-    CLOSED;
+    ACTIVE,
+    REVIEW_QUEUED,
+    NOTIFIED,
+    ATTENDED,
+    DEFAULTED;
 
     public boolean isOpen() {
-        return this == PENDING;
+        return this == ACTIVE || this == REVIEW_QUEUED || this == NOTIFIED;
     }
 
     public String label() {
         return switch (this) {
-            case PENDING -> "Waiting";
-            case BOOKED -> "Booked";
-            case DECLINED -> "Declined";
-            case CLOSED -> "Closed";
+            case ACTIVE -> "Active";
+            case REVIEW_QUEUED -> "Review queued";
+            case NOTIFIED -> "Notified";
+            case ATTENDED -> "Attended";
+            case DEFAULTED -> "Defaulted";
         };
     }
 }
