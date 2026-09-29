@@ -2,12 +2,16 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Login — Nethcare Management System</title>
+    <link rel="icon" type="image/png" th:href="@{/images/nethcare-logo.png}">
     <style>
         body { font-family: system-ui, sans-serif; background: #f5f6f8; display: flex;
                align-items: center; justify-content: center; height: 100vh; margin: 0; }
         .card { background: #fff; padding: 2.5rem; border-radius: 8px;
                 box-shadow: 0 2px 12px rgba(0,0,0,.1); width: 340px; }
+        .logo { display: block; width: 92px; height: 92px; object-fit: contain;
+                margin: 0 auto 1rem; }
         h1 { font-size: 1.3rem; margin: 0 0 .25rem; color: #1a3a5c; }
         p.sub { margin: 0 0 1.5rem; color: #666; font-size: .85rem; }
         label { display: block; font-size: .8rem; margin-bottom: .3rem; color: #333; }
@@ -24,6 +28,7 @@
 </head>
 <body>
 <div class="card">
+    <img class="logo" th:src="@{/images/nethcare-logo.png}" alt="Nethcare logo">
     <h1>Nethcare</h1>
     <p class="sub">Neth Opticians — Management System</p>
 

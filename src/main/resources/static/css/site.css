@@ -28,7 +28,9 @@ body {
 .site-head { border-bottom: 1px solid var(--line); background: var(--bg); }
 .head-in { display: flex; align-items: center; gap: 2rem; padding-top: 1rem; padding-bottom: 1rem; }
 
-.brand { text-decoration: none; display: flex; flex-direction: column; line-height: 1.25; }
+.brand { text-decoration: none; display: flex; align-items: center; gap: .65rem; line-height: 1.25; }
+.brand img { width: 46px; height: 46px; object-fit: contain; flex: 0 0 auto; }
+.brand-copy { display: flex; flex-direction: column; }
 .brand strong { color: var(--ink); font-size: 1.15rem; letter-spacing: -.01em; }
 .brand span { color: var(--ink-soft); font-size: .78rem; }
 

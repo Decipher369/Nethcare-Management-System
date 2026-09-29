@@ -48,3 +48,8 @@ logs/
 *.env
 application-local.properties
 application-secrets.properties
+
+# ============================================================
+# Local QA notes
+# ============================================================
+TEST_CASES.md
