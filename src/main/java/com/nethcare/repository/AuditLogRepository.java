@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * The audit trail.
@@ -34,6 +35,8 @@ import java.util.List;
 public interface AuditLogRepository extends JpaRepository<AuditLog, Long> {
 
     List<AuditLog> findAllByOrderByOccurredAtDescIdDesc();
+
+    Optional<AuditLog> findTopByOrderByIdDesc();
 
     List<AuditLog> findByActorOrderByOccurredAtDescIdDesc(String actor);
 

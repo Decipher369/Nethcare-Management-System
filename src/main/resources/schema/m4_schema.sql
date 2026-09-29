@@ -1,0 +1,122 @@
+-- NethCare Module 4 schema (MySQL 8.0+).
+-- Review dates are explicit clinical/staff decisions. There is no fixed 12-month
+-- prescription validity and no 90-day referral expiry in this module.
+
+CREATE TABLE IF NOT EXISTS patient_followup_cases (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    patient_id BIGINT NOT NULL,
+    assigned_optician_id BIGINT NOT NULL,
+    originating_visit_id BIGINT NOT NULL,
+    patient_name VARCHAR(120),
+    last_exam_on DATE,
+    target_review_date DATE NOT NULL,
+    case_category VARCHAR(40) NOT NULL,
+    is_high_risk BOOLEAN NOT NULL DEFAULT FALSE,
+    phone VARCHAR(30),
+    email VARCHAR(120),
+    outcome VARCHAR(20),
+    clinical_notes VARCHAR(1000),
+    responded_on DATE,
+    booked_on DATE,
+    opt_out BOOLEAN NOT NULL DEFAULT FALSE,
+    status VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME,
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    CONSTRAINT fk_followup_patient FOREIGN KEY (patient_id) REFERENCES patients(id) ON UPDATE CASCADE ON DELETE RESTRICT,
+    CONSTRAINT fk_followup_optician FOREIGN KEY (assigned_optician_id) REFERENCES users(id) ON UPDATE CASCADE ON DELETE RESTRICT,
+    CONSTRAINT fk_followup_visit FOREIGN KEY (originating_visit_id) REFERENCES examinations(id) ON UPDATE CASCADE ON DELETE RESTRICT,
+    INDEX idx_followup_status_date (status, target_review_date),
+    INDEX idx_followup_patient (patient_id)
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS notification_dispatches (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    reference VARCHAR(20) NOT NULL UNIQUE,
+    follow_up_id BIGINT,
+    patient_id BIGINT,
+    recipient_user_id BIGINT,
+    order_id BIGINT,
+    patient_name VARCHAR(120),
+    notification_type VARCHAR(40) NOT NULL,
+    recipient_role VARCHAR(20) NOT NULL DEFAULT 'PATIENT',
+    channel VARCHAR(20) NOT NULL,
+    destination VARCHAR(120),
+    message VARCHAR(1000) NOT NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'PENDING',
+    scheduled_for DATETIME NOT NULL,
+    sent_at DATETIME,
+    delivered_at DATETIME,
+    gateway_receipt_id VARCHAR(100),
+    retry_count INT NOT NULL DEFAULT 0,
+    last_attempt_at DATETIME,
+    failure_reason VARCHAR(200),
+    skipped_reason VARCHAR(200),
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME,
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    CONSTRAINT fk_dispatch_followup FOREIGN KEY (follow_up_id) REFERENCES patient_followup_cases(id) ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT fk_dispatch_patient FOREIGN KEY (patient_id) REFERENCES patients(id) ON UPDATE CASCADE ON DELETE RESTRICT,
+    CONSTRAINT fk_dispatch_user FOREIGN KEY (recipient_user_id) REFERENCES users(id) ON UPDATE CASCADE ON DELETE SET NULL,
+    CONSTRAINT fk_dispatch_order FOREIGN KEY (order_id) REFERENCES orders(id) ON UPDATE CASCADE ON DELETE SET NULL,
+    INDEX idx_dispatch_queue (status, scheduled_for),
+    INDEX idx_dispatch_patient (patient_id)
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS clinical_audit_log (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    occurred_at DATETIME(6) NOT NULL,
+    actor_id BIGINT,
+    actor VARCHAR(50) NOT NULL,
+    action VARCHAR(10) NOT NULL,
+    entity_name VARCHAR(60) NOT NULL,
+    entity_id VARCHAR(40),
+    old_value VARCHAR(500),
+    new_value VARCHAR(500),
+    note VARCHAR(200),
+    previous_hash CHAR(64),
+    record_hash CHAR(64) NOT NULL UNIQUE,
+    CONSTRAINT fk_audit_actor FOREIGN KEY (actor_id) REFERENCES users(id) ON UPDATE CASCADE ON DELETE RESTRICT,
+    INDEX idx_audit_occurred (occurred_at),
+    INDEX idx_audit_entity (entity_name, entity_id)
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS clinical_advice_logs (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    patient_id BIGINT NOT NULL,
+    clinician_id BIGINT NOT NULL,
+    visit_id BIGINT NOT NULL,
+    advice_text TEXT NOT NULL,
+    diagnostic_inputs TEXT NOT NULL,
+    high_risk BOOLEAN NOT NULL DEFAULT FALSE,
+    caution_advice VARCHAR(1000),
+    recorded_at_utc DATETIME(6) NOT NULL,
+    previous_hash CHAR(64),
+    record_hash CHAR(64) NOT NULL UNIQUE,
+    CONSTRAINT fk_advice_patient FOREIGN KEY (patient_id) REFERENCES patients(id) ON UPDATE CASCADE ON DELETE RESTRICT,
+    CONSTRAINT fk_advice_clinician FOREIGN KEY (clinician_id) REFERENCES users(id) ON UPDATE CASCADE ON DELETE RESTRICT,
+    CONSTRAINT fk_advice_visit FOREIGN KEY (visit_id) REFERENCES examinations(id) ON UPDATE CASCADE ON DELETE RESTRICT,
+    CONSTRAINT chk_high_risk_caution CHECK (high_risk = FALSE OR caution_advice IS NOT NULL),
+    INDEX idx_advice_patient_time (patient_id, recorded_at_utc)
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS system_summary_reports (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    report_type VARCHAR(30) NOT NULL,
+    period_start DATE NOT NULL,
+    period_end DATE NOT NULL,
+    total_revenue DECIMAL(12,2) NOT NULL DEFAULT 0,
+    total_collected DECIMAL(12,2) NOT NULL DEFAULT 0,
+    total_outstanding DECIMAL(12,2) NOT NULL DEFAULT 0,
+    total_attended_patients BIGINT NOT NULL DEFAULT 0,
+    total_orders_pending BIGINT NOT NULL DEFAULT 0,
+    total_stock_value DECIMAL(12,2) NOT NULL DEFAULT 0,
+    breakdown_payload LONGTEXT,
+    generated_by_staff_id BIGINT NOT NULL,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME,
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    CONSTRAINT fk_report_staff FOREIGN KEY (generated_by_staff_id) REFERENCES users(id) ON UPDATE CASCADE ON DELETE RESTRICT,
+    CONSTRAINT chk_report_period CHECK (period_end >= period_start),
+    INDEX idx_report_type_period (report_type, period_start, period_end)
+) ENGINE=InnoDB;

@@ -138,6 +138,7 @@ public class OrderService {
         }
 
         Order saved = orders.save(order);
+
         log.info("Order {} placed for {} with {} line(s)",
                 saved.getOrderNo(), saved.getCustomerName(), saved.getItems().size());
 

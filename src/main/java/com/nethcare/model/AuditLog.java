@@ -33,7 +33,7 @@ import java.time.LocalDateTime;
  * with createdAt as a plain column.
  */
 @Entity
-@Table(name = "audit_log")
+@Table(name = "clinical_audit_log")
 @Immutable
 public class AuditLog {
 
@@ -47,6 +47,9 @@ public class AuditLog {
 
     @Column(name = "actor", nullable = false, length = 50)
     private String actor;
+
+    @Column(name = "actor_id")
+    private Long actorId;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "action", nullable = false, columnDefinition = "VARCHAR(10)")
@@ -67,6 +70,12 @@ public class AuditLog {
     @Column(name = "note", length = 200)
     private String note;
 
+    @Column(name = "previous_hash", length = 64)
+    private String previousHash;
+
+    @Column(name = "record_hash", nullable = false, unique = true, length = 64, updatable = false)
+    private String recordHash;
+
     public Long getId() { return id; }
 
     public void setId(Long id) { this.id = id; }
@@ -78,6 +87,8 @@ public class AuditLog {
     public String getActor() { return actor; }
 
     public void setActor(String actor) { this.actor = actor; }
+    public Long getActorId() { return actorId; }
+    public void setActorId(Long actorId) { this.actorId = actorId; }
 
     public AuditAction getAction() { return action; }
 
@@ -102,4 +113,9 @@ public class AuditLog {
     public String getNote() { return note; }
 
     public void setNote(String note) { this.note = note; }
+
+    public String getPreviousHash() { return previousHash; }
+    public void setPreviousHash(String previousHash) { this.previousHash = previousHash; }
+    public String getRecordHash() { return recordHash; }
+    public void setRecordHash(String recordHash) { this.recordHash = recordHash; }
 }

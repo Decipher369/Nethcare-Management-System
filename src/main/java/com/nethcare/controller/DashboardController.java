@@ -48,6 +48,7 @@ public class DashboardController {
             case "STAFF_NURSE" -> "/dashboard/console";
             case "SURGEON"     -> "/referrals";
             case "PATIENT"     -> "/portal";
+            case "AUDITOR"     -> "/reports/sales";
             // Should not happen — a user always has a role. Sending them to the
             // login page beats leaving them on a blank redirect.
             default -> "/login?error";

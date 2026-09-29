@@ -2,16 +2,8 @@ package com.nethcare.service;
 
 import com.nethcare.exception.BusinessException;
 import com.nethcare.exception.ResourceNotFoundException;
-import com.nethcare.model.AuditAction;
-import com.nethcare.model.FollowUp;
-import com.nethcare.model.FollowUpOutcome;
-import com.nethcare.model.FollowUpStatus;
-import com.nethcare.model.Notification;
-import com.nethcare.model.NotificationChannel;
-import com.nethcare.model.NotificationStatus;
-import com.nethcare.repository.FollowUpRepository;
-import com.nethcare.repository.NotificationRepository;
-import org.springframework.beans.factory.annotation.Value;
+import com.nethcare.model.*;
+import com.nethcare.repository.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,43 +11,83 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
-/**
- * The follow-up rules and the reminder queue.
- *
- *   due  = last examination + 12 months, or + 6 for a contact lens patient
- *   SMS first, email as the fallback
- *   an opted-out patient is never queued
- *
- * Building the list from real examinations is the part that waits for the
- * merge — M2 owns the examinations table and it is not in this branch. Until
- * then the rows are seeded by hand and every method below works normally on
- * them, so the rules can be tested without the rest of the system.
- */
+/** Implements the M4 review-list and reminder-dispatch workflows. */
 @Service
 public class FollowUpService {
+    private static final List<FollowUpStatus> OPEN = List.of(
+            FollowUpStatus.ACTIVE, FollowUpStatus.REVIEW_QUEUED, FollowUpStatus.NOTIFIED);
 
     private final FollowUpRepository followUps;
     private final NotificationRepository notifications;
+    private final PatientRepository patients;
+    private final UserRepository users;
+    private final ExaminationRepository examinations;
+    private final OrderRepository orders;
     private final AuditService audit;
 
-    @Value("${nethcare.followup.regular-months:12}")
-    private int regularMonths;
-
-    @Value("${nethcare.followup.contact-lens-months:6}")
-    private int contactLensMonths;
-
-    public FollowUpService(FollowUpRepository followUps,
-                           NotificationRepository notifications,
-                           AuditService audit) {
+    public FollowUpService(FollowUpRepository followUps, NotificationRepository notifications,
+                           PatientRepository patients, UserRepository users,
+                           ExaminationRepository examinations, OrderRepository orders, AuditService audit) {
         this.followUps = followUps;
         this.notifications = notifications;
+        this.patients = patients;
+        this.users = users;
+        this.examinations = examinations;
+        this.orders = orders;
         this.audit = audit;
     }
 
-    /** Everyone still waiting for an answer, most overdue first. */
+    @Transactional
+    public FollowUp createCase(Long patientId, Long assignedOpticianId, Long originatingVisitId,
+                               FollowUpCategory category, LocalDate targetReviewDate,
+                               boolean highRisk, String clinicalNotes, String actor) {
+        Patient patient = patients.findById(patientId)
+                .orElseThrow(() -> new ResourceNotFoundException("No patient with id " + patientId));
+        User optician = users.findById(assignedOpticianId)
+                .orElseThrow(() -> new ResourceNotFoundException("No user with id " + assignedOpticianId));
+        if (optician.getRole() != Role.OPTICIAN && optician.getRole() != Role.ADMIN) {
+            throw new BusinessException("The follow-up must be assigned to an optician or administrator.");
+        }
+        Examination visit = examinations.findById(originatingVisitId)
+                .orElseThrow(() -> new ResourceNotFoundException("No examination with id " + originatingVisitId));
+        if (!patientId.equals(visit.getPatientId())) {
+            throw new BusinessException("The originating examination belongs to another patient.");
+        }
+        if (category == null || targetReviewDate == null) {
+            throw new BusinessException("Category and target review date are required.");
+        }
+
+        FollowUp row = new FollowUp();
+        row.setPatientId(patientId);
+        row.setAssignedOpticianId(assignedOpticianId);
+        row.setOriginatingVisitId(originatingVisitId);
+        row.setPatientName(patient.getFullName());
+        row.setPhone(patient.getPhone());
+        row.setEmail(patient.getEmail());
+        row.setLastExamOn(visit.getExamDate());
+        row.setDueOn(targetReviewDate);
+        row.setCategory(category);
+        row.setHighRisk(highRisk);
+        row.setResponseNote(clinicalNotes);
+        row.setStatus(FollowUpStatus.ACTIVE);
+        FollowUp saved = followUps.save(row);
+        audit.record(actor, AuditAction.CREATE, "PatientFollowUpCase", saved.getId().toString(),
+                null, category.name() + " due " + targetReviewDate);
+        return saved;
+    }
+
     @Transactional(readOnly = true)
     public List<FollowUp> open() {
-        return followUps.findByStatusInOrderByDueOnAsc(List.of(FollowUpStatus.PENDING));
+        return followUps.findByStatusInOrderByDueOnAsc(OPEN);
+    }
+
+    @Transactional(readOnly = true)
+    public List<FollowUp> weeklyList(LocalDate from, LocalDate to) {
+        if (from == null || to == null || to.isBefore(from)) {
+            throw new BusinessException("A valid review date range is required.");
+        }
+        return followUps.findByStatusInAndDueOnBetweenOrderByHighRiskDescDueOnAsc(OPEN, from, to)
+                .stream().filter(row -> row.getBookedOn() == null).toList();
     }
 
     @Transactional(readOnly = true)
@@ -69,78 +101,135 @@ public class FollowUpService {
                 .orElseThrow(() -> new ResourceNotFoundException("No follow-up with id " + id));
     }
 
-    /**
-     * The date a patient falls due, from the examination date. Kept here
-     * rather than in the entity so the 12 and 6 stay configurable and the
-     * rule has one home.
-     */
-    public LocalDate dueOn(LocalDate lastExamOn, boolean contactLensUser) {
-        int months = contactLensUser ? contactLensMonths : regularMonths;
-        return lastExamOn.plusMonths(months);
-    }
-
-    public String dueForWho(boolean contactLensUser) {
-        return (contactLensUser ? contactLensMonths : regularMonths) + " months";
-    }
-
-    /**
-     * Queues the reminder for one patient. SMS wins when there is a number,
-     * email is the fallback, and an opted-out patient gets nothing queued at
-     * all rather than a row that is silently ignored later.
-     */
     @Transactional
     public Notification notify(Long followUpId, String actor) {
         FollowUp f = get(followUpId);
         if (Boolean.TRUE.equals(f.getOptOut())) {
-            throw new BusinessException("Patient " + f.getPatientId()
-                    + " has opted out of reminders, so nothing was queued.");
+            return saveExcluded(f, "Patient opted out", actor);
         }
-
-        boolean hasPhone = f.getPhone() != null && !f.getPhone().isBlank();
-        NotificationChannel channel = hasPhone
-                ? NotificationChannel.SMS
-                : NotificationChannel.EMAIL;
-        String destination = hasPhone ? f.getPhone() : f.getEmail();
-
-        if (destination == null || destination.isBlank()) {
-            // No way to reach them. Recorded as failed rather than left queued,
-            // because a queued row with nowhere to go just hides the problem.
-            Notification dead = build(f, NotificationChannel.SMS, null,
-                    "No phone or email on file", NotificationStatus.FAILED);
-            dead.setFailureReason("No contact details on file");
-            notifications.save(dead);
-            throw new BusinessException("Patient " + f.getPatientId()
-                    + " has no contact details, so the reminder could not be queued.");
+        String phone = normalizeSriLankanPhone(f.getPhone());
+        if (phone == null) {
+            Notification failed = build(f, f.getPhone(), NotificationStatus.FAILED);
+            failed.setFailureReason("Missing or invalid Sri Lankan mobile number");
+            Notification saved = notifications.save(failed);
+            audit.record(actor, AuditAction.CREATE, "NotificationDispatch", saved.getReference(),
+                    null, "FAILED: invalid phone");
+            return saved;
         }
-
-        Notification saved = build(f, channel, destination, null, NotificationStatus.QUEUED);
-        notifications.save(saved);
-        audit.record(actor, AuditAction.CREATE, "Notification",
-                saved.getReference(), null, channel.label() + " -> " + destination);
+        Notification saved = notifications.save(build(f, phone, NotificationStatus.PENDING));
+        f.setStatus(FollowUpStatus.REVIEW_QUEUED);
+        followUps.save(f);
+        audit.record(actor, AuditAction.CREATE, "NotificationDispatch", saved.getReference(),
+                null, "PENDING -> " + phone);
         return saved;
     }
 
-    private Notification build(FollowUp f, NotificationChannel channel, String destination,
-                               String skipped, NotificationStatus status) {
-        Notification n = new Notification();
-        n.setReference(nextReference());
-        n.setFollowUpId(f.getId());
-        n.setPatientId(f.getPatientId());
-        n.setPatientName(f.getPatientName());
-        n.setChannel(channel);
-        n.setDestination(destination);
-        n.setMessage("Nethcare: you are due for a review. Reply to book an appointment.");
-        n.setStatus(status);
-        n.setSkippedReason(skipped);
-        n.setScheduledFor(LocalDateTime.now());
-        return n;
+    @Transactional
+    public int queueCohort(LocalDate from, LocalDate to, String actor) {
+        int count = 0;
+        for (FollowUp followUp : weeklyList(from, to)) {
+            boolean alreadyOpen = notifications.existsByFollowUpIdAndStatusIn(followUp.getId(),
+                    List.of(NotificationStatus.PENDING, NotificationStatus.RETRY_PENDING, NotificationStatus.SENT));
+            if (!alreadyOpen) {
+                notify(followUp.getId(), actor);
+                count++;
+            }
+        }
+        return count;
     }
 
-    /**
-     * Records what the patient said. A booking moves the row to BOOKED, and
-     * the date they chose is kept so the front desk can see it without
-     * opening M1.
-     */
+    @Transactional
+    public Notification queueOrderReady(Long orderId, String actor) {
+        Order order = orders.findById(orderId)
+                .orElseThrow(() -> new ResourceNotFoundException("No order with id " + orderId));
+        if (order.getStatus() != OrderStatus.READY) {
+            throw new BusinessException("Only a ready order can produce a pickup reminder.");
+        }
+        String phone = normalizeSriLankanPhone(order.getCustomerPhone());
+        Notification n = new Notification();
+        n.setReference(nextReference());
+        n.setOrderId(orderId);
+        n.setPatientName(order.getCustomerName());
+        n.setType(NotificationType.ORDER_READY);
+        n.setChannel(NotificationChannel.SMS);
+        n.setDestination(phone == null ? order.getCustomerPhone() : phone);
+        n.setMessage("Nethcare: " + order.getCustomerName() + ", order " + order.getOrderNo()
+                + " is ready for pickup. Please contact the clinic if you need assistance.");
+        n.setScheduledFor(LocalDateTime.now());
+        n.setStatus(phone == null ? NotificationStatus.FAILED : NotificationStatus.PENDING);
+        if (phone == null) n.setFailureReason("Missing or invalid Sri Lankan mobile number");
+        Notification saved = notifications.save(n);
+        audit.record(actor, AuditAction.CREATE, "NotificationDispatch", saved.getReference(),
+                null, saved.getStatus() + " order=" + order.getOrderNo());
+        return saved;
+    }
+
+    @Transactional
+    public int queueNewReadyOrders(String actor) {
+        int count = 0;
+        for (Order order : orders.findByStatusOrderByIdDesc(OrderStatus.READY)) {
+            if (!notifications.existsByOrderId(order.getId())) {
+                queueOrderReady(order.getId(), actor);
+                count++;
+            }
+        }
+        return count;
+    }
+
+    @Transactional
+    public Notification markSent(Long id, String gatewayReceiptId, String actor) {
+        Notification n = notification(id);
+        if (!n.isQueued()) throw new BusinessException("Notification " + n.getReference() + " is not pending.");
+        if (gatewayReceiptId == null || gatewayReceiptId.isBlank()) {
+            throw new BusinessException("The SMS gateway receipt id is required.");
+        }
+        n.setLastAttemptAt(LocalDateTime.now());
+        n.setGatewayReceiptId(gatewayReceiptId.trim());
+        n.setStatus(NotificationStatus.SENT);
+        n.setSentAt(LocalDateTime.now());
+        if (n.getFollowUpId() != null) {
+            FollowUp f = get(n.getFollowUpId());
+            f.setStatus(FollowUpStatus.NOTIFIED);
+            followUps.save(f);
+        }
+        Notification saved = notifications.save(n);
+        audit.record(actor, AuditAction.UPDATE, "NotificationDispatch", saved.getReference(),
+                "PENDING", "SENT receipt=" + gatewayReceiptId);
+        return saved;
+    }
+
+    /** Compatibility entry point for the existing console action. */
+    @Transactional
+    public Notification markSent(Long id, String actor) {
+        return markSent(id, "MANUAL-" + id + "-" + System.currentTimeMillis(), actor);
+    }
+
+    @Transactional
+    public Notification markDelivered(Long id, String actor) {
+        Notification n = notification(id);
+        if (n.getStatus() != NotificationStatus.SENT) {
+            throw new BusinessException("Only a sent notification can be marked delivered.");
+        }
+        n.setStatus(NotificationStatus.DELIVERED);
+        n.setDeliveredAt(LocalDateTime.now());
+        Notification saved = notifications.save(n);
+        audit.record(actor, AuditAction.UPDATE, "NotificationDispatch", saved.getReference(), "SENT", "DELIVERED");
+        return saved;
+    }
+
+    @Transactional
+    public Notification markFailed(Long id, String reason, boolean retryable, String actor) {
+        Notification n = notification(id);
+        n.setLastAttemptAt(LocalDateTime.now());
+        n.setRetryCount(n.getRetryCount() + 1);
+        n.setFailureReason(reason);
+        n.setStatus(retryable ? NotificationStatus.RETRY_PENDING : NotificationStatus.FAILED);
+        Notification saved = notifications.save(n);
+        audit.record(actor, AuditAction.UPDATE, "NotificationDispatch", saved.getReference(),
+                "PENDING", saved.getStatus().name() + ": " + reason);
+        return saved;
+    }
+
     @Transactional
     public FollowUp recordResponse(Long followUpId, FollowUpOutcome outcome,
                                    String note, LocalDate bookedOn, String actor) {
@@ -148,53 +237,70 @@ public class FollowUpService {
         f.setOutcome(outcome);
         f.setResponseNote(note);
         f.setRespondedOn(LocalDate.now());
-
         if (outcome == FollowUpOutcome.BOOKED) {
             f.setBookedOn(bookedOn == null ? LocalDate.now() : bookedOn);
-            f.setStatus(FollowUpStatus.BOOKED);
+            f.setStatus(FollowUpStatus.NOTIFIED);
         } else if (outcome == FollowUpOutcome.DECLINED) {
-            f.setStatus(FollowUpStatus.CLOSED);
-        } else {
-            // No answer or a dead number: the row stays open so tomorrow's
-            // worklist still has it. A customer who never picked up has not
-            // been told no.
-            f.setStatus(FollowUpStatus.PENDING);
+            f.setStatus(FollowUpStatus.DEFAULTED);
         }
-
         FollowUp saved = followUps.save(f);
-        audit.record(actor, AuditAction.UPDATE, "FollowUp",
-                String.valueOf(followUpId), "PENDING", outcome.name());
+        audit.record(actor, AuditAction.UPDATE, "PatientFollowUpCase", followUpId.toString(),
+                null, outcome.name());
         return saved;
     }
 
-    /** Marks a queued reminder as handed over. There is no SMS gateway here. */
     @Transactional
-    public Notification markSent(Long id, String actor) {
-        Notification n = notifications.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("No notification with id " + id));
-        if (!n.isQueued()) {
-            throw new BusinessException("Notification " + n.getReference()
-                    + " is already " + n.getStatus().label().toLowerCase() + ".");
-        }
-        n.setStatus(NotificationStatus.SENT);
-        n.setSentAt(LocalDateTime.now());
-        Notification saved = notifications.save(n);
-        audit.record(actor, AuditAction.UPDATE, "Notification",
-                saved.getReference(), "QUEUED", "SENT");
+    public FollowUp markAttended(Long followUpId, String actor) {
+        FollowUp f = get(followUpId);
+        f.setStatus(FollowUpStatus.ATTENDED);
+        FollowUp saved = followUps.save(f);
+        audit.record(actor, AuditAction.UPDATE, "PatientFollowUpCase", followUpId.toString(),
+                null, "ATTENDED");
         return saved;
     }
 
-    /**
-     * RCP-0001 style counter, off the highest existing number so a deleted row
-     * does not hand the same reference out twice.
-     */
+    private Notification notification(Long id) {
+        return notifications.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("No notification with id " + id));
+    }
+
+    private Notification saveExcluded(FollowUp f, String reason, String actor) {
+        Notification n = build(f, f.getPhone(), NotificationStatus.EXCLUDED);
+        n.setSkippedReason(reason);
+        Notification saved = notifications.save(n);
+        audit.record(actor, AuditAction.CREATE, "NotificationDispatch", saved.getReference(), null, "EXCLUDED: " + reason);
+        return saved;
+    }
+
+    private Notification build(FollowUp f, String destination, NotificationStatus status) {
+        Notification n = new Notification();
+        n.setReference(nextReference());
+        n.setFollowUpId(f.getId());
+        n.setPatientId(f.getPatientId());
+        patients.findById(f.getPatientId()).map(Patient::getUserId).ifPresent(n::setRecipientUserId);
+        n.setPatientName(f.getPatientName());
+        n.setType(f.isHighRisk() ? NotificationType.SPECIAL_CASE_FOLLOWUP : NotificationType.VISIT_REMINDER);
+        n.setChannel(NotificationChannel.SMS);
+        n.setDestination(destination);
+        n.setMessage("Nethcare: " + f.getPatientName() + ", your " + f.getDueForWho().toLowerCase()
+                + " is due on " + f.getDueOn() + ". Please contact the clinic to arrange your visit.");
+        n.setStatus(status);
+        n.setScheduledFor(LocalDateTime.now());
+        return n;
+    }
+
+    private String normalizeSriLankanPhone(String raw) {
+        if (raw == null) return null;
+        String value = raw.replaceAll("[\\s()-]", "");
+        if (value.matches("07\\d{8}")) return "+94" + value.substring(1);
+        if (value.matches("\\+947\\d{8}")) return value;
+        return null;
+    }
+
     private String nextReference() {
-        long max = notifications.findAll().stream()
-                .map(Notification::getReference)
-                .filter(r -> r != null && r.startsWith("RCP-"))
-                .mapToLong(r -> Long.parseLong(r.substring(4)))
-                .max()
-                .orElse(0L);
-        return String.format("RCP-%04d", max + 1);
+        long max = notifications.findAll().stream().map(Notification::getReference)
+                .filter(r -> r != null && r.matches("NTF-\\d+"))
+                .mapToLong(r -> Long.parseLong(r.substring(4))).max().orElse(0L);
+        return String.format("NTF-%06d", max + 1);
     }
 }

@@ -17,17 +17,21 @@
     <nav>
         <a th:href="@{/dashboard/console}" th:classappend="${active == 'dashboard'} ? ' on' : ''">Dashboard</a>
 
-        <div class="grp">Follow-up</div>
-        <a th:href="@{/followups}" th:classappend="${active == 'followups'} ? ' on' : ''">Review list</a>
-        <a th:href="@{/notifications}" th:classappend="${active == 'notifications'} ? ' on' : ''">Reminders</a>
+        <div th:if="${role == 'ADMIN' or role == 'OPTICIAN'}">
+            <div class="grp">Follow-up</div>
+            <a th:href="@{/followups}" th:classappend="${active == 'followups'} ? ' on' : ''">Review list</a>
+            <a th:href="@{/notifications}" th:classappend="${active == 'notifications'} ? ' on' : ''">Reminders</a>
+        </div>
 
-        <div class="grp">Reports</div>
-        <a th:href="@{/reports/sales}" th:classappend="${active == 'sales'} ? ' on' : ''">Sales</a>
-        <a th:href="@{/reports/orders}" th:classappend="${active == 'orders'} ? ' on' : ''">Orders</a>
-        <a th:href="@{/reports/stock}" th:classappend="${active == 'stock'} ? ' on' : ''">Stock</a>
+        <div th:if="${role == 'ADMIN' or role == 'AUDITOR'}">
+            <div class="grp">Reports</div>
+            <a th:href="@{/reports/sales}" th:classappend="${active == 'sales'} ? ' on' : ''">Sales</a>
+            <a th:href="@{/reports/orders}" th:classappend="${active == 'orders'} ? ' on' : ''">Orders</a>
+            <a th:href="@{/reports/stock}" th:classappend="${active == 'stock'} ? ' on' : ''">Stock</a>
 
-        <div class="grp">Accountability</div>
-        <a th:href="@{/audit}" th:classappend="${active == 'audit'} ? ' on' : ''">Audit trail</a>
+            <div class="grp">Accountability</div>
+            <a th:href="@{/audit}" th:classappend="${active == 'audit'} ? ' on' : ''">Audit trail</a>
+        </div>
     </nav>
     <div class="out"><a th:href="@{/logout}">Sign out</a></div>
 </aside>
@@ -42,9 +46,8 @@
 </div>
 
 <!-- Shown on every screen until the other modules are merged. -->
-<div class="mock" th:fragment="mocknote">
-    Showing sample figures. This screen reads live data once modules M1–M3
-    are merged into <code>main</code>.
+<div class="mock" th:fragment="mocknote" th:if="${mock}">
+    Showing sample figures.
 </div>
 
 </body>

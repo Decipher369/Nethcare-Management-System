@@ -40,6 +40,9 @@ public class DataSeeder {
     @Value("${seed.patient.password}")
     private String patientPassword;
 
+    @Value("${seed.auditor.password}")
+    private String auditorPassword;
+
     @Bean
     CommandLineRunner seedUsers(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         return args -> {
@@ -58,6 +61,8 @@ public class DataSeeder {
                    "Eye Surgeon", "surgeon@nethcare.lk");
             create(userRepository, passwordEncoder, "patient", patientPassword, Role.PATIENT,
                    "Demo Patient", "patient@nethcare.lk");
+            create(userRepository, passwordEncoder, "auditor", auditorPassword, Role.AUDITOR,
+                   "Clinical Auditor", "auditor@nethcare.lk");
 
             log.info("Seeded {} users (one per role)", userRepository.count());
         };
