@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{console/fragments :: head('Sales Report')}"></head>
+<body>
+<div class="console">
+<div th:replace="~{console/fragments :: side(${active})}"></div>
+
+<div class="main">
+<div th:replace="~{console/fragments :: top(${title}, ${user}, ${role})}"></div>
+
+<div class="content">
+<div th:replace="~{console/fragments :: mocknote}"></div>
+
+    <div class="panel">
+        <h2>Period</h2>
+        <form class="filters" method="get" th:action="@{/reports/sales}">
+            <div class="field">
+                <label for="m">Month</label>
+                <input id="m" name="month" type="month" value="2026-08">
+            </div>
+            <div class="field">
+                <label for="c">Category</label>
+                <select id="c" name="category">
+                    <option>All</option>
+                    <option>Spectacles</option>
+                    <option>Contact lenses</option>
+                    <option>Clinical fees</option>
+                    <option>Repairs &amp; adjustments</option>
+                </select>
+            </div>
+            <button class="btn" type="submit">Run report</button>
+            <button class="btn ghost" type="button" disabled>Print</button>
+            <button class="btn ghost" type="button" disabled>Export CSV</button>
+        </form>
+    </div>
+
+    <div class="kpis">
+        <div class="kpi">
+            <div class="k">Total sales</div>
+            <div class="v" th:text="'LKR ' + ${monthTotal}">LKR 842,000</div>
+            <div class="sub" th:text="${monthBills} + ' bills'">141 bills</div>
+        </div>
+        <div class="kpi">
+            <div class="k">Advances taken</div>
+            <div class="v" th:text="'LKR ' + ${monthAdvances}">LKR 398,000</div>
+            <div class="sub">paid before collection</div>
+        </div>
+        <div class="kpi alert">
+            <div class="k">Still outstanding</div>
+            <div class="v" th:text="'LKR ' + ${monthOutstanding}">LKR 61,500</div>
+            <div class="sub">balance left on orders</div>
+        </div>
+    </div>
+
+    <div class="panel">
+        <h2>Five month trend</h2>
+        <div class="pad">
+            <div class="bars">
+                <div class="col" th:each="t : ${trend}">
+                    <div class="amt" th:text="${t[1]}">842,000</div>
+                    <div class="fill" th:style="'height:' + ${t[2]}" th:text="'&nbsp;'">&nbsp;</div>
+                    <div class="mon" th:text="${t[0]}">Aug</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel">
+        <h2>Sales by category</h2>
+        <table>
+            <thead><tr><th>Category</th><th class="num">Amount (LKR)</th><th class="num">Share</th></tr></thead>
+            <tbody>
+            <tr th:each="c : ${byCategory}">
+                <td th:text="${c[0]}">Spectacles</td>
+                <td class="num" th:text="${c[1]}">612,000</td>
+                <td class="num" th:text="${c[2]}">72.7%</td>
+            </tr>
+            </tbody>
+        </table>
+        <p class="note pad">Financial reports stay with the owner and admin.</p>
+    </div>
+
+</div>
+</div>
+</div>
+</body>
+</html>

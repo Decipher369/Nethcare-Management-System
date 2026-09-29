@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{console/fragments :: head('Audit Trail')}"></head>
+<body>
+<div class="console">
+<div th:replace="~{console/fragments :: side(${active})}"></div>
+
+<div class="main">
+<div th:replace="~{console/fragments :: top(${title}, ${user}, ${role})}"></div>
+
+<div class="content">
+<div th:replace="~{console/fragments :: mocknote}"></div>
+
+    <div class="panel">
+        <h2>Audit trail
+            <span class="sp">read-only — no role can edit or delete these rows</span>
+        </h2>
+
+        <form class="filters" method="get" th:action="@{/audit}">
+            <div class="field">
+                <label for="u">User</label>
+                <select id="u" name="user">
+                    <option>Anyone</option>
+                    <option>admin</option>
+                    <option>optician</option>
+                    <option>staff</option>
+                    <option>surgeon</option>
+                </select>
+            </div>
+            <div class="field">
+                <label for="e">Entity</label>
+                <select id="e" name="entity">
+                    <option>Anything</option>
+                    <option>Patient</option>
+                    <option>Examination</option>
+                    <option>Prescription</option>
+                    <option>Referral</option>
+                    <option>Order</option>
+                    <option>Bill</option>
+                    <option>Payment</option>
+                    <option>StockItem</option>
+                    <option>User</option>
+                </select>
+            </div>
+            <div class="field">
+                <label for="a">Action</label>
+                <select id="a" name="action">
+                    <option>Any</option>
+                    <option>CREATE</option>
+                    <option>UPDATE</option>
+                    <option>DELETE</option>
+                </select>
+            </div>
+            <div class="field">
+                <label for="from">From</label>
+                <input id="from" name="from" type="date" value="2026-09-01">
+            </div>
+            <div class="field">
+                <label for="to">To</label>
+                <input id="to" name="to" type="date" value="2026-09-30">
+            </div>
+            <button class="btn" type="submit">Filter</button>
+        </form>
+
+        <table>
+            <thead>
+            <tr><th>When</th><th>User</th><th>Entity</th><th>Action</th>
+                <th>Record</th><th>What changed</th></tr>
+            </thead>
+            <tbody>
+            <tr th:each="r : ${rows}">
+                <td class="mono" th:text="${r[0]}">2026-09-28 14:02</td>
+                <td th:text="${r[1]}">optician</td>
+                <td th:text="${r[2]}">Examination</td>
+                <td>
+                    <span class="tag good" th:if="${r[3] == 'CREATE'}" th:text="${r[3]}">CREATE</span>
+                    <span class="tag warn" th:unless="${r[3] == 'CREATE'}" th:text="${r[3]}">UPDATE</span>
+                </td>
+                <td class="mono" th:text="${r[4]}">#2411</td>
+                <td th:text="${r[5]}">—</td>
+            </tr>
+            </tbody>
+        </table>
+
+        <p class="readonly pad">
+            Entries are written on every create, update and delete across M1–M3.
+            There is deliberately no edit or delete control on this screen, and
+            the database refuses both — an audit trail that can be tidied up is
+            not evidence of anything.
+        </p>
+    </div>
+
+</div>
+</div>
+</div>
+</body>
+</html>
