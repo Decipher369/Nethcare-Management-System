@@ -10,13 +10,37 @@
 
     <div class="flash" th:if="${error}" th:text="${error}"></div>
 
-    <form method="post" th:action="@{/orders/new}">
+    <form class="filters" method="get" th:action="@{/orders/new}">
+        <label class="field wide">Registered patient
+            <select name="patientId" required>
+                <option value="">Select patient</option>
+                <option th:each="p : ${patients}" th:value="${p.id}"
+                        th:selected="${selectedPatient != null and selectedPatient.id == p.id}"
+                        th:text="${p.patientNo} + ' · ' + ${p.fullName}">Patient</option>
+            </select>
+        </label>
+        <button class="btn" type="submit">Load patient</button>
+    </form>
+
+    <p class="empty" th:if="${selectedPatient == null}">
+        Select the patient who is buying in store to begin the order.
+    </p>
+
+    <form method="post" th:action="@{/orders/new}" th:if="${selectedPatient != null}">
+        <input type="hidden" name="patientId" th:value="${selectedPatient.id}">
+        <div class="panel"><div class="pad">
+            <strong th:text="${selectedPatient.fullName}">Patient</strong>
+            <span class="note" th:text="' · ' + ${selectedPatient.patientNo}">Number</span>
+            <span class="note" th:if="${selectedPatient.phone}" th:text="' · ' + ${selectedPatient.phone}">Phone</span>
+        </div></div>
         <div class="grid">
-            <label class="field">Customer name
-                <input type="text" name="customerName" th:value="${order.customerName}" required>
-            </label>
-            <label class="field">Phone
-                <input type="text" name="customerPhone" th:value="${order.customerPhone}">
+            <label class="field">Prescription
+                <select name="prescriptionId">
+                    <option value="">No prescription selected</option>
+                    <option th:each="rx : ${prescriptions}" th:value="${rx.id}"
+                            th:selected="${order.prescriptionId == rx.id}"
+                            th:text="${rx.rxNo} + ' · ' + ${rx.issuedOn}">RX</option>
+                </select>
             </label>
             <label class="field">Lens type
                 <input type="text" name="lensType" th:value="${order.lensType}" placeholder="Single vision">

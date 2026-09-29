@@ -9,10 +9,21 @@ import com.nethcare.model.OrderPriority;
 import com.nethcare.model.OrderStatus;
 import com.nethcare.model.Payment;
 import com.nethcare.model.PaymentMethod;
+import com.nethcare.model.PaymentStatus;
+import com.nethcare.model.Patient;
+import com.nethcare.model.Prescription;
+import com.nethcare.model.StockCategory;
 import com.nethcare.model.StockItem;
+import com.nethcare.model.OrderStatusHistory;
 import com.nethcare.repository.BillRepository;
+import com.nethcare.repository.ExaminationRepository;
+import com.nethcare.repository.FrameRepository;
+import com.nethcare.repository.LensRepository;
 import com.nethcare.repository.OrderRepository;
+import com.nethcare.repository.OrderStatusHistoryRepository;
+import com.nethcare.repository.PatientRepository;
 import com.nethcare.repository.PaymentRepository;
+import com.nethcare.repository.PrescriptionRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,6 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -46,19 +58,32 @@ public class OrderService {
     private final BillRepository bills;
     private final PaymentRepository payments;
     private final StockService stock;
+    private final PatientRepository patients;
+    private final PrescriptionRepository prescriptions;
+    private final ExaminationRepository examinations;
+    private final OrderStatusHistoryRepository statusHistory;
+    private final FrameRepository frames;
+    private final LensRepository lenses;
 
     @Value("${nethcare.order.advance-percentage:40}")
     private BigDecimal advancePercent;
 
-    @Value("${nethcare.followup.regular-months:12}")
-    private int followUpMonths;
-
     public OrderService(OrderRepository orders, BillRepository bills,
-                        PaymentRepository payments, StockService stock) {
+                        PaymentRepository payments, StockService stock,
+                        PatientRepository patients, PrescriptionRepository prescriptions,
+                        ExaminationRepository examinations,
+                        OrderStatusHistoryRepository statusHistory,
+                        FrameRepository frames, LensRepository lenses) {
         this.orders = orders;
         this.bills = bills;
         this.payments = payments;
         this.stock = stock;
+        this.patients = patients;
+        this.prescriptions = prescriptions;
+        this.examinations = examinations;
+        this.statusHistory = statusHistory;
+        this.frames = frames;
+        this.lenses = lenses;
     }
 
     // ------------------------------------------------------------- creating
@@ -75,11 +100,14 @@ public class OrderService {
         if (lines == null || lines.isEmpty()) {
             throw new BusinessException("An order needs at least one item.");
         }
-        if (order.getCustomerName() == null || order.getCustomerName().isBlank()) {
-            throw new BusinessException("An order needs a customer name.");
-        }
+        Patient patient = requirePatient(order.getPatientId());
+        validateClinicalLinks(order, patient);
 
         order.setOrderNo(nextOrderNo());
+        order.setPatientNoSnapshot(patient.getPatientNo());
+        order.setCustomerName(patient.getFullName());
+        order.setCustomerPhone(patient.getPhone());
+        order.setOrderedOn(LocalDate.now());
         order.setPlacedBy(placedBy);
         order.setStatus(OrderStatus.PLACED);
 
@@ -99,6 +127,14 @@ public class OrderService {
                 line.setUnitPrice(item.getUnitPrice());
             }
             order.addItem(line);
+
+            if (item.getCategory() == StockCategory.FRAME) {
+                frames.findByStockItemId(item.getId()).ifPresent(frame -> order.setFrameId(frame.getId()));
+            } else if (item.getCategory() == StockCategory.SINGLE_VISION_LENS
+                    || item.getCategory() == StockCategory.BIFOCAL_LENS
+                    || item.getCategory() == StockCategory.CONTACT_LENS) {
+                lenses.findByStockItemId(item.getId()).ifPresent(lens -> order.setLensId(lens.getId()));
+            }
         }
 
         Order saved = orders.save(order);
@@ -108,7 +144,45 @@ public class OrderService {
         for (OrderItem line : saved.getItems()) {
             stock.reserve(line.getStockItemId(), line.getQuantity());
         }
+        recordStatus(saved, null, OrderStatus.PLACED, placedBy, "Order placed");
         return saved;
+    }
+
+    private Patient requirePatient(Long patientId) {
+        if (patientId == null) {
+            throw new BusinessException("Select a registered patient for this in-store order.");
+        }
+        return patients.findById(patientId)
+                .orElseThrow(() -> new ResourceNotFoundException("No patient with id " + patientId));
+    }
+
+    private void validateClinicalLinks(Order order, Patient patient) {
+        if (order.getPrescriptionId() != null) {
+            Prescription rx = prescriptions.findById(order.getPrescriptionId())
+                    .orElseThrow(() -> new ResourceNotFoundException(
+                            "No prescription with id " + order.getPrescriptionId()));
+            if (!rx.getPatientId().equals(patient.getId())) {
+                throw new BusinessException("The selected prescription does not belong to this patient.");
+            }
+            order.setExaminationId(rx.getExaminationId());
+            order.setPrescriptionNoSnapshot(rx.getRxNo());
+            order.setOdSph(rx.getOdSph());
+            order.setOdCyl(rx.getOdCyl());
+            order.setOdAxis(rx.getOdAxis());
+            order.setOdAdd(rx.getOdAdd());
+            order.setOsSph(rx.getOsSph());
+            order.setOsCyl(rx.getOsCyl());
+            order.setOsAxis(rx.getOsAxis());
+            order.setOsAdd(rx.getOsAdd());
+            order.setPupillaryDistance(rx.getIpd());
+        } else if (order.getExaminationId() != null) {
+            var exam = examinations.findById(order.getExaminationId())
+                    .orElseThrow(() -> new ResourceNotFoundException(
+                            "No examination with id " + order.getExaminationId()));
+            if (!exam.getPatientId().equals(patient.getId())) {
+                throw new BusinessException("The selected examination does not belong to this patient.");
+            }
+        }
     }
 
     // ---------------------------------------------------------------- status
@@ -121,7 +195,7 @@ public class OrderService {
      * than trusted to the person at the counter.
      */
     @Transactional
-    public Order advance(Long id) {
+    public Order advance(Long id, String changedBy) {
         Order order = get(id);
         if (!order.getStatus().isOpen()) {
             throw new BusinessException("Order " + order.getOrderNo() + " is already "
@@ -140,8 +214,17 @@ public class OrderService {
             requireSettled(order);
         }
 
+        OrderStatus previous = order.getStatus();
         order.setStatus(next);
+        if (next == OrderStatus.READY) {
+            order.setReadyOn(LocalDate.now());
+        }
+        if (next == OrderStatus.COLLECTED) {
+            order.setCollectedOn(LocalDate.now());
+            order.setCollectedBy(changedBy);
+        }
         Order saved = orders.save(order);
+        recordStatus(saved, previous, next, changedBy, null);
 
         if (next == OrderStatus.COLLECTED) {
             // The item actually leaves the shop here, not when it was ordered.
@@ -203,7 +286,7 @@ public class OrderService {
      * if any money was taken.
      */
     @Transactional
-    public Order cancel(Long id, String reason) {
+    public Order cancel(Long id, String reason, String changedBy) {
         Order order = get(id);
         if (!order.getStatus().canBeCancelled()) {
             throw new BusinessException("Order " + order.getOrderNo()
@@ -211,6 +294,7 @@ public class OrderService {
                     + " and cannot be cancelled.");
         }
 
+        OrderStatus previous = order.getStatus();
         order.setStatus(OrderStatus.CANCELLED);
         if (reason != null && !reason.isBlank()) {
             order.setRemarks(order.getRemarks() == null
@@ -218,6 +302,7 @@ public class OrderService {
                     : order.getRemarks() + " | Cancelled: " + reason);
         }
         Order saved = orders.save(order);
+        recordStatus(saved, previous, OrderStatus.CANCELLED, changedBy, reason);
 
         for (OrderItem line : saved.getItems()) {
             stock.release(line.getStockItemId(), line.getQuantity());
@@ -229,6 +314,7 @@ public class OrderService {
                 raiseCreditNote(bill, reason);
             } else if (!bill.isCancelled()) {
                 bill.setCancelled(true);
+                bill.setPaymentStatus(PaymentStatus.CANCELLED);
                 bills.save(bill);
             }
         });
@@ -238,6 +324,7 @@ public class OrderService {
     /** Refund paperwork. Recorded, not deleted — the money did move. */
     private void raiseCreditNote(Bill bill, String reason) {
         bill.setCancelled(true);
+        bill.setPaymentStatus(PaymentStatus.CANCELLED);
         bill.setCreditNote(true);
         bill.setCreditNoteNo("CN-" + bill.getBillNo().replace("INV-", ""));
         bills.save(bill);
@@ -288,13 +375,34 @@ public class OrderService {
         Bill bill = new Bill();
         bill.setBillNo(nextBillNo());
         bill.setOrderId(orderId);
+        bill.setPatientId(order.getPatientId());
+        bill.setExaminationId(order.getExaminationId());
+        BigDecimal frameCharges = BigDecimal.ZERO;
+        BigDecimal lensCharges = BigDecimal.ZERO;
+        BigDecimal otherCharges = BigDecimal.ZERO;
+        for (OrderItem line : order.getItems()) {
+            BigDecimal value = money(line.lineTotal());
+            StockCategory category = stock.get(line.getStockItemId()).getCategory();
+            if (category == StockCategory.FRAME) {
+                frameCharges = frameCharges.add(value);
+            } else if (category == StockCategory.SINGLE_VISION_LENS
+                    || category == StockCategory.BIFOCAL_LENS
+                    || category == StockCategory.CONTACT_LENS) {
+                lensCharges = lensCharges.add(value);
+            } else {
+                otherCharges = otherCharges.add(value);
+            }
+        }
+        bill.setFrameCharges(money(frameCharges));
+        bill.setLensCharges(money(lensCharges));
+        bill.setOtherCharges(money(otherCharges));
         bill.setSubtotal(subtotal);
         bill.setDiscount(off);
         bill.setSurcharge(surcharge);
         bill.setTotal(money(afterDiscount.add(surcharge)));
         bill.setPaid(BigDecimal.ZERO);
-        bill.setFollowUpOn(followUpOn != null ? followUpOn
-                : LocalDate.now().plusMonths(followUpMonths));
+        bill.setPaymentStatus(PaymentStatus.PENDING);
+        bill.setFollowUpOn(followUpOn);
 
         Bill saved = bills.save(bill);
         log.info("Bill {} raised for order {}: subtotal {} discount {} surcharge {} total {}",
@@ -332,6 +440,9 @@ public class OrderService {
         Payment saved = payments.save(payment);
 
         bill.setPaid(money(bill.getPaid().add(value)));
+        bill.setPaymentStatus(bill.isSettled()
+                ? PaymentStatus.COMPLETED
+                : PaymentStatus.PARTIALLY_PAID);
         bills.save(bill);
 
         log.info("Receipt {} — LKR {} {} on bill {} by {}", saved.getReceiptNo(), value,
@@ -387,6 +498,22 @@ public class OrderService {
 
     public long countByStatus(OrderStatus status) {
         return orders.countByStatus(status);
+    }
+
+    public List<OrderStatusHistory> statusHistoryFor(Long orderId) {
+        return statusHistory.findByOrderIdOrderByChangedAtAsc(orderId);
+    }
+
+    private void recordStatus(Order order, OrderStatus previous, OrderStatus next,
+                              String changedBy, String note) {
+        OrderStatusHistory entry = new OrderStatusHistory();
+        entry.setOrderId(order.getId());
+        entry.setPreviousStatus(previous);
+        entry.setNewStatus(next);
+        entry.setChangedBy(changedBy == null || changedBy.isBlank() ? "system" : changedBy);
+        entry.setChangedAt(LocalDateTime.now());
+        entry.setNote(note == null || note.isBlank() ? null : note.trim());
+        statusHistory.save(entry);
     }
 
     // ---------------------------------------------------------------- numbers

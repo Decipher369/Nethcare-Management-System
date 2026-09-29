@@ -7,6 +7,7 @@
 <main class="wrap">
     <p><a th:href="@{/orders}">← All orders</a></p>
     <h1 th:text="${order.orderNo}">ORD-0001</h1>
+    <p class="note" th:text="${order.patientNoSnapshot} + ' · ' + ${order.customerName}">Patient</p>
 
     <div class="flash" th:if="${msg}" th:text="${msg}"></div>
     <div class="flash" th:if="${error}" th:text="${error}"></div>

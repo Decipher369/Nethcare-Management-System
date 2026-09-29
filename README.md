@@ -80,8 +80,12 @@ order screen both read from it.
 | Entity | What it holds |
 |---|---|
 | `StockItem` | One product — code, brand, category, price, quantity, reserved, reorder level, expiry, image |
-| `Order` | Order number, customer, lens spec, priority, status, promised date |
+| `Order` | Patient, visit/prescription snapshot, selected frame/lens, status and dispensing dates |
 | `OrderItem` | One line — stock item, quantity, and the unit price *as it was on the day* |
+| `Frame` / `Lens` | Category-specific details linked one-to-one with the shared stock row |
+| `OrderStatusHistory` | Append-only order workflow timeline |
+| `StockMovement` | Append-only reservation, release, dispensing and adjustment ledger |
+| `ContactLensTracker` | Patient and bill-linked contact-lens replacement record |
 
 Categories are the five the client asked to see on the dashboard: `FRAME`,
 `SINGLE_VISION_LENS`, `BIFOCAL_LENS`, `CONTACT_LENS`, `CASE`.
@@ -123,8 +127,10 @@ looked up through the prescription, for the same reason. A prescription gets
 reissued next year — the glasses already made to last year's spec must not
 change with it.
 
-`Order` currently carries `customerName` and `customerPhone` directly. Linking
-orders to the merged patient and prescription records remains integration work.
+Orders are created only for a registered patient selected by staff. If a
+prescription is selected, the service verifies that it belongs to that patient
+and copies its powers into the order. The copied patient and prescription data
+keeps the historical sale readable after either source record changes.
 
 A bill is `INV-xxxx` and stores its own totals — subtotal, discount, urgent
 surcharge, total. Same reasoning as the order line price: a bill is a document
