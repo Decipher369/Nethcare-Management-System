@@ -3,17 +3,27 @@ package com.nethcare.service;
 import com.nethcare.exception.BusinessException;
 import com.nethcare.exception.ResourceNotFoundException;
 import com.nethcare.model.Examination;
+import com.nethcare.model.ClinicalSymptom;
+import com.nethcare.model.MedicalHistory;
 import com.nethcare.model.Prescription;
 import com.nethcare.model.Referral;
+import com.nethcare.model.Role;
+import com.nethcare.model.User;
+import com.nethcare.repository.ClinicalSymptomRepository;
 import com.nethcare.repository.ExaminationRepository;
+import com.nethcare.repository.MedicalHistoryRepository;
+import com.nethcare.repository.PatientRepository;
 import com.nethcare.repository.PrescriptionRepository;
 import com.nethcare.repository.ReferralRepository;
+import com.nethcare.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * The rules that sit between the screens and the tables.
@@ -26,13 +36,25 @@ public class ClinicalService {
     private final ExaminationRepository exams;
     private final PrescriptionRepository prescriptions;
     private final ReferralRepository referrals;
+    private final PatientRepository patients;
+    private final ClinicalSymptomRepository symptoms;
+    private final MedicalHistoryRepository histories;
+    private final UserRepository users;
 
     public ClinicalService(ExaminationRepository exams,
                            PrescriptionRepository prescriptions,
-                           ReferralRepository referrals) {
+                           ReferralRepository referrals,
+                           PatientRepository patients,
+                           ClinicalSymptomRepository symptoms,
+                           MedicalHistoryRepository histories,
+                           UserRepository users) {
         this.exams = exams;
         this.prescriptions = prescriptions;
         this.referrals = referrals;
+        this.patients = patients;
+        this.symptoms = symptoms;
+        this.histories = histories;
+        this.users = users;
     }
 
     // ---- Examinations ----------------------------------------------------
@@ -41,11 +63,100 @@ public class ClinicalService {
         return exams.findByPatientIdOrderByExamDateDesc(patientId);
     }
 
+    @Transactional
+    public Examination recordExamination(Examination exam, ClinicalSymptom symptom,
+                                         MedicalHistory history, String clinician) {
+        if (exam.getPatientId() == null || !patients.existsById(exam.getPatientId())) {
+            throw new ResourceNotFoundException("Select a registered patient before recording an examination.");
+        }
+        LocalDate examDate = exam.getExamDate() == null ? LocalDate.now() : exam.getExamDate();
+        if (examDate.isAfter(LocalDate.now())) {
+            throw new BusinessException("Exam date cannot be in the future.");
+        }
+
+        validatePower("Right sphere", exam.getOdSph(), -40, 40);
+        validatePower("Right cylinder", exam.getOdCyl(), -20, 20);
+        validateAxis("Right axis", exam.getOdAxis());
+        validatePower("Right add", exam.getOdAdd(), 0, 10);
+        validatePower("Left sphere", exam.getOsSph(), -40, 40);
+        validatePower("Left cylinder", exam.getOsCyl(), -20, 20);
+        validateAxis("Left axis", exam.getOsAxis());
+        validatePower("Left add", exam.getOsAdd(), 0, 10);
+        validatePower("PD", exam.getIpd(), 30, 90);
+
+        if (!hasClinicalData(exam, symptom)) {
+            throw new BusinessException("Record a symptom, clinical finding, or eye measurement.");
+        }
+
+        exam.setId(null);
+        exam.setExamDate(examDate);
+        exam.setExaminedBy(clinician);
+        Examination saved = exams.save(exam);
+
+        symptom.setId(null);
+        symptom.setExaminationId(saved.getId());
+        symptoms.save(symptom);
+
+        history.setId(null);
+        history.setPatientId(saved.getPatientId());
+        history.setExaminationId(saved.getId());
+        history.setVersionNumber(Math.toIntExact(histories.countByPatientId(saved.getPatientId()) + 1));
+        history.setRecordedOn(examDate);
+        history.setRecordedBy(clinician);
+        histories.save(history);
+        return saved;
+    }
+
+    public Optional<ClinicalSymptom> symptomsFor(Long examinationId) {
+        return symptoms.findByExaminationId(examinationId);
+    }
+
+    public List<MedicalHistory> medicalHistoryFor(Long patientId) {
+        return histories.findByPatientIdOrderByVersionNumberDesc(patientId);
+    }
+
+    public Optional<MedicalHistory> currentMedicalHistory(Long patientId) {
+        return histories.findFirstByPatientIdOrderByVersionNumberDesc(patientId);
+    }
+
+    public Optional<MedicalHistory> medicalHistoryForExamination(Long examinationId) {
+        return histories.findByExaminationId(examinationId);
+    }
+
+    public MedicalHistory historyDraftFor(Long patientId) {
+        MedicalHistory draft = new MedicalHistory();
+        currentMedicalHistory(patientId).ifPresent(current -> copyHistory(current, draft));
+        return draft;
+    }
+
+    private void copyHistory(MedicalHistory from, MedicalHistory to) {
+        to.setDiabetic(from.isDiabetic());
+        to.setAsthma(from.isAsthma());
+        to.setHypertension(from.isHypertension());
+        to.setCardiac(from.isCardiac());
+        to.setSle(from.isSle());
+        to.setCholesterol(from.isCholesterol());
+        to.setTb(from.isTb());
+        to.setThyroid(from.isThyroid());
+        to.setArthritis(from.isArthritis());
+        to.setSyphilis(from.isSyphilis());
+        to.setCancer(from.isCancer());
+        to.setRenal(from.isRenal());
+        to.setBronchitis(from.isBronchitis());
+        to.setMigraine(from.isMigraine());
+        to.setOcularHistory(from.getOcularHistory());
+        to.setOtherConditions(from.getOtherConditions());
+    }
+
     // ---- Prescriptions ---------------------------------------------------
 
     public Prescription issueFrom(Long examId, String issuedBy) {
         Examination exam = exams.findById(examId)
                 .orElseThrow(() -> new ResourceNotFoundException("No examination with id " + examId));
+
+        if (prescriptions.existsByExaminationId(examId)) {
+            throw new BusinessException("A prescription has already been issued from this examination.");
+        }
 
         Prescription rx = new Prescription();
         rx.setRxNo(nextRxNo());
@@ -82,9 +193,16 @@ public class ClinicalService {
         Examination exam = exams.findById(examId)
                 .orElseThrow(() -> new ResourceNotFoundException("No examination with id " + examId));
 
+        if (referrals.existsByExaminationId(examId)) {
+            throw new BusinessException("A referral has already been created from this examination.");
+        }
+
         if (reason == null || reason.isBlank()) {
             throw new BusinessException("A referral needs a reason.");
         }
+        User surgeon = users.findByUsername(surgeonName)
+                .filter(user -> user.getRole() == Role.SURGEON && user.isActive())
+                .orElseThrow(() -> new BusinessException("Select an active surgeon account."));
         if (!"ROUTINE".equalsIgnoreCase(urgency) && !"URGENT".equalsIgnoreCase(urgency)) {
             throw new BusinessException("Urgency must be ROUTINE or URGENT.");
         }
@@ -95,11 +213,55 @@ public class ClinicalService {
         r.setExaminationId(exam.getId());
         r.setReferredOn(LocalDate.now());
         r.setReferredBy(referredBy);
-        r.setSurgeonName(surgeonName);
+        r.setSurgeonName(surgeon.getUsername());
         r.setReason(reason);
         r.setUrgency(urgency.toUpperCase());
         r.setAttachedHistory(buildHistory(exam.getPatientId()));
         return referrals.save(r);
+    }
+
+    private void validatePower(String label, String value, int minimum, int maximum) {
+        if (value == null || value.isBlank()) {
+            return;
+        }
+        try {
+            BigDecimal number = new BigDecimal(value.trim());
+            if (number.compareTo(BigDecimal.valueOf(minimum)) < 0
+                    || number.compareTo(BigDecimal.valueOf(maximum)) > 0) {
+                throw new BusinessException(label + " must be between " + minimum + " and " + maximum + ".");
+            }
+        } catch (NumberFormatException ex) {
+            throw new BusinessException(label + " must be a number.");
+        }
+    }
+
+    private void validateAxis(String label, String value) {
+        if (value == null || value.isBlank()) {
+            return;
+        }
+        try {
+            int axis = Integer.parseInt(value.trim());
+            if (axis < 0 || axis > 180) {
+                throw new BusinessException(label + " must be between 0 and 180 degrees.");
+            }
+        } catch (NumberFormatException ex) {
+            throw new BusinessException(label + " must be a whole number between 0 and 180.");
+        }
+    }
+
+    private boolean hasClinicalData(Examination e, ClinicalSymptom s) {
+        return isSet(e.getOdSph()) || isSet(e.getOdCyl()) || isSet(e.getOdAxis())
+                || isSet(e.getOdVa()) || isSet(e.getOsSph()) || isSet(e.getOsCyl())
+                || isSet(e.getOsAxis()) || isSet(e.getOsVa()) || isSet(e.getFindings())
+                || s.isHeadache() || s.isBlurVision() || s.isTearing() || s.isRedness()
+                || s.isItching() || s.isStrain() || s.isFloaters() || s.isFlashes()
+                || s.isBurning() || s.isDischarge() || s.isDoubleVision() || s.isSquint()
+                || s.isGlare() || s.isPain() || s.isDistortion() || s.isDry()
+                || s.isPhotophobia() || isSet(s.getAdditionalSymptoms());
+    }
+
+    private boolean isSet(String value) {
+        return value != null && !value.isBlank();
     }
 
     // One block of text the surgeon can read without opening anything else.
@@ -142,6 +304,39 @@ public class ClinicalService {
         r.setFeedbackOn(LocalDate.now());
         r.setStatus("COMPLETED");
         referrals.save(r);
+    }
+
+    @Transactional
+    public Referral recordConsultation(Long referralId, String actor, boolean admin,
+                                       String tests, String diagnosis, String treatment,
+                                       String followUpInstructions, String notes) {
+        Referral referral = referrals.findById(referralId)
+                .orElseThrow(() -> new ResourceNotFoundException("No referral with id " + referralId));
+        if (!admin && !referral.getSurgeonName().equalsIgnoreCase(actor)) {
+            throw new BusinessException("This referral is assigned to another surgeon.");
+        }
+        if ("COMPLETED".equalsIgnoreCase(referral.getStatus())) {
+            throw new BusinessException("This consultation has already been completed.");
+        }
+        if (!isSet(diagnosis)) {
+            throw new BusinessException("Diagnosis is required to complete the consultation.");
+        }
+        if (!isSet(treatment)) {
+            throw new BusinessException("Treatment is required to complete the consultation.");
+        }
+
+        referral.setTests(blankToNull(tests));
+        referral.setDiagnosis(diagnosis.trim());
+        referral.setTreatment(treatment.trim());
+        referral.setFollowUpInstructions(blankToNull(followUpInstructions));
+        referral.setFeedback(blankToNull(notes));
+        referral.setFeedbackOn(LocalDate.now());
+        referral.setStatus("COMPLETED");
+        return referrals.save(referral);
+    }
+
+    private String blankToNull(String value) {
+        return isSet(value) ? value.trim() : null;
     }
 
     public List<Referral> referralsFor(Long patientId) {

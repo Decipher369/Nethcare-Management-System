@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head(title)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${title} + ' — Nethcare'">Nethcare clinical</title>
+    <link rel="stylesheet" th:href="@{/css/staff.css}">
+</head>
+<body>
+<div th:fragment="bar(active, user)">
+    <div class="topbar">
+        <span class="brand">Nethcare clinical</span>
+        <nav>
+            <a th:href="@{/patients}">Patients</a>
+            <a th:href="@{/referrals}">Referrals</a>
+        </nav>
+        <span class="who" th:text="${user}">clinician</span>
+    </div>
+</div>
+</body>
+</html>

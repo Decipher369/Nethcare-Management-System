@@ -120,3 +120,11 @@ td.mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size
 .tag.info { background: #e8eef4; color: var(--ink); }
 
 .note { font-size: .8rem; color: var(--ink-soft); }
+
+.checks { display: flex; flex-wrap: wrap; gap: .8rem 1.25rem; }
+.checks > label:not(.field) { min-width: 145px; font-size: .88rem; }
+.checks .wide { flex-basis: 100%; }
+.detail-list { display: grid; grid-template-columns: 95px 1fr; gap: .45rem .8rem; margin: 0; }
+.detail-list dt { color: var(--ink-soft); font-size: .78rem; }
+.detail-list dd { margin: 0; }
+.clinical-history { margin: 0; white-space: pre-wrap; font: .82rem/1.6 ui-monospace, monospace; }

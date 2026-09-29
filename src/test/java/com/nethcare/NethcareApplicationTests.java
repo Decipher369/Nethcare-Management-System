@@ -2,6 +2,7 @@ package com.nethcare;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -9,6 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * Smoke test — verifies the Spring context loads without errors.
  */
 @SpringBootTest
+@ActiveProfiles("test")
 class NethcareApplicationTests {
 
     @Test

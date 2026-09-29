@@ -448,6 +448,27 @@ password that the front desk writes on a slip.
 The patient detail page reads its examination and prescription history from
 M2.
 
+### Clinical workflow (M2)
+
+The browser workflow starts from a patient record. An optician opens
+`/examinations/new?patientId={id}`, confirms the current medical and ocular
+history, records symptoms and measurements, and saves the visit. From the saved
+examination they can issue one prescription or send one referral to an active
+surgeon account.
+
+| Page | What it does |
+|---|---|
+| `/examinations/new?patientId={id}` | Structured symptoms, history and eye examination form |
+| `/examinations/{id}` | Visit detail, permanent prescription and referral actions |
+| `/referrals` | Pending, completed or full role-aware referral worklist |
+| `/referrals/{id}` | Referral context and surgeon consultation form |
+
+Each examination writes a new `patient_medical_history` snapshot instead of
+editing the previous row. That preserves what the clinician knew at every
+visit. Symptoms are stored once against their examination. Axis, sphere,
+cylinder, ADD and PD values are checked by the service before anything is
+saved.
+
 ### Clinical API (M2)
 
 Examinations, prescriptions and referrals over JSON. `OPTICIAN`, `SURGEON` and
@@ -473,31 +494,22 @@ update endpoint, on purpose.
 when the referral is made rather than looked up live. A referral is a record of
 what the surgeon was actually handed over.
 
-### Referral worklists and validity
+### Referral worklists and permanent records
 
-The worklists and the validity calls. These are the endpoints a surgeon opens
-their day with, and they are the only place the 12-month and 90-day rules are
-enforced in code — `Prescription.isValidOn` and `Referral.isOpenForAccess` both
-existed on the entities with nothing calling them, so a client had to re-derive
-the rules for itself.
+Prescriptions and referrals do not expire automatically. Both remain available
+as clinical history. Referral status represents whether the assigned surgeon
+has completed the consultation.
 
 | Method | Path | Does |
 |---|---|---|
 | GET | `/api/referrals` | Worklist, `?status=PENDING` by default, `?status=all` for everything |
-| GET | `/api/referrals/open` | Only the ones still inside the 90-day window |
+| GET | `/api/referrals/open` | Pending referrals without an age cutoff |
 | GET | `/api/referrals/patient/{id}` | One patient's referral history |
-| PATCH | `/api/referrals/{id}/feedback` | Surgeon records the operation notes |
-| GET | `/api/patients/{id}/prescriptions/validity` | History, each row saying if it is still valid |
-| GET | `/api/patients/{id}/prescriptions/expired` | Just the ones that have run out |
+| PATCH | `/api/referrals/{id}/feedback` | Assigned surgeon records tests, diagnosis, treatment and follow-up |
 
-**Closed referrals are reported, not hidden.** A referral past its 90 days comes
-back with `accessible: false` and a summary saying when access closed. Silently
-dropping it would leave a surgeon chasing an old case with no idea why the
-patient disappeared from their list.
-
-**Feedback needs the surgeon's role.** The service already refuses a second
-write; the endpoint also refuses a caller who is not the surgeon, so an optician
-cannot record an operation that did not happen through their account.
+**Consultation results are append-only.** The assigned surgeon, or an admin,
+can complete a pending referral once. The service requires a diagnosis and
+treatment and returns those findings to the permanent patient record.
 
 `/api/prescriptions/compare` moved into `ClinicalService.compareRx` so the
 controller and any later view describe a change the same way.

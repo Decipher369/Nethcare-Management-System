@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{clinical/fragments :: head('Referral')}"></head>
+<body>
+<div th:replace="~{clinical/fragments :: bar('referrals', ${user})}"></div>
+<main class="wrap">
+    <p><a th:href="@{/referrals}">← Referral worklist</a></p>
+    <h1 th:text="${referral.refNo} + ' · ' + ${patient.fullName}">Referral</h1>
+    <div class="flash" th:if="${msg}" th:text="${msg}">Saved</div>
+    <div class="flash bad" th:if="${error}" th:text="${error}">Error</div>
+    <div class="grid">
+        <section class="panel"><h2>Referral</h2><div class="pad"><dl class="detail-list">
+            <dt>Referred</dt><dd th:text="${referral.referredOn}">date</dd>
+            <dt>By</dt><dd th:text="${referral.referredBy}">optician</dd>
+            <dt>Surgeon</dt><dd th:text="${referral.surgeonName}">surgeon</dd>
+            <dt>Urgency</dt><dd th:text="${referral.urgency}">urgency</dd>
+            <dt>Status</dt><dd th:text="${referral.status}">status</dd>
+            <dt>Reason</dt><dd th:text="${referral.reason}">reason</dd>
+        </dl></div></section>
+        <section class="panel"><h2>Attached prescription history</h2><div class="pad">
+            <pre class="clinical-history" th:text="${referral.attachedHistory}">History</pre>
+        </div></section>
+    </div>
+
+    <section class="panel" th:if="${referral.status == 'COMPLETED'}"><h2>Surgeon consultation</h2><div class="pad"><dl class="detail-list">
+        <dt>Tests</dt><dd th:text="${referral.tests} ?: '—'">tests</dd>
+        <dt>Diagnosis</dt><dd th:text="${referral.diagnosis}">diagnosis</dd>
+        <dt>Treatment</dt><dd th:text="${referral.treatment}">treatment</dd>
+        <dt>Follow-up</dt><dd th:text="${referral.followUpInstructions} ?: '—'">followup</dd>
+        <dt>Notes</dt><dd th:text="${referral.feedback} ?: '—'">notes</dd>
+        <dt>Completed</dt><dd th:text="${referral.feedbackOn}">date</dd>
+    </dl></div></section>
+
+    <section class="panel" th:if="${canComplete and referral.status != 'COMPLETED'}"><h2>Complete consultation</h2><div class="pad">
+        <form method="post" th:action="@{/referrals/{id}/consultation(id=${referral.id})}">
+            <label class="field">Tests performed<textarea name="tests"></textarea></label>
+            <label class="field">Diagnosis<textarea name="diagnosis" required></textarea></label>
+            <label class="field">Treatment<textarea name="treatment" required></textarea></label>
+            <label class="field">Follow-up instructions<textarea name="followUpInstructions"></textarea></label>
+            <label class="field">Additional notes<textarea name="notes"></textarea></label>
+            <button class="btn" type="submit">Complete consultation</button>
+        </form>
+    </div></section>
+</main>
+</body>
+</html>

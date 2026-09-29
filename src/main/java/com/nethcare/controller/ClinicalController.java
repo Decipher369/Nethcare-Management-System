@@ -4,6 +4,8 @@ import com.nethcare.dto.ApiResponse;
 import com.nethcare.exception.BusinessException;
 import com.nethcare.exception.ResourceNotFoundException;
 import com.nethcare.model.Examination;
+import com.nethcare.model.ClinicalSymptom;
+import com.nethcare.model.MedicalHistory;
 import com.nethcare.model.Prescription;
 import com.nethcare.model.Referral;
 import com.nethcare.repository.ExaminationRepository;
@@ -47,20 +49,11 @@ public class ClinicalController {
     @PostMapping("/api/examinations")
     public ApiResponse<Examination> record(@RequestBody Examination exam,
                                            Authentication auth) {
-        if (exam.getPatientId() == null) {
-            throw new BusinessException("An examination needs a patient.");
-        }
-        if (!patients.existsById(exam.getPatientId())) {
-            throw new ResourceNotFoundException("No patient with id " + exam.getPatientId());
-        }
-        if (exam.getExamDate() == null) {
-            exam.setExamDate(LocalDate.now());
-        }
-        if (exam.getExamDate().isAfter(LocalDate.now())) {
-            throw new BusinessException("Exam date cannot be in the future.");
-        }
-        exam.setExaminedBy(auth.getName());
-        return ApiResponse.success(exams.save(exam));
+        MedicalHistory history = exam.getPatientId() == null
+                ? new MedicalHistory()
+                : clinical.historyDraftFor(exam.getPatientId());
+        return ApiResponse.success(clinical.recordExamination(
+                exam, new ClinicalSymptom(), history, auth.getName()));
     }
 
     @GetMapping("/api/examinations/{id}")

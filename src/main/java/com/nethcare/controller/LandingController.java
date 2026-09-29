@@ -11,17 +11,10 @@ import java.util.List;
  *
  * They list what the person is allowed to do so the access rules can be
  * checked before the real screens exist. Patient registration and orders now
- * have their own screens; referrals and the patient portal remain placeholders.
+ * have their own screens; only the patient portal remains a placeholder.
  */
 @Controller
 public class LandingController {
-
-    @GetMapping("/referrals")
-    public String referrals(Model model) {
-        return page(model, "Referrals", "SURGEON", List.of(
-                "Patients referred to you",
-                "Surgical notes"));
-    }
 
     @GetMapping("/portal")
     public String portal(Model model) {
