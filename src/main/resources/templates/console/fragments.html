@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title th:text="${title} + ' — Nethcare'">Nethcare</title>
+    <link rel="icon" type="image/png" th:href="@{/images/nethcare-logo.png}">
     <link rel="stylesheet" th:href="@{/css/console.css}">
 </head>
 <body>
@@ -11,8 +12,11 @@
 <!-- The left rail. "active" is the key of the current screen. -->
 <aside class="side" th:fragment="side(active)">
     <div class="brand">
-        <strong>Nethcare</strong>
-        <span>Neth Opticians</span>
+        <img th:src="@{/images/nethcare-logo.png}" alt="Nethcare logo">
+        <span class="brand-copy">
+            <strong>Nethcare</strong>
+            <span>Neth Opticians</span>
+        </span>
     </div>
     <nav>
         <a th:href="@{/dashboard/console}" th:classappend="${active == 'dashboard'} ? ' on' : ''">Dashboard</a>
@@ -32,8 +36,12 @@
             <div class="grp">Accountability</div>
             <a th:href="@{/audit}" th:classappend="${active == 'audit'} ? ' on' : ''">Audit trail</a>
         </div>
+        <div th:if="${role == 'ADMIN'}">
+            <div class="grp">Administration</div>
+            <a th:href="@{/admin/users}">Users and login history</a>
+        </div>
     </nav>
-    <div class="out"><a th:href="@{/logout}">Sign out</a></div>
+    <div class="out"><form th:action="@{/logout}" method="post"><button type="submit">Sign out</button></form></div>
 </aside>
 
 <!-- Screen title on the left, who is signed in on the right. -->

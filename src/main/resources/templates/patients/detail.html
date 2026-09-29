@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title th:text="'Patient ' + ${patient.patientNo} + ' — Nethcare'">Patient</title>
+    <link rel="icon" type="image/png" th:href="@{/images/nethcare-logo.png}">
     <style>
         body { font-family: system-ui, sans-serif; background: #f5f6f8; margin: 0; padding: 2rem; }
         .wrap { max-width: 620px; margin: 0 auto; }
@@ -22,6 +23,9 @@
         .visits li { padding: .7rem 0; border-bottom: 1px solid #f0f0f0; font-size: .88rem; }
         .visits .when { color: #888; font-size: .78rem; }
         .none { color: #999; font-size: .88rem; padding: .7rem 0; }
+        .notice { padding:.8rem; border-radius:4px; margin-bottom:1rem; background:#e9f7ee; }
+        .credential { padding:1rem; background:#fff6d8; border:1px solid #efcf65; margin-bottom:1rem; }
+        .danger { margin-top:1.5rem; padding-top:1rem; border-top:1px solid #eee; }
     </style>
 </head>
 <body>
@@ -29,16 +33,25 @@
     <div class="card">
         <h1 th:text="${patient.fullName}">Name</h1>
         <span class="no" th:text="${patient.patientNo}">P-0001</span>
+        <p class="notice" th:if="${success}" th:text="${success}"></p>
+        <div class="credential" th:if="${credential}"><strong>Portal credentials — show once:</strong><br>Username: <code th:text="${credential.username}"></code><br>Temporary password: <code th:text="${credential.temporaryPassword}"></code><br>The patient must change it at first login.</div>
 
         <dl>
             <dt>Date of birth</dt>   <dd th:text="${patient.dob}">dob</dd>
+            <dt>NIC</dt>             <dd th:text="${patient.nic} ?: '—'">nic</dd>
             <dt>Gender</dt>          <dd th:text="${patient.gender} ?: '—'">gender</dd>
             <dt>Phone</dt>           <dd th:text="${patient.phone} ?: '—'">phone</dd>
             <dt>Email</dt>           <dd th:text="${patient.email} ?: '—'">email</dd>
             <dt>Blood group</dt>     <dd th:text="${patient.bloodGroup} ?: '—'">bg</dd>
             <dt>Address</dt>         <dd th:text="${patient.address} ?: '—'">address</dd>
             <dt>Registered</dt>      <dd th:text="${patient.registeredOn}">date</dd>
+            <dt>Guardian</dt>        <dd th:text="${patient.guardianName} ?: '—'">guardian</dd>
+            <dt>Guardian phone</dt>  <dd th:text="${patient.guardianPhone} ?: '—'">guardian phone</dd>
+            <dt>Status</dt>          <dd th:text="${patient.isActive ? 'Active' : 'Inactive'}">status</dd>
+            <dt>Consent recorded</dt><dd th:text="${patient.consentGiven ? patient.consentRecordedAt : 'No'}">consent</dd>
         </dl>
+
+        <p><a th:href="@{/patients/{id}/edit(id=${patient.id})}">Edit patient details</a></p>
 
         <p><a th:href="@{/examinations/new(patientId=${patient.id})}">Record a new clinical examination →</a></p>
 
@@ -77,6 +90,8 @@
         <p class="none" th:if="${prescriptions.isEmpty()}">No prescriptions issued yet.</p>
 
         <a th:href="@{/patients}">← Back to patients</a>
+        <div class="danger" th:if="${patient.isActive}"><form th:action="@{/patients/{id}/deactivate(id=${patient.id})}" method="post"><label>Reason for deactivation <input name="reason" required maxlength="300"></label><button type="submit">Deactivate record</button></form></div>
+        <div class="danger" th:unless="${patient.isActive}"><p th:text="${patient.deactivationReason}"></p><form th:action="@{/patients/{id}/reactivate(id=${patient.id})}" method="post"><button type="submit">Reactivate record</button></form></div>
     </div>
 </div>
 </body>

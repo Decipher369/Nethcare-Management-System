@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.Authentication;
 
 import java.util.List;
 
@@ -41,20 +42,30 @@ public class UserApiController {
     }
 
     @PostMapping
-    public ApiResponse<UserDto> create(@RequestBody UserForm form) {
+    public ApiResponse<UserDto> create(@RequestBody UserForm form, Authentication authentication) {
         User created = userService.create(
                 form.getUsername(), form.getPassword(), form.getFullName(),
-                form.getEmail(), form.getRole());
+                form.getEmail(), form.getPhone(), form.getRole(), authentication.getName());
         return ApiResponse.success("User created.", UserDto.of(created));
     }
 
     @PutMapping("/{id}/role")
-    public ApiResponse<UserDto> changeRole(@PathVariable Long id, @RequestBody UserForm form) {
-        return ApiResponse.success("Role updated.", UserDto.of(userService.changeRole(id, form.getRole())));
+    public ApiResponse<UserDto> changeRole(@PathVariable Long id, @RequestBody UserForm form, Authentication authentication) {
+        return ApiResponse.success("Role updated.", UserDto.of(userService.changeRole(id, form.getRole(), authentication.getName())));
     }
 
     @PatchMapping("/{id}/deactivate")
-    public ApiResponse<UserDto> deactivate(@PathVariable Long id) {
-        return ApiResponse.success("User deactivated.", UserDto.of(userService.deactivate(id)));
+    public ApiResponse<UserDto> deactivate(@PathVariable Long id, Authentication authentication) {
+        return ApiResponse.success("User deactivated.", UserDto.of(userService.deactivate(id, authentication.getName())));
+    }
+
+    @PatchMapping("/{id}/reactivate")
+    public ApiResponse<UserDto> reactivate(@PathVariable Long id, Authentication authentication) {
+        return ApiResponse.success("User reactivated.", UserDto.of(userService.reactivate(id, authentication.getName())));
+    }
+
+    @PostMapping("/{id}/reset-password")
+    public ApiResponse<com.nethcare.dto.TemporaryCredential> resetPassword(@PathVariable Long id, Authentication authentication) {
+        return ApiResponse.success("Password reset. Show it once to the user.", userService.resetPassword(id, authentication.getName()));
     }
 }

@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>My records | NethCare</title><link rel="stylesheet" th:href="@{/css/site.css}">
+    <style>.portal{max-width:960px;margin:2rem auto;padding:0 1rem}.card{background:#fff;padding:1.5rem;border-radius:10px;margin-bottom:1rem}table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:.65rem;border-bottom:1px solid #eee}.muted{color:#667}</style>
+</head>
+<body><main class="portal">
+    <header><h1>My NethCare records</h1><p th:text="${patient.fullName + ' · ' + patient.patientNo}"></p></header>
+    <section class="card"><h2>Profile</h2><p><strong>Date of birth:</strong> <span th:text="${patient.dob}"></span></p><p><strong>Phone:</strong> <span th:text="${patient.phone} ?: '—'"></span></p><p><strong>Email:</strong> <span th:text="${patient.email} ?: '—'"></span></p></section>
+    <section class="card"><h2>Prescriptions</h2><table th:if="${!prescriptions.isEmpty()}"><thead><tr><th>Prescription</th><th>Issued</th><th>Right eye</th><th>Left eye</th></tr></thead><tbody><tr th:each="rx:${prescriptions}"><td th:text="${rx.rxNo}"></td><td th:text="${rx.issuedOn}"></td><td th:text="${rx.odSph + ' / ' + rx.odCyl}"></td><td th:text="${rx.osSph + ' / ' + rx.osCyl}"></td></tr></tbody></table><p class="muted" th:if="${prescriptions.isEmpty()}">No prescriptions have been issued.</p></section>
+    <section class="card"><h2>Spectacle orders</h2><p class="muted">Orders appear here after staff link an in-store purchase to your patient record.</p><table th:if="${!orders.isEmpty()}"><thead><tr><th>Order</th><th>Placed</th><th>Status</th><th>Promised</th></tr></thead><tbody><tr th:each="order:${orders}"><td th:text="${order.orderNo}"></td><td th:text="${order.orderedOn}"></td><td th:text="${order.status}"></td><td th:text="${order.promisedOn} ?: '—'"></td></tr></tbody></table><p class="muted" th:if="${orders.isEmpty()}">No spectacle orders are linked yet.</p></section>
+    <form th:action="@{/logout}" method="post"><button type="submit">Sign out</button></form>
+</main></body></html>

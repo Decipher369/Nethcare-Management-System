@@ -9,10 +9,10 @@ import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 
 /**
- * A staff account. Patients get their own table, not a row in here.
+ * A login account. Patient logins are linked to the separate clinical patient row.
  *
  * password_hash holds the BCrypt hash, never the plain password.
- * status is ACTIVE or INACTIVE — an inactive account cannot log in.
+ * is_active is the single account-state flag — an inactive account cannot log in.
  */
 @Entity
 @Table(name = "users")
@@ -37,8 +37,11 @@ public class User extends BaseEntity {
     @Column(name = "email", length = 120)
     private String email;
 
-    @Column(name = "status", nullable = false, length = 20)
-    private String status = "ACTIVE";
+    @Column(name = "phone", length = 20)
+    private String phone;
+
+    @Column(name = "must_change_password", nullable = false)
+    private boolean mustChangePassword;
 
     @Column(name = "last_login_at")
     private LocalDateTime lastLoginAt;
@@ -53,7 +56,7 @@ public class User extends BaseEntity {
     }
 
     public boolean isActive() {
-        return "ACTIVE".equalsIgnoreCase(status) && Boolean.TRUE.equals(getIsActive());
+        return Boolean.TRUE.equals(getIsActive());
     }
 
     public String getUsername() { return username; }
@@ -71,8 +74,11 @@ public class User extends BaseEntity {
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
 
-    public String getStatus() { return status; }
-    public void setStatus(String status) { this.status = status; }
+    public String getPhone() { return phone; }
+    public void setPhone(String phone) { this.phone = phone; }
+
+    public boolean isMustChangePassword() { return mustChangePassword; }
+    public void setMustChangePassword(boolean mustChangePassword) { this.mustChangePassword = mustChangePassword; }
 
     public LocalDateTime getLastLoginAt() { return lastLoginAt; }
     public void setLastLoginAt(LocalDateTime lastLoginAt) { this.lastLoginAt = lastLoginAt; }

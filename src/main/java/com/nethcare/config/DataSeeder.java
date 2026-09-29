@@ -73,7 +73,7 @@ public class DataSeeder {
         User user = new User(username, encoder.encode(rawPassword), role);
         user.setFullName(fullName);
         user.setEmail(email);
-        user.setStatus("ACTIVE");
+        user.setIsActive(true);
         repo.save(user);
         log.info("Created user '{}' with role {}", username, role);
     }

@@ -23,4 +23,6 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     List<Order> findByPromisedOnBeforeAndStatusNotIn(LocalDate date, List<OrderStatus> statuses);
 
     long countByStatus(OrderStatus status);
+
+    List<Order> findByPatientIdOrderByOrderedOnDescIdDesc(Long patientId);
 }
