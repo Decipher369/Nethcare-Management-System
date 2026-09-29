@@ -1,82 +1,126 @@
 package com.nethcare.controller;
 
 import com.nethcare.dto.PatientForm;
+import com.nethcare.dto.PatientRegistrationResult;
 import com.nethcare.exception.BusinessException;
-import com.nethcare.exception.ResourceNotFoundException;
 import com.nethcare.model.Patient;
 import com.nethcare.repository.PatientRepository;
 import com.nethcare.service.ClinicalService;
 import com.nethcare.service.PatientService;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 
-/**
- * The patient register — the list the front desk works from.
- */
 @Controller
 public class PatientController {
-
     private final PatientRepository patients;
     private final PatientService patientService;
     private final ClinicalService clinical;
 
-    public PatientController(PatientRepository patients,
-                             PatientService patientService,
-                             ClinicalService clinical) {
+    public PatientController(PatientRepository patients, PatientService patientService, ClinicalService clinical) {
         this.patients = patients;
         this.patientService = patientService;
         this.clinical = clinical;
     }
 
     @GetMapping("/patients")
-    public String list(Model model,
-                       @RequestParam(name = "q", required = false) String q) {
-        List<Patient> found = (q == null || q.isBlank())
-                ? patients.findAllByOrderByFullNameAsc()
-                : patients.search(q.trim());
-
+    public String list(Model model, @RequestParam(name = "q", required = false) String q,
+                       @RequestParam(name = "status", defaultValue = "active") String status) {
+        List<Patient> found;
+        if (q != null && !q.isBlank()) found = patients.search(q.trim());
+        else if ("inactive".equals(status)) found = patients.findByIsActiveFalseOrderByFullNameAsc();
+        else if ("all".equals(status)) found = patients.findAllByOrderByFullNameAsc();
+        else found = patients.findByIsActiveTrueOrderByFullNameAsc();
         model.addAttribute("patients", found);
-        model.addAttribute("total", patients.count());
+        model.addAttribute("total", found.size());
         model.addAttribute("q", q == null ? "" : q);
+        model.addAttribute("status", status);
         return "patients/list";
     }
 
     @GetMapping("/patients/new")
     public String newPatientForm(Model model) {
         model.addAttribute("form", new PatientForm());
+        model.addAttribute("editing", false);
         return "patients/form";
     }
 
     @PostMapping("/patients")
-    public String register(@ModelAttribute("form") PatientForm form, Model model) {
+    public String register(@ModelAttribute("form") PatientForm form, Authentication authentication,
+                           Model model, RedirectAttributes redirect) {
         try {
-            Patient saved = patientService.register(form);
-            return "redirect:/patients/" + saved.getId();
+            PatientRegistrationResult result = patientService.register(form, authentication.getName());
+            if (result.credential() != null) redirect.addFlashAttribute("credential", result.credential());
+            redirect.addFlashAttribute("success", "Patient registered successfully.");
+            return "redirect:/patients/" + result.patient().getId();
         } catch (BusinessException ex) {
-            // The global handler answers with JSON, which is no use to someone
-            // sitting at the registration form. Send them back with the form
-            // still filled in.
-            model.addAttribute("form", form);
+            model.addAttribute("editing", false);
             model.addAttribute("error", ex.getMessage());
             return "patients/form";
         }
     }
 
+    @GetMapping("/patients/{id}/edit")
+    public String editForm(@PathVariable Long id, Model model) {
+        Patient patient = patientService.get(id);
+        model.addAttribute("form", toForm(patient));
+        model.addAttribute("patient", patient);
+        model.addAttribute("editing", true);
+        return "patients/form";
+    }
+
+    @PostMapping("/patients/{id}")
+    public String update(@PathVariable Long id, @ModelAttribute("form") PatientForm form,
+                         Authentication authentication, Model model, RedirectAttributes redirect) {
+        try {
+            patientService.update(id, form, authentication.getName());
+            redirect.addFlashAttribute("success", "Patient details updated.");
+            return "redirect:/patients/" + id;
+        } catch (BusinessException ex) {
+            model.addAttribute("patient", patientService.get(id));
+            model.addAttribute("editing", true);
+            model.addAttribute("error", ex.getMessage());
+            return "patients/form";
+        }
+    }
+
+    @PostMapping("/patients/{id}/deactivate")
+    public String deactivate(@PathVariable Long id, @RequestParam String reason, Authentication authentication,
+                             RedirectAttributes redirect) {
+        patientService.deactivate(id, reason, authentication.getName());
+        redirect.addFlashAttribute("success", "Patient record deactivated without deleting its history.");
+        return "redirect:/patients/" + id;
+    }
+
+    @PostMapping("/patients/{id}/reactivate")
+    public String reactivate(@PathVariable Long id, Authentication authentication, RedirectAttributes redirect) {
+        patientService.reactivate(id, authentication.getName());
+        redirect.addFlashAttribute("success", "Patient record reactivated.");
+        return "redirect:/patients/" + id;
+    }
+
     @GetMapping("/patients/{id}")
     public String detail(@PathVariable Long id, Model model) {
-        Patient patient = patients.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("No patient with id " + id));
+        Patient patient = patientService.get(id);
         model.addAttribute("patient", patient);
-        // Read from M2 — examination history and the prescriptions off them.
         model.addAttribute("visits", clinical.historyFor(id));
         model.addAttribute("prescriptions", clinical.prescriptionsFor(id));
         return "patients/detail";
+    }
+
+    private PatientForm toForm(Patient patient) {
+        PatientForm form = new PatientForm();
+        form.setFullName(patient.getFullName()); form.setNic(patient.getNic());
+        form.setDob(patient.getDob().toString()); form.setGender(patient.getGender());
+        form.setPhone(patient.getPhone()); form.setEmail(patient.getEmail());
+        form.setAddress(patient.getAddress()); form.setBloodGroup(patient.getBloodGroup());
+        form.setGuardianName(patient.getGuardianName()); form.setGuardianPhone(patient.getGuardianPhone());
+        form.setRegistrationNotes(patient.getRegistrationNotes());
+        form.setConsentGiven(patient.isConsentGiven());
+        return form;
     }
 }

@@ -25,15 +25,7 @@ public class DashboardController {
     /** The admin console's own summary. Replaced by the real screens in M3. */
     @GetMapping("/admin")
     public String admin(Model model) {
-        model.addAttribute("title", "Admin");
-        model.addAttribute("role", "ADMIN");
-        model.addAttribute("items", java.util.List.of(
-                "User accounts and roles",
-                "Pricing and settings",
-                "Stock",
-                "Management reports",
-                "Audit log"));
-        return "landing";
+        return "redirect:/admin/users";
     }
 
     private String landingPageFor(Authentication authentication) {

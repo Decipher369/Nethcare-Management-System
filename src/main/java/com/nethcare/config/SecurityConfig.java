@@ -1,5 +1,7 @@
 package com.nethcare.config;
 
+import com.nethcare.service.AuthenticationEventService;
+import com.nethcare.repository.UserRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -7,6 +9,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 /**
  * Login and what each role is allowed to open. Roles are set in model/Role.java.
@@ -25,7 +28,8 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http, AuthenticationEventService authenticationEvents,
+                                           UserRepository users) throws Exception {
         http
             .authorizeHttpRequests(auth -> auth
                 // Open to everyone
@@ -37,6 +41,7 @@ public class SecurityConfig {
                 .requestMatchers("/", "/about", "/frames/**", "/contact").permitAll()
 
                 // M1 — patient records
+                .requestMatchers("/patients/*/deactivate", "/patients/*/reactivate").hasRole("ADMIN")
                 .requestMatchers("/api/patients/**", "/patients/**").hasAnyRole("ADMIN", "OPTICIAN")
 
                 // M2 — exams, prescriptions, referrals
@@ -62,7 +67,7 @@ public class SecurityConfig {
 
                 // Patient portal. The role check only opens the door here —
                 // each query still has to filter to that patient's own id.
-                .requestMatchers("/api/portal/**", "/portal/**").hasAnyRole("PATIENT", "ADMIN")
+                .requestMatchers("/api/portal/**", "/portal/**").hasRole("PATIENT")
 
                 .anyRequest().authenticated()
             )
@@ -71,8 +76,14 @@ public class SecurityConfig {
                 .loginProcessingUrl("/login")
                 .usernameParameter("username")
                 .passwordParameter("password")
-                .defaultSuccessUrl("/dashboard", true)   // then routes by role
-                .failureUrl("/login?error")
+                .successHandler((request, response, authentication) -> {
+                    boolean mustChangePassword = authenticationEvents.success(authentication, request);
+                    response.sendRedirect(mustChangePassword ? "/account/change-password" : "/dashboard");
+                })
+                .failureHandler((request, response, exception) -> {
+                    authenticationEvents.failure(request.getParameter("username"), exception.getMessage(), request);
+                    response.sendRedirect("/login?error");
+                })
                 .permitAll()
             )
             .logout(logout -> logout
@@ -82,10 +93,7 @@ public class SecurityConfig {
                 .deleteCookies("JSESSIONID")
                 .permitAll()
             )
-            // Kept on for form posts. Thymeleaf puts the hidden _csrf field in
-            // by itself, so the login form needs no change. /api/** is skipped
-            // because it is stateless and may get a non-browser client later.
-            .csrf(csrf -> csrf.ignoringRequestMatchers("/api/**"))
+            .addFilterAfter(new PasswordChangeFilter(users), UsernamePasswordAuthenticationFilter.class)
             .headers(headers -> headers.frameOptions(frame -> frame.disable()));
 
         return http.build();

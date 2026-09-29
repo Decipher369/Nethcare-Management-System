@@ -2,7 +2,8 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Register patient — Nethcare</title>
+    <title th:text="${editing} ? 'Edit patient — NethCare' : 'Register patient — NethCare'">Patient</title>
+    <link rel="icon" type="image/png" th:href="@{/images/nethcare-logo.png}">
     <style>
         body { font-family: system-ui, sans-serif; background: #f5f6f8; margin: 0; padding: 2rem; }
         .wrap { max-width: 620px; margin: 0 auto; }
@@ -15,6 +16,7 @@
         input[type=text], input[type=date], input[type=email] {
                 width: 100%; padding: .55rem .7rem; font-size: .9rem;
                 border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
+        textarea { width:100%; min-height:80px; box-sizing:border-box; padding:.55rem .7rem; border:1px solid #ddd; border-radius:4px; }
         .two { display: flex; gap: 1rem; }
         .two > .field { flex: 1; }
         .tick { display: flex; align-items: center; gap: .5rem; font-size: .88rem;
@@ -31,14 +33,19 @@
 <body>
 <div class="wrap">
     <div class="card">
-        <h1>Register a patient</h1>
+        <h1 th:text="${editing} ? 'Edit patient' : 'Register a patient'">Register a patient</h1>
 
         <p class="err" th:if="${error}" th:text="${error}">Something went wrong.</p>
 
-        <form method="post" th:action="@{/patients}">
+        <form method="post" th:action="${editing} ? @{/patients/{id}(id=${patient.id})} : @{/patients}">
             <div class="field">
                 <label for="fullName">Full name</label>
                 <input type="text" id="fullName" name="fullName" th:value="${form.fullName}">
+            </div>
+
+            <div class="field">
+                <label for="nic">NIC (required for adults)</label>
+                <input type="text" id="nic" name="nic" th:value="${form.nic}">
             </div>
 
             <div class="two">
@@ -75,14 +82,26 @@
                 <input type="text" id="address" name="address" th:value="${form.address}">
             </div>
 
-            <label class="tick">
-                <input type="checkbox" name="createLogin" value="true">
+            <div class="two">
+                <div class="field"><label for="guardianName">Guardian name (required under 18)</label><input type="text" id="guardianName" name="guardianName" th:value="${form.guardianName}"></div>
+                <div class="field"><label for="guardianPhone">Guardian phone</label><input type="text" id="guardianPhone" name="guardianPhone" th:value="${form.guardianPhone}"></div>
+            </div>
+
+            <div class="field"><label for="registrationNotes">Registration notes</label><textarea id="registrationNotes" name="registrationNotes" th:text="${form.registrationNotes}"></textarea></div>
+
+            <label class="tick" th:unless="${editing}">
+                <input type="checkbox" name="createLogin" value="true" th:checked="${form.createLogin}">
                 Also create a login for the patient portal
             </label>
 
+            <label class="tick" th:unless="${editing}">
+                <input type="checkbox" name="consentGiven" value="true" required th:checked="${form.consentGiven}">
+                Patient or guardian has consented to storing these records
+            </label>
+
             <div class="actions">
-                <button type="submit">Register</button>
-                <a th:href="@{/patients}">Cancel</a>
+                <button type="submit" th:text="${editing} ? 'Save changes' : 'Register'">Register</button>
+                <a th:href="${editing} ? @{/patients/{id}(id=${patient.id})} : @{/patients}">Cancel</a>
             </div>
         </form>
     </div>

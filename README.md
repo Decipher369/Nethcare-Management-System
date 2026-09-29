@@ -432,8 +432,7 @@ Sign-in redirects by role, so nobody reaches a page they cannot use:
 | SURGEON | `/referrals` | Referred patients, surgical notes |
 | PATIENT | `/portal` | Own profile, prescriptions, order status |
 
-The patient, order, billing, stock and M4 console screens are built. Referrals
-and the patient portal still use placeholder landing pages.
+The patient, clinical, order, billing, stock, portal and M4 console screens are built.
 
 ### Patient registration (M1)
 
@@ -441,15 +440,25 @@ Opticians and admins work the register at `/patients`:
 
 | Page | What it does |
 |---|---|
-| `/patients` | The list, with a search box over name, phone and patient number |
+| `/patients` | Active/inactive register, searchable by name, NIC, phone and patient number |
 | `/patients/new` | Registration form |
-| `/patients/{id}` | One patient's record and visit history |
+| `/patients/{id}` | One patient's record, visit history and prescriptions |
+| `/patients/{id}/edit` | Correct contact, guardian and demographic details |
+| `/portal` | Patient's own read-only profile, prescriptions and linked orders |
 
 A patient row is separate from their login. The `users` entry is the account
 and password, the `patients` entry is the clinical record, and `user_id` links
 them — so closing an account leaves the visit history intact. Tick "also create
-a login" during registration and a `PATIENT` account is made with a random
-password that the front desk writes on a slip.
+a login" during registration and a `PATIENT` account is made. Its one-time
+password combines a recognizable name/DOB prefix with a random suffix, is
+shown once to staff, and must be changed at first login. Only its BCrypt hash
+is stored.
+
+Adults require a unique Sri Lankan NIC and phone number. Patients under 18
+require a guardian name and phone, and duplicate minor registrations are
+checked against name, DOB and guardian phone. Consent is recorded with its
+time and staff member. Deactivation is reversible and preserves every clinical
+record.
 
 The patient detail page reads its examination and prescription history from
 M2.
@@ -528,15 +537,18 @@ use — `OPTICIAN` and `ADMIN` on patients, `ADMIN` only on users.
 
 | Method | Path | Does |
 |---|---|---|
-| GET | `/api/patients?q=` | List, searchable by name, phone or patient number |
+| GET | `/api/patients?q=` | List, searchable by name, NIC, phone or patient number |
 | GET | `/api/patients/{id}` | One patient |
 | POST | `/api/patients` | Register a patient |
 | PUT | `/api/patients/{id}` | Correct a patient's details |
-| GET | `/api/patients/{id}/history` | Visit-history API placeholder; the HTML detail page already reads M2 |
+| GET | `/api/patients/{id}/history` | Visits and prescriptions from M2 |
+| GET | `/api/portal` | Signed-in patient's own read-only record |
 | GET | `/api/users` | List staff accounts (admin) |
 | POST | `/api/users` | Create a staff account (admin) |
 | PUT | `/api/users/{id}/role` | Change someone's role (admin) |
 | PATCH | `/api/users/{id}/deactivate` | Close an account (admin) |
+| PATCH | `/api/users/{id}/reactivate` | Reopen an account (admin) |
+| POST | `/api/users/{id}/reset-password` | Issue a one-time password (admin) |
 
 **Registration calls the same `PatientService` the form uses**, so the API and
 the browser cannot disagree about what makes a valid patient.
@@ -545,18 +557,19 @@ the browser cannot disagree about what makes a valid patient.
 and `registered_on` are set at creation and stay put, so a `PUT` cannot quietly
 renumber a patient or repoint their portal login.
 
-**Deactivating is not deleting.** It sets `status = INACTIVE` and leaves the row
+**Deactivating is not deleting.** It sets `is_active = false` and leaves the row
 in place, because registrations point at `user_id` and removing the account
-would orphan everything they touched.
+would orphan everything they touched. The final active administrator and the
+currently signed-in administrator are protected from deactivation.
 
 **Responses are DTOs, not entities.** `User` has a `getPasswordHash()`, and
 Jackson would happily serialise it — returning the entity from `/api/users`
 put every account's BCrypt hash in the response. `UserDto` never reads the
 field off the entity, so there is nothing to leak.
 
-`/api/**` skips CSRF (`SecurityConfig`) because it is stateless and may get a
-non-browser client. Everything the browser submits still goes through a
-checked form post.
+Session-authenticated API writes require CSRF protection too. Successful and
+failed login attempts are stored in `login_events`, and the admin page shows
+the latest activity without exposing password hashes.
 
 ### If you get Spring's whitelabel error page
 

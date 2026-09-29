@@ -16,6 +16,7 @@ public class PatientDto {
     private Long id;
     private String patientNo;
     private String fullName;
+    private String nic;
     private LocalDate dob;
     private String gender;
     private String phone;
@@ -24,6 +25,11 @@ public class PatientDto {
     private String bloodGroup;
     private LocalDate registeredOn;
     private Long userId;
+    private String guardianName;
+    private String guardianPhone;
+    private String registrationNotes;
+    private boolean active;
+    private boolean consentGiven;
 
     // Age is worked out on the way out so no client has to repeat the
     // arithmetic, and so it is never stored where it can go stale.
@@ -34,6 +40,7 @@ public class PatientDto {
         d.id = p.getId();
         d.patientNo = p.getPatientNo();
         d.fullName = p.getFullName();
+        d.nic = p.getNic();
         d.dob = p.getDob();
         d.gender = p.getGender();
         d.phone = p.getPhone();
@@ -42,6 +49,11 @@ public class PatientDto {
         d.bloodGroup = p.getBloodGroup();
         d.registeredOn = p.getRegisteredOn();
         d.userId = p.getUserId();
+        d.guardianName = p.getGuardianName();
+        d.guardianPhone = p.getGuardianPhone();
+        d.registrationNotes = p.getRegistrationNotes();
+        d.active = Boolean.TRUE.equals(p.getIsActive());
+        d.consentGiven = p.isConsentGiven();
         d.age = (p.getDob() == null) ? null : java.time.Period.between(p.getDob(), LocalDate.now()).getYears();
         return d;
     }
@@ -53,6 +65,7 @@ public class PatientDto {
     public Long getId() { return id; }
     public String getPatientNo() { return patientNo; }
     public String getFullName() { return fullName; }
+    public String getNic() { return nic; }
     public LocalDate getDob() { return dob; }
     public String getGender() { return gender; }
     public String getPhone() { return phone; }
@@ -61,5 +74,10 @@ public class PatientDto {
     public String getBloodGroup() { return bloodGroup; }
     public LocalDate getRegisteredOn() { return registeredOn; }
     public Long getUserId() { return userId; }
+    public String getGuardianName() { return guardianName; }
+    public String getGuardianPhone() { return guardianPhone; }
+    public String getRegistrationNotes() { return registrationNotes; }
+    public boolean isActive() { return active; }
+    public boolean isConsentGiven() { return consentGiven; }
     public Integer getAge() { return age; }
 }

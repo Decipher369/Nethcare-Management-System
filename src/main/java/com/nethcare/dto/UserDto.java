@@ -19,9 +19,11 @@ public class UserDto {
     private String username;
     private String fullName;
     private String email;
+    private String phone;
     private String role;
     private String status;
     private LocalDateTime lastLoginAt;
+    private boolean mustChangePassword;
 
     public static UserDto of(User u) {
         UserDto d = new UserDto();
@@ -29,9 +31,11 @@ public class UserDto {
         d.username = u.getUsername();
         d.fullName = u.getFullName();
         d.email = u.getEmail();
+        d.phone = u.getPhone();
         d.role = (u.getRole() == null) ? null : u.getRole().name();
-        d.status = u.getStatus();
+        d.status = u.isActive() ? "ACTIVE" : "INACTIVE";
         d.lastLoginAt = u.getLastLoginAt();
+        d.mustChangePassword = u.isMustChangePassword();
         return d;
     }
 
@@ -43,7 +47,9 @@ public class UserDto {
     public String getUsername() { return username; }
     public String getFullName() { return fullName; }
     public String getEmail() { return email; }
+    public String getPhone() { return phone; }
     public String getRole() { return role; }
     public String getStatus() { return status; }
     public LocalDateTime getLastLoginAt() { return lastLoginAt; }
+    public boolean isMustChangePassword() { return mustChangePassword; }
 }
