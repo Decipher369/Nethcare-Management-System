@@ -9,20 +9,51 @@
 </head>
 <body>
 
-<div th:fragment="bar(active, user)">
-    <div class="topbar">
-        <span class="brand">
-            <img th:src="@{/images/nethcare-logo.png}" alt="Nethcare logo">
-            <span>Nethcare staff</span>
-        </span>
-        <nav>
-            <a th:href="@{/stock}" th:classappend="${active == 'stock'} ? ' <b>' : ''">Stock</a>
-            <a th:href="@{/orders}" th:classappend="${active == 'orders'} ? ' <b>' : ''">Orders</a>
-            <a th:href="@{/bills}" th:classappend="${active == 'bills'} ? ' <b>' : ''">Bills</a>
-            <a th:href="@{/frames}">Public frames page</a>
+<div th:fragment="bar(active, user)" class="staff-layout">
+    <aside class="app-side">
+        <a class="app-brand" th:href="@{/dashboard}">
+            <img th:src="@{/images/nethcare-logo.png}" alt="">
+            <span><strong>Nethcare</strong><small>Management</small></span>
+        </a>
+        <nav aria-label="Main navigation">
+            <span class="nav-group">Workspace</span>
+            <a th:if="${currentRole == 'ADMIN' or currentRole == 'OPTICIAN' or currentRole == 'STAFF_NURSE' or currentRole == 'AUDITOR'}"
+               th:href="@{/dashboard/console}" th:classappend="${active == 'dashboard'} ? ' on' : ''">Dashboard</a>
+            <a th:if="${currentRole == 'ADMIN' or currentRole == 'OPTICIAN'}"
+               th:href="@{/patients}" th:classappend="${active == 'patients'} ? ' on' : ''">Patients</a>
+            <a th:if="${currentRole == 'ADMIN' or currentRole == 'OPTICIAN' or currentRole == 'SURGEON'}"
+               th:href="@{/referrals}" th:classappend="${active == 'referrals'} ? ' on' : ''">Referrals</a>
+            <a th:if="${currentRole == 'ADMIN' or currentRole == 'STAFF_NURSE'}"
+               th:href="@{/stock}" th:classappend="${active == 'stock'} ? ' on' : ''">Stock</a>
+            <a th:if="${currentRole == 'ADMIN' or currentRole == 'STAFF_NURSE'}"
+               th:href="@{/orders}" th:classappend="${active == 'orders'} ? ' on' : ''">Orders</a>
+            <a th:if="${currentRole == 'ADMIN' or currentRole == 'STAFF_NURSE'}"
+               th:href="@{/bills}" th:classappend="${active == 'bills'} ? ' on' : ''">Bills</a>
+            <div th:if="${currentRole == 'ADMIN' or currentRole == 'OPTICIAN'}">
+                <span class="nav-group">Patient care</span>
+                <a th:href="@{/followups}" th:classappend="${active == 'followups'} ? ' on' : ''">Follow-ups</a>
+            </div>
+            <div th:if="${currentRole == 'ADMIN' or currentRole == 'AUDITOR'}">
+                <span class="nav-group">Reports</span>
+                <a th:href="@{/reports/sales}" th:classappend="${active == 'sales'} ? ' on' : ''">Sales report</a>
+                <a th:href="@{/reports/orders}" th:classappend="${active == 'report-orders'} ? ' on' : ''">Order report</a>
+                <a th:href="@{/reports/stock}" th:classappend="${active == 'report-stock'} ? ' on' : ''">Stock report</a>
+                <a th:href="@{/audit}" th:classappend="${active == 'audit'} ? ' on' : ''">Audit trail</a>
+            </div>
+            <div th:if="${currentRole == 'ADMIN'}">
+                <span class="nav-group">Administration</span>
+                <a th:href="@{/admin/users}" th:classappend="${active == 'admin'} ? ' on' : ''">Users</a>
+            </div>
         </nav>
-        <span class="who" th:text="${user}">staff</span>
-    </div>
+        <a class="public-link" th:href="@{/frames}">View public frames page ↗</a>
+    </aside>
+    <header class="topbar">
+        <div class="topbar-context"><span class="context-mark"></span><span>Management workspace</span></div>
+        <div class="topbar-account">
+            <span class="who" th:text="${user}">staff</span>
+            <form th:action="@{/logout}" method="post"><button type="submit" class="signout">Sign out</button></form>
+        </div>
+    </header>
     <div class="wrap">
         <div th:if="${msg}" class="flash" th:text="${msg}">Saved</div>
     </div>

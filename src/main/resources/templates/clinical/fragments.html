@@ -8,18 +8,6 @@
     <link rel="stylesheet" th:href="@{/css/staff.css}">
 </head>
 <body>
-<div th:fragment="bar(active, user)">
-    <div class="topbar">
-        <span class="brand">
-            <img th:src="@{/images/nethcare-logo.png}" alt="Nethcare logo">
-            <span>Nethcare clinical</span>
-        </span>
-        <nav>
-            <a th:href="@{/patients}">Patients</a>
-            <a th:href="@{/referrals}">Referrals</a>
-        </nav>
-        <span class="who" th:text="${user}">clinician</span>
-    </div>
-</div>
+<th:block th:fragment="bar(active, user)" th:replace="~{staff/fragments :: bar(${active}, ${user})}"></th:block>
 </body>
 </html>

@@ -22,9 +22,18 @@
         <a th:href="@{/dashboard/console}" th:classappend="${active == 'dashboard'} ? ' on' : ''">Dashboard</a>
 
         <div th:if="${role == 'ADMIN' or role == 'OPTICIAN'}">
-            <div class="grp">Follow-up</div>
+            <div class="grp">Patient care</div>
+            <a th:href="@{/patients}">Patients</a>
+            <a th:href="@{/referrals}">Referrals</a>
             <a th:href="@{/followups}" th:classappend="${active == 'followups'} ? ' on' : ''">Review list</a>
             <a th:href="@{/notifications}" th:classappend="${active == 'notifications'} ? ' on' : ''">Reminders</a>
+        </div>
+
+        <div th:if="${role == 'ADMIN' or role == 'STAFF_NURSE'}">
+            <div class="grp">Store operations</div>
+            <a th:href="@{/stock}">Stock</a>
+            <a th:href="@{/orders}">Orders</a>
+            <a th:href="@{/bills}">Bills</a>
         </div>
 
         <div th:if="${role == 'ADMIN' or role == 'AUDITOR'}">
@@ -48,9 +57,10 @@
 <div class="top" th:fragment="top(title, user, role)">
     <h1 th:text="${title}">Screen</h1>
     <div class="who">
-        <span th:text="${user}">user</span><br>
+        <span th:text="${user}">user</span>
         <span class="tag info" th:text="${role}">ROLE</span>
     </div>
+    <form th:action="@{/logout}" method="post"><button class="console-signout" type="submit">Sign out</button></form>
 </div>
 
 <!-- Shown on every screen until the other modules are merged. -->

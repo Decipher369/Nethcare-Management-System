@@ -153,5 +153,12 @@ body {
 @media (max-width: 640px) {
     .head-in { flex-wrap: wrap; gap: 1rem; }
     .site-head nav { order: 3; width: 100%; margin-left: 0; }
+    .site-head nav { flex-wrap: wrap; gap: .45rem 1rem; }
+    .site-head nav a { padding: .2rem 0; }
     .search { margin-left: 0; width: 100%; }
+    .wrap { padding-right: 1rem; padding-left: 1rem; }
+    .hero { padding: 2.5rem 0; }
+    .hero h1 { font-size: 1.7rem; }
+    .facts li { align-items: flex-start; }
+    .facts .k { min-width: 105px; }
 }

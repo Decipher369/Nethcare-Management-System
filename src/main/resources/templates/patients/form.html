@@ -2,8 +2,10 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title th:text="${editing} ? 'Edit patient — NethCare' : 'Register patient — NethCare'">Patient</title>
     <link rel="icon" type="image/png" th:href="@{/images/nethcare-logo.png}">
+    <link rel="stylesheet" th:href="@{/css/staff.css}">
     <style>
         body { font-family: system-ui, sans-serif; background: #f5f6f8; margin: 0; padding: 2rem; }
         .wrap { max-width: 620px; margin: 0 auto; }
@@ -31,6 +33,7 @@
     </style>
 </head>
 <body>
+<div th:replace="~{staff/fragments :: bar('patients', ${currentUser})}"></div>
 <div class="wrap">
     <div class="card">
         <h1 th:text="${editing} ? 'Edit patient' : 'Register a patient'">Register a patient</h1>
