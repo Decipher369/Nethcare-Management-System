@@ -22,7 +22,8 @@ nethcare-management-system/
 │   │       ├── application.properties       # Base config
 │   │       ├── application-dev.properties   # Dev profile — seeded accounts
 │   │       ├── application-prod.properties  # Production config
-│   │       └── templates/                   # login.html, landing.html, error.html
+│   │       └── templates/                   # login.html, landing.html, error.html,
+│   │                                        # patients/
 │   └── test/
 │       └── java/com/nethcare/    # Unit & integration tests
 ├── docker-compose.yml            # MySQL 8.0 database container
@@ -149,6 +150,79 @@ Sign-in redirects by role, so nobody reaches a page they cannot use:
 
 These pages currently list what each role can do. The real screens are still
 being built under their module issues.
+
+### Patient registration (M1)
+
+Opticians and admins work the register at `/patients`:
+
+| Page | What it does |
+|---|---|
+| `/patients` | The list, with a search box over name, phone and patient number |
+| `/patients/new` | Registration form |
+| `/patients/{id}` | One patient's record and visit history |
+
+A patient row is separate from their login. The `users` entry is the account
+and password, the `patients` entry is the clinical record, and `user_id` links
+them — so closing an account leaves the visit history intact. Tick "also create
+a login" during registration and a `PATIENT` account is made with a random
+password that the front desk writes on a slip.
+
+The visit history on a patient's record is empty for now. It fills in when
+examinations and prescriptions land with M2.
+
+### Clinical API (M2)
+
+Examinations, prescriptions and referrals over JSON. `OPTICIAN`, `SURGEON` and
+`ADMIN` reach these; patients get 403.
+
+| Method | Path | Does |
+|---|---|---|
+| POST | `/api/examinations` | Record an examination (VA, SPH, CYL, AXIS, ADD, IPD) |
+| GET | `/api/examinations/{id}` | One examination |
+| GET | `/api/patients/{id}/examinations` | A patient's examinations, newest first |
+| POST | `/api/examinations/{id}/prescription` | Issue the glasses from that examination |
+| GET | `/api/prescriptions/{id}` | One prescription |
+| GET | `/api/patients/{id}/prescriptions` | Full prescription history |
+| GET | `/api/prescriptions/compare?rx1=&rx2=` | What changed between two prescriptions |
+| POST | `/api/examinations/{id}/referral` | Refer to a surgeon |
+| GET | `/api/referrals/{id}` | One referral |
+
+**Prescriptions are immutable.** A wrong prescription stays on the record;
+changing it means a new examination and a new one alongside it. There is no
+update endpoint, on purpose.
+
+**A referral carries the last four prescriptions with it**, copied in as text
+when the referral is made rather than looked up live. A referral is a record of
+what the surgeon was actually handed over.
+
+### Referral worklists and validity
+
+The worklists and the validity calls. These are the endpoints a surgeon opens
+their day with, and they are the only place the 12-month and 90-day rules are
+enforced in code — `Prescription.isValidOn` and `Referral.isOpenForAccess` both
+existed on the entities with nothing calling them, so a client had to re-derive
+the rules for itself.
+
+| Method | Path | Does |
+|---|---|---|
+| GET | `/api/referrals` | Worklist, `?status=PENDING` by default, `?status=all` for everything |
+| GET | `/api/referrals/open` | Only the ones still inside the 90-day window |
+| GET | `/api/referrals/patient/{id}` | One patient's referral history |
+| PATCH | `/api/referrals/{id}/feedback` | Surgeon records the operation notes |
+| GET | `/api/patients/{id}/prescriptions/validity` | History, each row saying if it is still valid |
+| GET | `/api/patients/{id}/prescriptions/expired` | Just the ones that have run out |
+
+**Closed referrals are reported, not hidden.** A referral past its 90 days comes
+back with `accessible: false` and a summary saying when access closed. Silently
+dropping it would leave a surgeon chasing an old case with no idea why the
+patient disappeared from their list.
+
+**Feedback needs the surgeon's role.** The service already refuses a second
+write; the endpoint also refuses a caller who is not the surgeon, so an optician
+cannot record an operation that did not happen through their account.
+
+`/api/prescriptions/compare` moved into `ClinicalService.compareRx` so the
+controller and any later view describe a change the same way.
 
 ### If you get Spring's whitelabel error page
 
