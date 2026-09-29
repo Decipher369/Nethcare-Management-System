@@ -46,6 +46,13 @@ a { color: var(--ink); }
 
 h1 { font-size: 1.3rem; color: var(--ink); margin: 0 0 1rem; }
 h2 { font-size: 1rem; color: var(--ink); margin: 0 0 .8rem; }
+.page-head {
+    display: flex; align-items: flex-start; justify-content: space-between;
+    gap: 1rem; margin-bottom: 1rem;
+}
+.page-head h1 { margin-bottom: .15rem; }
+.page-head .note { margin: 0; }
+.page-head .btn { flex: 0 0 auto; }
 
 /* ---------------------------------------------------------------- flash */
 

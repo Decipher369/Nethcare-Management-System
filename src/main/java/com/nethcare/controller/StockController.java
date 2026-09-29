@@ -43,10 +43,8 @@ public class StockController {
         List<StockItem> items;
         if ("low".equals(view)) {
             items = stock.lowStock();
-        } else if ("expiring".equals(view)) {
-            items = stock.expiringSoon();
-        } else if (category != null) {
-            items = stock.byCategory(category);
+        } else if (category != null || (q != null && !q.isBlank())) {
+            items = stock.search(category, q);
         } else {
             items = stock.listed();
         }
@@ -54,7 +52,6 @@ public class StockController {
         model.addAttribute("items", items);
         model.addAttribute("categories", StockCategory.values());
         model.addAttribute("lowCount", stock.lowStock().size());
-        model.addAttribute("expiringCount", stock.expiringSoon().size());
         model.addAttribute("active", "stock");
         model.addAttribute("view", view);
         model.addAttribute("q", q);

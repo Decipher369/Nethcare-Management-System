@@ -43,6 +43,10 @@ public class StockService {
 
     /** Gallery view. Only items the counter has marked as listed are shown. */
     public List<StockItem> gallery(StockCategory category, String query) {
+        return search(category, query);
+    }
+
+    public List<StockItem> search(StockCategory category, String query) {
         return items.searchListed(
                 category,
                 (query == null || query.isBlank()) ? null : query.trim());

@@ -5,11 +5,17 @@
 <div th:replace="~{staff/fragments :: bar('stock', ${user})}"></div>
 
 <div class="wrap">
-    <h1>Stock</h1>
+    <div class="page-head">
+        <div>
+            <h1>Stock</h1>
+            <p class="note">Add catalogue items here before staff can attach them to in-store spectacle orders.</p>
+        </div>
+        <a class="btn" th:href="@{/stock/new}">Add stock item</a>
+    </div>
 
     <div class="panel">
         <h2>Catalogue
-            <span th:text="${lowCount} + ' below reorder, ' + ${expiringCount} + ' expiring soon'"
+            <span th:text="${lowCount} + ' below reorder'"
                   style="float:right;font-weight:400;color:var(--ink-soft);font-size:.8rem;">0</span>
         </h2>
 
@@ -19,7 +25,6 @@
                 <select id="stock" name="view">
                     <option value="all" th:selected="${view == 'all'}">Everything</option>
                     <option value="low" th:selected="${view == 'low'}">Below reorder</option>
-                    <option value="expiring" th:selected="${view == 'expiring'}">Expiring soon</option>
                 </select>
             </div>
             <div class="field">
@@ -34,7 +39,6 @@
                 <input id="q" name="q" type="text" th:value="${q}">
             </div>
             <button class="btn" type="submit">Filter</button>
-            <a class="btn ghost" th:href="@{/stock/new}">Add an item</a>
         </form>
 
         <table>
@@ -43,7 +47,7 @@
                 <th>Code</th><th>Item</th><th>Category</th>
                 <th class="num">In stock</th><th class="num">Reserved</th>
                 <th class="num">Reorder at</th><th class="num">Price</th>
-                <th>Expires</th><th>State</th><th class="num">Actions</th>
+                <th>State</th><th class="num">Actions</th>
             </tr>
             </thead>
             <tbody>
@@ -55,7 +59,6 @@
                 <td class="num" th:text="${i.reserved}">0</td>
                 <td class="num" th:text="${i.reorderLevel}">4</td>
                 <td class="num" th:text="${i.unitPrice}">6500</td>
-                <td th:text="${i.expiresOn}">—</td>
                 <td>
                     <span class="tag bad" th:if="${i.quantity == 0}">Out</span>
                     <span class="tag warn" th:if="${i.quantity > 0 and i.low}">Low</span>
