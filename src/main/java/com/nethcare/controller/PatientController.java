@@ -5,6 +5,7 @@ import com.nethcare.exception.BusinessException;
 import com.nethcare.exception.ResourceNotFoundException;
 import com.nethcare.model.Patient;
 import com.nethcare.repository.PatientRepository;
+import com.nethcare.service.ClinicalService;
 import com.nethcare.service.PatientService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -24,10 +25,14 @@ public class PatientController {
 
     private final PatientRepository patients;
     private final PatientService patientService;
+    private final ClinicalService clinical;
 
-    public PatientController(PatientRepository patients, PatientService patientService) {
+    public PatientController(PatientRepository patients,
+                             PatientService patientService,
+                             ClinicalService clinical) {
         this.patients = patients;
         this.patientService = patientService;
+        this.clinical = clinical;
     }
 
     @GetMapping("/patients")
@@ -69,8 +74,9 @@ public class PatientController {
         Patient patient = patients.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No patient with id " + id));
         model.addAttribute("patient", patient);
-        // Empty until M2 lands — examinations and prescriptions are #25.
-        model.addAttribute("visits", List.of());
+        // Read from M2 — examination history and the prescriptions off them.
+        model.addAttribute("visits", clinical.historyFor(id));
+        model.addAttribute("prescriptions", clinical.prescriptionsFor(id));
         return "patients/detail";
     }
 }

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head(title)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${title} + ' — Nethcare'">Nethcare</title>
+    <link rel="stylesheet" th:href="@{/css/console.css}">
+</head>
+<body>
+
+<!-- The left rail. "active" is the key of the current screen. -->
+<aside class="side" th:fragment="side(active)">
+    <div class="brand">
+        <strong>Nethcare</strong>
+        <span>Neth Opticians</span>
+    </div>
+    <nav>
+        <a th:href="@{/dashboard/console}" th:classappend="${active == 'dashboard'} ? ' on' : ''">Dashboard</a>
+
+        <div class="grp">Follow-up</div>
+        <a th:href="@{/followups}" th:classappend="${active == 'followups'} ? ' on' : ''">Review list</a>
+        <a th:href="@{/notifications}" th:classappend="${active == 'notifications'} ? ' on' : ''">Reminders</a>
+
+        <div class="grp">Reports</div>
+        <a th:href="@{/reports/sales}" th:classappend="${active == 'sales'} ? ' on' : ''">Sales</a>
+        <a th:href="@{/reports/orders}" th:classappend="${active == 'orders'} ? ' on' : ''">Orders</a>
+        <a th:href="@{/reports/stock}" th:classappend="${active == 'stock'} ? ' on' : ''">Stock</a>
+
+        <div class="grp">Accountability</div>
+        <a th:href="@{/audit}" th:classappend="${active == 'audit'} ? ' on' : ''">Audit trail</a>
+    </nav>
+    <div class="out"><a th:href="@{/logout}">Sign out</a></div>
+</aside>
+
+<!-- Screen title on the left, who is signed in on the right. -->
+<div class="top" th:fragment="top(title, user, role)">
+    <h1 th:text="${title}">Screen</h1>
+    <div class="who">
+        <span th:text="${user}">user</span><br>
+        <span class="tag info" th:text="${role}">ROLE</span>
+    </div>
+</div>
+
+<!-- Shown on every screen until the other modules are merged. -->
+<div class="mock" th:fragment="mocknote">
+    Showing sample figures. This screen reads live data once modules M1–M3
+    are merged into <code>main</code>.
+</div>
+
+</body>
+</html>

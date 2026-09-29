@@ -42,15 +42,38 @@
 
         <h2>Visit history</h2>
 
-        <ul class="visits" th:if="${!visits.isEmpty()}">
-            <li th:each="v : ${visits}">
-                <span th:text="${v.summary}">Visit</span>
-                <div class="when" th:text="${v.when}">date</div>
-            </li>
-        </ul>
-        <p class="none" th:if="${visits.isEmpty()}">
-            No visits recorded yet. Examinations and prescriptions arrive with M2.
-        </p>
+        <table th:if="${!visits.isEmpty()}">
+            <thead>
+            <tr><th>Date</th><th>Tested by</th><th>Right</th><th>Left</th></tr>
+            </thead>
+            <tbody>
+            <tr th:each="v : ${visits}">
+                <td th:text="${v.examDate}">date</td>
+                <td th:text="${v.examinedBy}">by</td>
+                <td th:text="${v.odSph} + ' ' + ${v.odCyl}">R</td>
+                <td th:text="${v.osSph} + ' ' + ${v.osCyl}">L</td>
+            </tr>
+            </tbody>
+        </table>
+        <p class="none" th:if="${visits.isEmpty()}">No examinations recorded yet.</p>
+
+        <h2>Prescriptions</h2>
+
+        <table th:if="${!prescriptions.isEmpty()}">
+            <thead>
+            <tr><th>Rx</th><th>Issued</th><th>Right</th><th>Left</th><th>Expires</th></tr>
+            </thead>
+            <tbody>
+            <tr th:each="rx : ${prescriptions}">
+                <td th:text="${rx.rxNo}">RX</td>
+                <td th:text="${rx.issuedOn}">date</td>
+                <td th:text="${rx.odSph} + ' ' + ${rx.odCyl}">R</td>
+                <td th:text="${rx.osSph} + ' ' + ${rx.osCyl}">L</td>
+                <td th:text="${rx.expiresOn}">exp</td>
+            </tr>
+            </tbody>
+        </table>
+        <p class="none" th:if="${prescriptions.isEmpty()}">No prescriptions issued yet.</p>
 
         <a th:href="@{/patients}">← Back to patients</a>
     </div>
