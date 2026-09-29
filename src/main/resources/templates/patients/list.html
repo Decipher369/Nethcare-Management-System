@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Patients — Nethcare</title>
+    <style>
+        body { font-family: system-ui, sans-serif; background: #f5f6f8; margin: 0; padding: 2rem; }
+        .wrap { max-width: 860px; margin: 0 auto; }
+        .card { background: #fff; border-radius: 8px; padding: 2rem;
+                box-shadow: 0 2px 12px rgba(0,0,0,.08); }
+        h1 { font-size: 1.4rem; margin: 0 0 .3rem; color: #1a3a5c; }
+        .sub { color: #888; font-size: .85rem; margin: 0 0 1.5rem; }
+        table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+        th { text-align: left; font-size: .7rem; letter-spacing: .06em;
+             color: #888; border-bottom: 1px solid #e5e5e5; padding: .5rem .4rem; }
+        td { padding: .6rem .4rem; border-bottom: 1px solid #f0f0f0; color: #333; }
+        a { color: #1a3a5c; text-decoration: none; }
+        .empty { text-align: center; color: #999; padding: 2.5rem 0; font-size: .9rem; }
+        form.search { display: flex; gap: .5rem; margin-bottom: 1.5rem; }
+        form.search input { flex: 1; padding: .55rem .7rem; font-size: .9rem;
+                            border: 1px solid #ddd; border-radius: 4px; }
+        form.search button { padding: .55rem 1.1rem; font-size: .9rem;
+                             background: #1a3a5c; color: #fff; border: none;
+                             border-radius: 4px; cursor: pointer; }
+        .bar { display: flex; justify-content: space-between; align-items: baseline;
+               margin-bottom: 1.2rem; }
+        .bar a { font-size: .85rem; }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <div class="card">
+        <h1>Patients</h1>
+        <div class="bar">
+            <p class="sub"><span th:text="${total}">0</span> on the register</p>
+            <a th:href="@{/patients/new}">+ Register patient</a>
+        </div>
+
+        <form class="search" method="get" th:action="@{/patients}">
+            <input type="text" name="q" th:value="${q}" placeholder="Name, phone or patient number">
+            <button type="submit">Search</button>
+        </form>
+
+        <table th:if="${!patients.isEmpty()}">
+            <thead>
+            <tr>
+                <th>No.</th>
+                <th>Name</th>
+                <th>Phone</th>
+                <th>Registered</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="p : ${patients}">
+                <td><a th:href="@{/patients/{id}(id=${p.id})}" th:text="${p.patientNo}">P-1</a></td>
+                <td th:text="${p.fullName}">Name</td>
+                <td th:text="${p.phone}">Phone</td>
+                <td th:text="${p.registeredOn}">Date</td>
+            </tr>
+            </tbody>
+        </table>
+
+        <p class="empty" th:if="${patients.isEmpty()}"
+           th:text="${#strings.isEmpty(q)} ? 'No patients registered yet.' : 'Nothing matched that search.'">No patients yet.</p>
+    </div>
+</div>
+</body>
+</html>

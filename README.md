@@ -22,7 +22,8 @@ nethcare-management-system/
 │   │       ├── application.properties       # Base config
 │   │       ├── application-dev.properties   # Dev profile — seeded accounts
 │   │       ├── application-prod.properties  # Production config
-│   │       └── templates/                   # login.html, landing.html, error.html
+│   │       └── templates/                   # login.html, landing.html, error.html,
+│   │                                        # patients/
 │   └── test/
 │       └── java/com/nethcare/    # Unit & integration tests
 ├── docker-compose.yml            # MySQL 8.0 database container
@@ -73,8 +74,8 @@ nethcare-management-system/
 - Order status tracking: placed → lab → ready → collected
 - Stock deducted on issue with low-stock alerts for frames and lenses
 
-**Module 3 is on the `m3-stock-billing` branch.** It builds the stock catalogue
-first, since the frame gallery and the order screen both read from it.
+Module 3 builds the stock catalogue first, since the frame gallery and the
+order screen both read from it.
 
 | Entity | What it holds |
 |---|---|
@@ -122,9 +123,8 @@ looked up through the prescription, for the same reason. A prescription gets
 reissued next year — the glasses already made to last year's spec must not
 change with it.
 
-`Order` carries `customerName` and `customerPhone` instead of a patient id,
-because M3 branches from `main` and no patient table exists there yet. That
-link is added when M3 merges with M1.
+`Order` currently carries `customerName` and `customerPhone` directly. Linking
+orders to the merged patient and prescription records remains integration work.
 
 A bill is `INV-xxxx` and stores its own totals — subtotal, discount, urgent
 surcharge, total. Same reasoning as the order line price: a bill is a document
@@ -181,8 +181,9 @@ that drifts out of date.
 
 `/` used to be the post-login redirect. It is now the shop front, and
 `/dashboard` does the role routing instead — a signed-in user opening the home
-page sees the shop, not a redirect loop. All five roles still land correctly
-(`/dashboard` → `/admin`, `/patients`, `/orders`, `/referrals`, `/portal`).
+page sees the shop, not a redirect loop. `/dashboard` routes admin and staff to
+the management console, the optician to patients, the surgeon to referrals,
+and the patient to their portal.
 
 **The gallery shows "Available" or "Ask us — on order", never the exact count.**
 Printing "2 left" on a public page is a countdown for somebody else to beat us
@@ -266,6 +267,11 @@ someone paid by card at the counter.
 - Management reports: monthly sales, patients attended, order status, stock summary
 - Immutable audit log of every create, update, and delete
 
+**Status: screens built, live reporting pending.** The layouts, columns,
+filters and buttons are finished, but the figures are still placeholders from
+the deck's mock-up. The merged patient, examination, order and billing tables
+now provide the data sources needed to replace them with live queries.
+
 ## Tech Stack
 
 - **Backend:** Java 17, Spring Boot 3.2.5, Spring MVC, Spring Security, Spring Data JPA
@@ -320,7 +326,93 @@ per role on first run, and prints the list on the login page itself:
 | patient | patient123 | PATIENT |
 
 Without the `dev` profile no accounts are created and there is nothing to log in with.
+
 Change the passwords in `application-dev.properties` before using this anywhere shared.
+
+### Console screens (M4)
+
+Admin and staff land straight on the dashboard.
+
+| Screen | URL |
+|---|---|
+| Management dashboard | `/dashboard/console` |
+| Patients due for review | `/followups` |
+| Reminder queue | `/notifications` |
+| Sales report | `/reports/sales` |
+| Order status | `/reports/orders` |
+| Stock summary | `/reports/stock` |
+| Audit trail | `/audit` |
+
+Open to `ADMIN`, `OPTICIAN` and `STAFF_NURSE`. The surgeon and the patient get
+403 on all of them — the audit trail and the money figures are not the
+clinical role's business.
+
+### M4 — the follow-up and audit tables
+
+The console screens above are still wireframes with the client's own numbers on
+them. Underneath, the tables and rules now exist.
+
+| Table | Holds |
+|---|---|
+| `follow_ups` | A patient due back, when they were last seen, and what they said |
+| `notifications` | The reminder queue, one row per attempt |
+| `audit_log` | One row per create / update / delete, in the whole system |
+
+**The follow-up rule is 12 months, or 6 for a contact lens patient.** Both live
+in `nethcare.followup.regular-months` and `contact-lens-months` rather than in
+the code, and the service works out the due date from the last examination.
+`due_for_who` records which rule applied, so nobody has to reverse the
+arithmetic to know why somebody is on the list.
+
+**A reminder is SMS first, email as the fallback.** A patient with no number
+gets the email channel; a patient who has opted out gets nothing queued at all,
+and a patient with no contact details is recorded as failed rather than left
+sitting in the queue with nowhere to go.
+
+**A no-answer stays on the worklist.** Recording that nobody picked up leaves
+the row PENDING, because a customer who did not answer has not been told no.
+Only a booking or a decline closes it.
+
+**Nothing is sent from this table.** The shop has no SMS gateway, so a row
+being SENT means a staff member recorded handing it over — the app does not
+claim a message left the building on its own.
+
+#### The audit trail is append-only, with one caveat
+
+The trigger that enforces this is in
+`src/main/resources/schema/audit_immutable.sql`:
+
+```bash
+mysql -u root -p nethcare < src/main/resources/schema/audit_immutable.sql
+```
+
+It needs a user with the `SUPER` privilege — the app's own `nethcare_user` gets
+MySQL error 1419, because binary logging is on and
+`log_bin_trust_function_creators` is not set. Check it is in place with:
+
+```sql
+SELECT TRIGGER_NAME FROM information_schema.TRIGGERS
+WHERE TRIGGER_SCHEMA = 'nethcare' AND EVENT_OBJECT_TABLE = 'audit_log';
+```
+
+**Until that has been applied, the table is append-only by agreement, not by
+enforcement.** `@Immutable` on the entity stops Hibernate issuing an UPDATE,
+but that is not enough on its own — measured on this schema, it leaves the
+update blocked and `deleteById()` still removes the row. The trigger is what
+closes that, and it applies to anything reaching the database, not just this
+application.
+
+Audit rows are written by `AuditService.record(...)`, which the other modules
+call on every create, update and delete. It uses `REQUIRES_NEW` so an entry
+survives even when the operation it describes rolls back — a failed create is
+still worth having on record.
+
+#### Integration still required
+
+Building the follow-up *list* from real examinations and calculating the four
+report aggregates still need to be wired to the merged patient, examination,
+order and billing repositories. The rules above can currently be exercised
+against hand-seeded rows.
 
 ### Where each role lands after login
 
@@ -328,14 +420,125 @@ Sign-in redirects by role, so nobody reaches a page they cannot use:
 
 | Role | Lands on | Owns |
 |---|---|---|
-| ADMIN | `/admin` | Users, roles, pricing, stock, reports, audit |
+| ADMIN | `/dashboard/console` | Users, roles, pricing, stock, reports, audit |
 | OPTICIAN | `/patients` | Patient records, examinations, prescriptions, referrals |
-| STAFF_NURSE | `/orders` | Orders, bills, order status, stock |
+| STAFF_NURSE | `/dashboard/console` | Orders, bills, order status, stock, follow-up |
 | SURGEON | `/referrals` | Referred patients, surgical notes |
 | PATIENT | `/portal` | Own profile, prescriptions, order status |
 
-These pages currently list what each role can do. The real screens are still
-being built under their module issues.
+The patient, order, billing, stock and M4 console screens are built. Referrals
+and the patient portal still use placeholder landing pages.
+
+### Patient registration (M1)
+
+Opticians and admins work the register at `/patients`:
+
+| Page | What it does |
+|---|---|
+| `/patients` | The list, with a search box over name, phone and patient number |
+| `/patients/new` | Registration form |
+| `/patients/{id}` | One patient's record and visit history |
+
+A patient row is separate from their login. The `users` entry is the account
+and password, the `patients` entry is the clinical record, and `user_id` links
+them — so closing an account leaves the visit history intact. Tick "also create
+a login" during registration and a `PATIENT` account is made with a random
+password that the front desk writes on a slip.
+
+The patient detail page reads its examination and prescription history from
+M2.
+
+### Clinical API (M2)
+
+Examinations, prescriptions and referrals over JSON. `OPTICIAN`, `SURGEON` and
+`ADMIN` reach these; patients get 403.
+
+| Method | Path | Does |
+|---|---|---|
+| POST | `/api/examinations` | Record an examination (VA, SPH, CYL, AXIS, ADD, IPD) |
+| GET | `/api/examinations/{id}` | One examination |
+| GET | `/api/patients/{id}/examinations` | A patient's examinations, newest first |
+| POST | `/api/examinations/{id}/prescription` | Issue the glasses from that examination |
+| GET | `/api/prescriptions/{id}` | One prescription |
+| GET | `/api/patients/{id}/prescriptions` | Full prescription history |
+| GET | `/api/prescriptions/compare?rx1=&rx2=` | What changed between two prescriptions |
+| POST | `/api/examinations/{id}/referral` | Refer to a surgeon |
+| GET | `/api/referrals/{id}` | One referral |
+
+**Prescriptions are immutable.** A wrong prescription stays on the record;
+changing it means a new examination and a new one alongside it. There is no
+update endpoint, on purpose.
+
+**A referral carries the last four prescriptions with it**, copied in as text
+when the referral is made rather than looked up live. A referral is a record of
+what the surgeon was actually handed over.
+
+### Referral worklists and validity
+
+The worklists and the validity calls. These are the endpoints a surgeon opens
+their day with, and they are the only place the 12-month and 90-day rules are
+enforced in code — `Prescription.isValidOn` and `Referral.isOpenForAccess` both
+existed on the entities with nothing calling them, so a client had to re-derive
+the rules for itself.
+
+| Method | Path | Does |
+|---|---|---|
+| GET | `/api/referrals` | Worklist, `?status=PENDING` by default, `?status=all` for everything |
+| GET | `/api/referrals/open` | Only the ones still inside the 90-day window |
+| GET | `/api/referrals/patient/{id}` | One patient's referral history |
+| PATCH | `/api/referrals/{id}/feedback` | Surgeon records the operation notes |
+| GET | `/api/patients/{id}/prescriptions/validity` | History, each row saying if it is still valid |
+| GET | `/api/patients/{id}/prescriptions/expired` | Just the ones that have run out |
+
+**Closed referrals are reported, not hidden.** A referral past its 90 days comes
+back with `accessible: false` and a summary saying when access closed. Silently
+dropping it would leave a surgeon chasing an old case with no idea why the
+patient disappeared from their list.
+
+**Feedback needs the surgeon's role.** The service already refuses a second
+write; the endpoint also refuses a caller who is not the surgeon, so an optician
+cannot record an operation that did not happen through their account.
+
+`/api/prescriptions/compare` moved into `ClinicalService.compareRx` so the
+controller and any later view describe a change the same way.
+
+### Patient API (M1)
+
+The same register over JSON, for anything that is not a browser form. Every
+path is behind the login, and the role rules are the same ones the HTML pages
+use — `OPTICIAN` and `ADMIN` on patients, `ADMIN` only on users.
+
+| Method | Path | Does |
+|---|---|---|
+| GET | `/api/patients?q=` | List, searchable by name, phone or patient number |
+| GET | `/api/patients/{id}` | One patient |
+| POST | `/api/patients` | Register a patient |
+| PUT | `/api/patients/{id}` | Correct a patient's details |
+| GET | `/api/patients/{id}/history` | Visit-history API placeholder; the HTML detail page already reads M2 |
+| GET | `/api/users` | List staff accounts (admin) |
+| POST | `/api/users` | Create a staff account (admin) |
+| PUT | `/api/users/{id}/role` | Change someone's role (admin) |
+| PATCH | `/api/users/{id}/deactivate` | Close an account (admin) |
+
+**Registration calls the same `PatientService` the form uses**, so the API and
+the browser cannot disagree about what makes a valid patient.
+
+**`PUT` only accepts the fields a person can correct.** `patient_no`, `user_id`
+and `registered_on` are set at creation and stay put, so a `PUT` cannot quietly
+renumber a patient or repoint their portal login.
+
+**Deactivating is not deleting.** It sets `status = INACTIVE` and leaves the row
+in place, because registrations point at `user_id` and removing the account
+would orphan everything they touched.
+
+**Responses are DTOs, not entities.** `User` has a `getPasswordHash()`, and
+Jackson would happily serialise it — returning the entity from `/api/users`
+put every account's BCrypt hash in the response. `UserDto` never reads the
+field off the entity, so there is nothing to leak.
+
+`/api/**` skips CSRF (`SecurityConfig`) because it is stateless and may get a
+non-browser client. Everything the browser submits still goes through a
+checked form post.
 
 ### If you get Spring's whitelabel error page
 
