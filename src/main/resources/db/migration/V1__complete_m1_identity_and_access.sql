@@ -22,19 +22,17 @@ CREATE TABLE IF NOT EXISTS users (
     role VARCHAR(20) NOT NULL,
     full_name VARCHAR(100) NULL,
     email VARCHAR(120) NULL,
-    phone VARCHAR(20) NULL,
-    must_change_password BIT(1) NOT NULL DEFAULT b'0',
     last_login_at DATETIME(6) NULL,
     status VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',
     CONSTRAINT uq_users_username UNIQUE (username)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 ALTER TABLE users
-    ADD COLUMN IF NOT EXISTS phone VARCHAR(20) NULL,
-    ADD COLUMN IF NOT EXISTS must_change_password BIT(1) NOT NULL DEFAULT b'0';
+    ADD COLUMN phone VARCHAR(20) NULL,
+    ADD COLUMN must_change_password BIT(1) NOT NULL DEFAULT b'0';
 
 UPDATE users SET is_active = b'0' WHERE status = 'INACTIVE';
-ALTER TABLE users DROP COLUMN IF EXISTS status;
+ALTER TABLE users DROP COLUMN status;
 
 ALTER TABLE users
     ADD CONSTRAINT fk_users_role FOREIGN KEY (role) REFERENCES roles(role_name)
@@ -47,7 +45,6 @@ CREATE TABLE IF NOT EXISTS patients (
     is_active BIT(1) NOT NULL DEFAULT b'1',
     patient_no VARCHAR(20) NOT NULL,
     user_id BIGINT NULL,
-    nic VARCHAR(20) NULL,
     full_name VARCHAR(100) NOT NULL,
     dob DATE NOT NULL,
     gender VARCHAR(10) NULL,
@@ -55,32 +52,22 @@ CREATE TABLE IF NOT EXISTS patients (
     email VARCHAR(120) NULL,
     address VARCHAR(200) NULL,
     blood_group VARCHAR(5) NULL,
-    guardian_name VARCHAR(100) NULL,
-    guardian_phone VARCHAR(20) NULL,
-    registration_notes VARCHAR(1000) NULL,
-    consent_given BIT(1) NOT NULL DEFAULT b'0',
-    consent_recorded_at DATETIME(6) NULL,
-    consent_recorded_by VARCHAR(50) NULL,
-    created_by_user_id BIGINT NULL,
     registered_on DATE NOT NULL,
-    deactivated_at DATETIME(6) NULL,
-    deactivated_by VARCHAR(50) NULL,
-    deactivation_reason VARCHAR(300) NULL,
     CONSTRAINT uq_patients_patient_no UNIQUE (patient_no)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 ALTER TABLE patients
-    ADD COLUMN IF NOT EXISTS nic VARCHAR(20) NULL,
-    ADD COLUMN IF NOT EXISTS guardian_name VARCHAR(100) NULL,
-    ADD COLUMN IF NOT EXISTS guardian_phone VARCHAR(20) NULL,
-    ADD COLUMN IF NOT EXISTS registration_notes VARCHAR(1000) NULL,
-    ADD COLUMN IF NOT EXISTS consent_given BIT(1) NOT NULL DEFAULT b'0',
-    ADD COLUMN IF NOT EXISTS consent_recorded_at DATETIME(6) NULL,
-    ADD COLUMN IF NOT EXISTS consent_recorded_by VARCHAR(50) NULL,
-    ADD COLUMN IF NOT EXISTS created_by_user_id BIGINT NULL,
-    ADD COLUMN IF NOT EXISTS deactivated_at DATETIME(6) NULL,
-    ADD COLUMN IF NOT EXISTS deactivated_by VARCHAR(50) NULL,
-    ADD COLUMN IF NOT EXISTS deactivation_reason VARCHAR(300) NULL;
+    ADD COLUMN nic VARCHAR(20) NULL,
+    ADD COLUMN guardian_name VARCHAR(100) NULL,
+    ADD COLUMN guardian_phone VARCHAR(20) NULL,
+    ADD COLUMN registration_notes VARCHAR(1000) NULL,
+    ADD COLUMN consent_given BIT(1) NOT NULL DEFAULT b'0',
+    ADD COLUMN consent_recorded_at DATETIME(6) NULL,
+    ADD COLUMN consent_recorded_by VARCHAR(50) NULL,
+    ADD COLUMN created_by_user_id BIGINT NULL,
+    ADD COLUMN deactivated_at DATETIME(6) NULL,
+    ADD COLUMN deactivated_by VARCHAR(50) NULL,
+    ADD COLUMN deactivation_reason VARCHAR(300) NULL;
 
 CREATE UNIQUE INDEX uq_patients_user ON patients(user_id);
 CREATE UNIQUE INDEX uq_patients_nic ON patients(nic);

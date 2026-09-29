@@ -7,7 +7,7 @@ import jakarta.persistence.*;
 public class RoleDefinition {
     @Id
     @Enumerated(EnumType.STRING)
-    @Column(name = "role_name", length = 20)
+    @Column(name = "role_name", length = 20, columnDefinition = "VARCHAR(20)")
     private Role roleName;
 
     @Column(name = "description", nullable = false, length = 150)
