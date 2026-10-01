@@ -263,3 +263,49 @@
 .faq-list summary > span { font-size: 23px; color: #3f7fa7; transition: transform .2s; }
 .faq-list details[open] summary > span { transform: rotate(45deg); }
 .faq-list details p { margin: 0; padding: 0 30px 24px 0; color: var(--muted); font-size: 13px; line-height: 1.9; }
+@media (max-width: 1000px) {
+    .story-section, .contact-section { gap: 38px; }
+    .catalogue-toolbar { align-items: stretch; flex-direction: column; }
+    .catalogue-search { flex-basis: auto; max-width: 380px; }
+    .service-list article { padding: 25px; }
+    .collection-intro { gap: 30px; }
+    .collection-intro h1 { font-size: 52px; }
+}
+@media (max-width: 640px) {
+    .page-intro { padding-top: 42px; padding-bottom: 34px; }
+    .page-intro h1, .collection-intro h1 { font-size: clamp(35px, 8.7vw, 54px); letter-spacing: -1.4px; }
+    .intro-bottom { flex-direction: column; align-items: flex-start; gap: 22px; }
+    .intro-bottom > p, .collection-intro > div > p:not(.eyebrow) { font-size: 13px; }
+    .edition-label { font-size: 8px; }
+    .story-section, .contact-section, .collection-intro, .faq-section { grid-template-columns: 1fr; gap: 32px; }
+    .story-section, .contact-section { padding-bottom: 45px; }
+    .story-art { min-height: 330px; padding: 28px; }
+    .story-copy h2 { font-size: 34px; }
+    .services-section { padding-bottom: 45px; }
+    .service-list { grid-template-columns: 1fr; }
+    .service-list h3 { margin-top: 20px; }
+    .blue-strip { flex-direction: column; align-items: flex-start; padding: 28px; }
+    .blue-strip h2 { font-size: 29px; }
+    .strip-section { padding-bottom: 45px; }
+    .collection-intro { padding-top: 38px; padding-bottom: 38px; }
+    .collection-art { padding: 24px 16px; }
+    .catalogue-heading h2 { font-size: 25px; }
+    .catalogue-heading p { white-space: nowrap; font-size: 10px; }
+    .catalogue-toolbar { gap: 16px; }
+    .collection-filters a { padding: 10px 12px; }
+    .catalogue-search { width: 100%; max-width: none; min-width: 0; }
+    .catalogue-search input { font-size: 16px; }
+    .product-grid { grid-template-columns: 1fr; gap: 20px; }
+    .collection-empty { padding: 35px 22px; }
+    .collection-empty h3 { font-size: 26px; }
+    .collection-empty .text-link { margin: 14px 8px 0; }
+    .catalogue-section { padding-bottom: 40px; }
+    .location-panel { padding: 28px; min-height: 420px; }
+    .location-panel h2 { font-size: 32px; }
+    .contact-details h2 { font-size: 30px; }
+    .faq-section { padding-top: 20px; padding-bottom: 50px; }
+    .faq-section h2 { font-size: 30px; }
+    .faq-list summary { font-size: 13px; }
+    .desktop-break { display: none; }
+}
+
