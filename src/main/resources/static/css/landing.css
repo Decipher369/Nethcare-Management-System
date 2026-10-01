@@ -309,3 +309,50 @@
     .desktop-break { display: none; }
 }
 
+/* Logo blue, floating navigation and touch layouts. */
+.public-page { --brand-blue: #3d8fcb; --brand-deep: #236b9e; --sky: #3d8fcb; --sky-soft: #eaf4fb; }
+.public-page .site-head { position: sticky; top: 12px; z-index: 20; margin: 16px auto 0; width: calc(100% - 48px); max-width: 1280px; background: rgba(255, 249, 237, .97); border: 1px solid #d7e3e9; border-radius: 22px; box-shadow: 0 8px 28px #174c700d; backdrop-filter: blur(16px); }
+.public-page .head-in { min-height: 84px; padding: 12px 20px; gap: 24px; }
+.public-page .brand { flex: 0 0 auto; }
+.public-page .brand img { width: 52px; height: 52px; }
+.public-page .brand strong { color: var(--brand-deep); }
+.nav-panel { flex: 1; display: flex; align-items: center; justify-content: flex-end; gap: clamp(20px, 3vw, 52px); }
+.public-page .site-head nav { order: 0; display: flex; width: auto; gap: 4px; margin: 0; padding: 4px; border-radius: 50px; background: #eaf2f6; }
+.public-page .site-head nav a { display: inline-flex; justify-content: center; align-items: center; min-height: 44px; padding: 10px 18px; font-size: 12px; letter-spacing: .2px; text-transform: none; border-radius: 50px; transition: background .2s, color .2s; }
+.public-page .site-head nav a.on { background: var(--brand-blue); color: #fff; font-weight: 600; box-shadow: 0 2px 8px #174c7014; }
+.public-page .site-head nav a.on::after { content: none; }
+.public-page .site-head nav a:hover:not(.on) { background: #d8eaf6; color: var(--brand-deep); }
+.nav-actions { display: flex; align-items: center; gap: 18px; }
+.public-page .staff { display: inline-flex; align-items: center; min-height: 44px; padding: 8px 0; border: 0; margin: 0; font-size: 11px; letter-spacing: .1px; text-transform: none; }
+.nav-visit { display: inline-flex; min-height: 44px; align-items: center; justify-content: space-between; gap: 22px; padding: 10px 20px; border-radius: 50px; background: var(--brand-blue); color: #fff; text-decoration: none; font-size: 12px; font-weight: 600; }
+.nav-visit:hover { background: var(--brand-deep); }
+.nav-visit span { font-size: 18px; }
+.menu-toggle, .nav-arrow { display: none; }
+.skip-link:focus { position: fixed; z-index: 30; }
+.hero-product { mix-blend-mode: normal; }
+.hero-product img, .collection-art img { mix-blend-mode: normal; mask-image: none; }
+.hero-stage h1, .hero-stage h1 > span { color: var(--brand-blue); }
+.landing-button.primary { background: var(--brand-blue); color: #fff; border-color: var(--brand-blue); font-size: 12px; }
+.landing-button.primary:hover { background: var(--brand-deep); color: #fff; border-color: var(--brand-deep); }
+.collection-art, .story-art, .location-panel, .visit-panel { background: var(--brand-blue); color: #fff; }
+.story-art svg, .location-art svg { stroke: #fff; }
+.location-panel .location-address, .visit-copy > p:not(.eyebrow), .visit-location { color: #fff; }
+.chart-line { background: #ffffff80; }
+.collection-filters a.selected { background: var(--brand-blue); color: #fff; border-color: var(--brand-blue); }
+.hero-intro > p:not(.eyebrow), .care-card p { font-size: 14px; }
+.eyebrow { font-size: 10px; }
+.hero-bottomline, .product-caption { font-size: 11px; }
+.section-heading > p { font-size: 13px; }
+.landing-button, .card-link { font-size: 12px; }
+.public-page .site-foot p, .public-page .site-foot .fine { font-size: 12px; }
+.care-section, .catalogue-section, #main { scroll-margin-top: 125px; }
+.collection-art img { object-fit: contain; }
+@media (min-width: 801px) and (max-width: 1050px) {
+    .public-page .head-in { gap: 14px; padding: 12px 16px; }
+    .nav-panel { gap: 18px; }
+    .public-page .site-head nav a { padding: 10px 13px; }
+    .nav-actions { gap: 14px; }
+    .nav-visit { padding: 10px 15px; gap: 12px; }
+    .public-page .brand strong { font-size: 21px; }
+    .public-page .brand img { width: 46px; height: 46px; }
+}
