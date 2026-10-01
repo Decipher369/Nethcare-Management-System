@@ -1,0 +1,80 @@
+/* Frosted glass controls with logo-blue tint and readable dark labels. */
+.public-page {
+    --glass-neutral: linear-gradient(135deg, #ffffffa6, #ffffff40);
+    --glass-blue: linear-gradient(135deg, #81c2ee73, #3d8fcb59);
+    --glass-shadow: 0 4px 16px #174c7010, inset 0 1px 0 #ffffffb3;
+    --glass-pressed: 0 1px 5px #174c7012, inset 0 1px 3px #174c701c;
+}
+.public-page :is(.landing-button, .text-link, .nav-visit, .menu-toggle, .staff, .collection-filters a, .catalogue-search button) {
+    border: 1px solid #91b4cc66;
+    border-top-color: #ffffffcc;
+    border-radius: 18px;
+    background: var(--glass-neutral);
+    color: #174c70;
+    box-shadow: var(--glass-shadow);
+    -webkit-backdrop-filter: blur(16px) saturate(140%);
+    backdrop-filter: blur(16px) saturate(140%);
+    transition: transform .18s ease, box-shadow .18s ease, filter .18s ease;
+    text-decoration: none;
+    min-height: 44px;
+}
+.public-page .text-link { padding: 13px 19px; gap: 18px; max-width: 100%; }
+.public-page .text-link > span { flex-shrink: 0; }
+.public-page .site-head .staff { padding: 10px 14px; }
+.public-page :is(.landing-button.primary, .nav-visit, .collection-filters a.selected),
+.public-page .site-head nav a.on {
+    background: var(--glass-blue);
+    color: #062236;
+    border: 1px solid #3d8fcb40;
+    border-top-color: #ffffffb3;
+    -webkit-backdrop-filter: blur(16px) saturate(140%);
+    backdrop-filter: blur(16px) saturate(140%);
+    box-shadow: var(--glass-shadow);
+}
+.public-page .site-head nav a.on { border-radius: 24px; }
+.public-page .collection-filters { gap: 10px; }
+.public-page .catalogue-search { border-radius: 18px; padding: 4px; gap: 5px; }
+.public-page .catalogue-search input { border-radius: 13px; }
+.public-page .catalogue-search button { border-radius: 13px; }
+@media (hover: hover) {
+    .public-page :is(.landing-button, .text-link, .nav-visit, .menu-toggle, .staff, .collection-filters a, .catalogue-search button):hover {
+        transform: translateY(-1px);
+        filter: brightness(1.025);
+        box-shadow: 0 6px 20px #174c701c, inset 0 1px 0 #ffffffcc;
+    }
+}
+.public-page :is(.landing-button, .text-link, .nav-visit, .menu-toggle, .staff, .collection-filters a, .catalogue-search button):active,
+.public-page .menu-toggle[aria-expanded="true"],
+.public-page .site-head nav a.on:active {
+    transform: translateY(1px);
+    box-shadow: var(--glass-pressed);
+}
+.public-page :is(.landing-button, .text-link, .nav-visit, .menu-toggle, .staff, .collection-filters a, .catalogue-search button):focus-visible {
+    outline: 3px solid #174c70;
+    outline-offset: 4px;
+}
+@media (min-width: 801px) and (max-width: 1050px) {
+    .public-page .nav-panel, .public-page .nav-actions { gap: 10px; }
+    .public-page .site-head .staff { padding: 10px; }
+}
+@media (max-width: 640px) {
+    .public-page .text-link { padding: 13px 16px; }
+    .public-page .editorial-actions .text-link { min-height: 50px; }
+    .public-page .collection-filters { gap: 10px; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .public-page :is(.landing-button, .text-link, .nav-visit, .menu-toggle, .staff, .collection-filters a, .catalogue-search button) { transition: none; }
+    .public-page :is(.landing-button, .text-link, .nav-visit, .menu-toggle, .staff, .collection-filters a, .catalogue-search button):is(:hover, :active) { transform: none; }
+}
+@media (forced-colors: active) {
+    .public-page :is(.landing-button, .text-link, .nav-visit, .menu-toggle, .staff, .collection-filters a, .catalogue-search button),
+    .public-page .site-head nav a.on { border: 1px solid ButtonText; box-shadow: none; }
+}
+
+/* Preserve the glass fill when earlier page styles define hover backgrounds. */
+.public-page :is(.landing-button, .text-link, .menu-toggle, .staff, .collection-filters a, .catalogue-search button):hover { background: var(--glass-neutral); color: #174c70; }
+.public-page :is(.landing-button.primary, .nav-visit, .collection-filters a.selected):hover { background: var(--glass-blue); color: #062236; }
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .public-page :is(.landing-button, .text-link, .nav-visit, .menu-toggle, .staff, .collection-filters a, .catalogue-search button),
+    .public-page .site-head nav a.on { background-color: #e8f1f6; }
+}
