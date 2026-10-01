@@ -1,63 +1,30 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{public/fragments :: head('Contact')}"></head>
-<body>
-
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{public/fragments :: head('Visit & contact')}"></head>
+<body class="public-page">
+<a class="skip-link" href="#main">Skip to content</a>
 <header th:replace="~{public/fragments :: nav('contact')}"></header>
-
-<section class="band">
-    <div class="wrap">
-        <h1>Contact us</h1>
-        <p class="lede">Come and see us, or get in touch about an examination or a repair.</p>
-
-        <ul class="facts">
-            <li><span class="k">Business</span><span class="v" th:text="${biz.NAME}">Name</span></li>
-            <li><span class="k">Location</span><span class="v" th:text="${biz.LOCATION}">Town</span></li>
-
-            <li th:if="${!biz.isPending(biz.ADDRESS_LINE)}">
-                <span class="k">Address</span><span class="v" th:text="${biz.ADDRESS_LINE}">Street</span>
-            </li>
-            <li th:if="${biz.isPending(biz.ADDRESS_LINE)}">
-                <span class="k">Address</span><span class="v note">To be confirmed</span>
-            </li>
-
-            <li th:if="${!biz.isPending(biz.PHONE)}">
-                <span class="k">Phone</span><span class="v" th:text="${biz.PHONE}">Number</span>
-            </li>
-            <li th:if="${biz.isPending(biz.PHONE)}">
-                <span class="k">Phone</span><span class="v note">To be confirmed</span>
-            </li>
-
-            <li th:if="${!biz.isPending(biz.EMAIL)}">
-                <span class="k">Email</span><span class="v" th:text="${biz.EMAIL}">Email</span>
-            </li>
-            <li th:if="${biz.isPending(biz.EMAIL)}">
-                <span class="k">Email</span><span class="v note">To be confirmed</span>
-            </li>
-
-            <li th:if="${!biz.isPending(biz.OPENING_HOURS)}">
-                <span class="k">Opening hours</span><span class="v" th:text="${biz.OPENING_HOURS}">Hours</span>
-            </li>
-            <li th:if="${biz.isPending(biz.OPENING_HOURS)}">
-                <span class="k">Opening hours</span><span class="v note">To be confirmed</span>
-            </li>
-
-            <li><span class="k">Owner</span><span class="v" th:text="${biz.OWNER}">Owner</span></li>
-        </ul>
-
-        <div class="pending" th:if="${biz.isPending(biz.PHONE) or biz.isPending(biz.ADDRESS_LINE)
-                                    or biz.isPending(biz.OPENING_HOURS) or biz.isPending(biz.EMAIL)}">
-            These details have not been supplied by the client yet, so the page leaves them
-            blank rather than printing a guessed number on a real shop.
+<main id="main">
+    <section class="page-intro landing-wrap"><p class="eyebrow">Let’s see you soon</p><h1>Come for the frames.<br><em>Stay for the care.</em></h1><div class="intro-bottom"><p>An eye test, a new pair, or a little adjustment.<br>Whatever brings you in, we’re here to help.</p><span class="edition-label">VISIT US / KOLONNAWA</span></div></section>
+    <section class="contact-section landing-wrap" aria-labelledby="contact-title">
+        <div class="location-panel"><p class="eyebrow">Your neighbourhood opticians</p><div class="location-art" aria-hidden="true"><svg viewBox="0 0 200 200" fill="none"><circle cx="100" cy="100" r="83"/><circle cx="100" cy="100" r="65"/><path d="M100 156s-39-44-39-73a39 39 0 0 1 78 0c0 29-39 73-39 73Z"/><circle cx="100" cy="83" r="14"/></svg></div><div><h2 th:text="${biz.NAME}">Neth Opticians</h2><p th:text="${biz.LOCATION}">Kolonnawa, Sri Lanka</p><p class="location-address" th:if="${!biz.isPending(biz.ADDRESS_LINE)}" th:text="${biz.ADDRESS_LINE}">Address</p><p class="location-address" th:if="${biz.isPending(biz.ADDRESS_LINE)}">Full street address coming soon.</p></div></div>
+        <div class="contact-details"><p class="eyebrow">Make yourself at home</p><h2 id="contact-title">A good visit starts here.</h2><p>Find us in Kolonnawa for eye examinations, eyewear and aftercare.</p>
+            <dl class="contact-list">
+                <div><dt><span aria-hidden="true">01</span> Give us a call</dt><dd><a th:if="${!biz.isPending(biz.PHONE)}" th:href="${'tel:' + biz.PHONE}" th:text="${biz.PHONE}">Phone</a><span th:if="${biz.isPending(biz.PHONE)}">Phone number coming soon</span></dd></div>
+                <div><dt><span aria-hidden="true">02</span> Send a note</dt><dd><a th:if="${!biz.isPending(biz.EMAIL)}" th:href="${'mailto:' + biz.EMAIL}" th:text="${biz.EMAIL}">Email</a><span th:if="${biz.isPending(biz.EMAIL)}">Email details coming soon</span></dd></div>
+                <div><dt><span aria-hidden="true">03</span> Opening hours</dt><dd><span th:if="${!biz.isPending(biz.OPENING_HOURS)}" th:text="${biz.OPENING_HOURS}">Hours</span><span th:if="${biz.isPending(biz.OPENING_HOURS)}">Opening hours will be published here</span></dd></div>
+            </dl>
+            <p class="contact-note" th:if="${biz.isPending(biz.PHONE) or biz.isPending(biz.OPENING_HOURS)}">We’re updating our contact details. Check back here for our phone number and opening hours before planning your trip.</p>
+            <a class="text-link" th:href="@{/frames}">Explore the collection while you’re here <span aria-hidden="true">↗</span></a>
         </div>
-
-        <p style="margin-top:2rem">
-            <a class="btn" th:href="@{/frames}">Browse the frames we stock</a>
-        </p>
-    </div>
-</section>
-
+    </section>
+    <section class="faq-section landing-wrap" aria-labelledby="faq-title"><div><p class="eyebrow">Before you drop by</p><h2 id="faq-title">A few helpful details.</h2><p>A little preparation for<br>a clearer perspective.</p></div><div class="faq-list">
+        <details><summary>What should I bring for an eye test?<span aria-hidden="true">+</span></summary><p>Bring your current glasses and any previous prescription you have. Let us know about any changes you’ve noticed in your vision.</p></details>
+        <details><summary>Can I try frames on in the shop?<span aria-hidden="true">+</span></summary><p>Yes. Visit us to try different shapes and find a comfortable fit. We can help you choose frames to suit your prescription and preferences.</p></details>
+        <details><summary>Do you offer repairs and adjustments?<span aria-hidden="true">+</span></summary><p>We help with frame repairs, hinges and temples. Adjustments are free for glasses bought at Neth Opticians. Bring your pair in so we can take a look.</p></details>
+        <details><summary>Can I buy online?<span aria-hidden="true">+</span></summary><p>The online collection helps you explore our range. Fitting, orders and payment are handled in the shop, where we can make sure everything is right for you.</p></details>
+    </div></section>
+</main>
 <footer th:replace="~{public/fragments :: foot}"></footer>
-
 </body>
 </html>
