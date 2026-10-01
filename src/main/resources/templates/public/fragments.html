@@ -21,14 +21,20 @@
                 <span th:text="${biz.NAME}">Neth Opticians</span>
             </span>
         </a>
-        <nav>
-            <a th:href="@{/}"      th:classappend="${active == 'home'}    ? ' on' : ''">Home</a>
-            <a th:href="@{/about}" th:classappend="${active == 'about'}   ? ' on' : ''">About</a>
-            <a th:href="@{/frames}" th:classappend="${active == 'frames'}  ? ' on' : ''">Frames</a>
-            <a th:href="@{/contact}" th:classappend="${active == 'contact'} ? ' on' : ''">Contact</a>
+        <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="public-navigation" aria-label="Open navigation">
+            <span class="menu-label">Menu</span><span class="menu-icon" aria-hidden="true"><i></i><i></i></span>
+        </button>
+        <div class="nav-panel" id="public-navigation">
+        <nav aria-label="Main navigation">
+            <a th:href="@{/}"      th:attr="aria-current=${active == 'home' ? 'page' : null}" th:classappend="${active == 'home'}    ? ' on' : ''">Home<span class="nav-arrow" aria-hidden="true">↗</span></a>
+            <a th:href="@{/about}" th:attr="aria-current=${active == 'about' ? 'page' : null}" th:classappend="${active == 'about'}   ? ' on' : ''">About<span class="nav-arrow" aria-hidden="true">↗</span></a>
+            <a th:href="@{/frames}" th:attr="aria-current=${active == 'frames' ? 'page' : null}" th:classappend="${active == 'frames'}  ? ' on' : ''">Frames<span class="nav-arrow" aria-hidden="true">↗</span></a>
+            <a th:href="@{/contact}" th:attr="aria-current=${active == 'contact' ? 'page' : null}" th:classappend="${active == 'contact'} ? ' on' : ''">Contact<span class="nav-arrow" aria-hidden="true">↗</span></a>
         </nav>
-        <a class="staff" th:href="@{/login}">Staff login</a>
+        <div class="nav-actions"><a class="staff" th:href="@{/login}">Login</a><a class="nav-visit" th:href="@{/contact}">Visit us <span aria-hidden="true">↗</span></a></div>
+        </div>
     </div>
+    <script th:src="@{/js/public-navigation.js}" defer></script>
 </header>
 
 <footer class="site-foot" th:fragment="foot">
