@@ -1,66 +1,41 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{public/fragments :: head('Frames')}"></head>
-<body>
-
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{public/fragments :: head('Frames & eyewear')}"></head>
+<body class="public-page">
+<a class="skip-link" href="#main">Skip to content</a>
 <header th:replace="~{public/fragments :: nav('frames')}"></header>
-
-<section class="band">
-    <div class="wrap">
-        <h1>Frames we stock</h1>
-        <p class="lede">
-            This is the live list — it is the same catalogue the counter works from, so
-            anything shown here is genuinely on our shelves. If a frame is not listed,
-            ask us and we will order it in.
-        </p>
-
-        <div class="filters">
-            <a class="chip" th:href="@{/frames}"
-               th:classappend="${selected == null} ? ' on' : ''">All</a>
-            <a class="chip" th:each="c : ${categories}"
-               th:href="@{/frames(category=${c})}"
-               th:text="${c.label()}"
-               th:classappend="${selected == c} ? ' on' : ''">Category</a>
-
-            <form class="search" th:action="@{/frames}" method="get">
-                <input type="search" name="q" th:value="${query}"
-                       placeholder="Search by name, brand or code" aria-label="Search frames">
-                <button type="submit">Search</button>
+<main id="main">
+    <section class="collection-intro landing-wrap">
+        <div><p class="eyebrow">The collection</p><h1>A new look.<br><em>Still you.</em></h1><p>Find your everyday favourite. Explore our frames,<br class="desktop-break"> lenses and essentials, then visit us for a personal fitting.</p><a class="text-link" href="#collection">Explore the collection <span aria-hidden="true">↓</span></a></div>
+        <figure class="collection-art"><span class="eyebrow">A fresh point of view</span><img th:src="@{/images/eyewear-cutout.webp}" width="1536" height="1024" alt="Illustrative black acetate eyewear with rounded frames"><figcaption>Find the shape that feels like you.</figcaption></figure>
+    </section>
+    <section class="catalogue-section landing-wrap" id="collection" aria-labelledby="collection-title">
+        <div class="catalogue-heading"><h2 id="collection-title">Frames &amp; essentials</h2><p><span th:text="${items.size()}">0</span> <span th:text="${items.size() == 1 ? 'item' : 'items'}">items</span> to explore</p></div>
+        <div class="catalogue-toolbar">
+            <nav class="collection-filters" aria-label="Product categories">
+                <a th:href="@{/frames(q=${query})}" th:classappend="${selected == null} ? ' selected'" th:attr="aria-current=${selected == null ? 'true' : null}">All</a>
+                <a th:each="c : ${categories}" th:href="@{/frames(category=${c},q=${query})}" th:text="${c.label()}" th:classappend="${selected == c} ? ' selected'" th:attr="aria-current=${selected == c ? 'true' : null}">Category</a>
+            </nav>
+            <form class="catalogue-search" th:action="@{/frames}" method="get" role="search">
+                <input th:if="${selected != null}" type="hidden" name="category" th:value="${selected}">
+                <input type="search" name="q" th:value="${query}" placeholder="Name, brand or code" aria-label="Search collection">
+                <button type="submit" aria-label="Search collection"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg></button>
             </form>
         </div>
-
-        <div class="grid three" th:if="${!items.isEmpty()}">
-            <div class="card" th:each="i : ${items}">
-                <div class="shot">
-                    <img th:if="${i.imageName != null}"
-                         th:src="@{'/images/frames/' + ${i.imageName}}"
-                         th:alt="${i.name}" loading="lazy">
-                    <span th:if="${i.imageName == null}">No photo yet</span>
-                </div>
-                <div class="body">
-                    <h3 th:text="${i.name}">Frame</h3>
-                    <p class="brand-line" th:text="${i.brand}">Brand</p>
-                    <p class="code" th:text="${i.itemCode}">CODE</p>
-                    <p class="note" th:if="${i.description}" th:text="${i.description}">Note</p>
-                    <p class="price">
-                        LKR <span th:text="${#numbers.formatDecimal(i.unitPrice, 1, 'COMMA', 2, 'POINT')}">0.00</span>
-                        <small th:text="${i.available() > 0} ? '— in stock' : '— on order'">in stock</small>
-                    </p>
-                    <p th:if="${i.available() > 0}"><span class="tag in">Available</span></p>
-                    <p th:unless="${i.available() > 0}"><span class="tag">Ask us — on order</span></p>
-                </div>
-            </div>
+        <div class="query-summary" th:if="${query != null and !query.isBlank()}"><p>Results for “<strong th:text="${query}">search</strong>”</p><a th:href="@{/frames(category=${selected})}">Clear search ×</a></div>
+        <div class="product-grid" th:if="${!items.isEmpty()}">
+            <th:block th:replace="~{public/fragments :: products(${items})}"></th:block>
         </div>
-
-        <div class="empty" th:if="${items.isEmpty()}">
-            <p><strong>Nothing matches that yet.</strong></p>
-            <p>Try a different search, or
-               <a th:href="@{/frames}">show everything</a>.</p>
+        <div class="collection-empty" th:if="${items.isEmpty()}">
+            <span class="empty-symbol" aria-hidden="true">⌕</span>
+            <h3 th:text="${selected != null or (query != null and !query.isBlank()) ? 'Let’s try another perspective.' : 'Your next pair is worth a visit.'}">Your next pair is worth a visit.</h3>
+            <p th:text="${selected != null or (query != null and !query.isBlank()) ? 'No items match these filters. Try another category or a different search.' : 'Our online collection is being updated. Visit us to explore frames and find your fit in person.'}">Our online collection is being updated.</p>
+            <a class="landing-button secondary" th:if="${selected != null or (query != null and !query.isBlank())}" th:href="@{/frames}">View all items <span aria-hidden="true">↗</span></a>
+            <a class="text-link" th:href="@{/contact}">Plan a visit <span aria-hidden="true">↗</span></a>
         </div>
-    </div>
-</section>
-
+    </section>
+    <section class="strip-section landing-wrap"><div class="blue-strip"><div><p class="eyebrow">Made personal, in store</p><h2>The best fit? Try it on.</h2><p>We’ll help with the shape, the prescription and the little adjustments.</p></div><a class="landing-button primary" th:href="@{/contact}">Visit Neth Opticians <span aria-hidden="true">↗</span></a></div></section>
+</main>
 <footer th:replace="~{public/fragments :: foot}"></footer>
-
 </body>
 </html>
