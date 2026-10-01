@@ -356,3 +356,59 @@
     .public-page .brand strong { font-size: 21px; }
     .public-page .brand img { width: 46px; height: 46px; }
 }
+@media (max-width: 800px) {
+    .public-page .site-head { top: 8px; width: calc(100% - 24px); margin-top: 10px; border-radius: 18px; }
+    .public-page .head-in { flex-wrap: wrap; min-height: 72px; padding: 10px 14px; gap: 0; justify-content: space-between; }
+    .public-page .brand img { width: 46px; height: 46px; }
+    .public-page .brand strong { font-size: 22px; }
+    .public-page .brand-copy > span { font-size: 9px; }
+    .nav-ready .menu-toggle { display: inline-flex; justify-content: center; align-items: center; gap: 12px; min-width: 84px; min-height: 44px; padding: 10px 12px; border: 1px solid #cadfe9; border-radius: 12px; background: #eaf4fb; color: var(--navy); font: inherit; font-size: 12px; cursor: pointer; }
+    .menu-icon { width: 17px; display: grid; gap: 5px; }
+    .menu-icon i { display: block; height: 1.5px; background: currentColor; transition: transform .2s; }
+    .menu-open .menu-icon i:first-child { transform: translateY(3.25px) rotate(45deg); }
+    .menu-open .menu-icon i:last-child { transform: translateY(-3.25px) rotate(-45deg); }
+    .nav-panel { flex: 0 0 100%; flex-direction: column; align-items: stretch; gap: 16px; padding: 16px 0 4px; max-height: calc(100dvh - 110px); overflow-y: auto; }
+    .nav-ready:not(.menu-open) .nav-panel { display: none; }
+    .public-page .site-head nav { flex-direction: column; width: 100%; gap: 5px; padding: 0; border-radius: 0; background: transparent; }
+    .public-page .site-head nav a { justify-content: space-between; padding: 12px 16px; font-size: 15px; min-height: 48px; border-radius: 12px; }
+    .public-page .site-head nav .nav-arrow { display: inline; font-size: 18px; }
+    
+    .nav-actions { border-top: 1px solid var(--rule); padding-top: 14px; justify-content: space-between; }
+    .public-page .staff { padding: 10px 16px; font-size: 13px; }
+    .nav-visit { font-size: 13px; }
+    .care-section, .catalogue-section, #main { scroll-margin-top: 100px; }
+}
+@media (max-width: 640px) {
+    .hero-topline { font-size: 9px; letter-spacing: .7px; }
+    .hero-topline > span:first-child { max-width: 115px; }
+    .hero-stage { height: clamp(220px, 62vw, 350px); }
+    .hero-stage h1 { font-size: 11.1vw; }
+    .hero-intro > p:not(.eyebrow) { font-size: 14px; }
+    .hero-intro h2 { font-size: 35px; }
+    .hero-actions { display: grid; grid-template-columns: 1fr; max-width: 340px; margin: 24px auto 0; }
+    .landing-button { min-height: 48px; font-size: 13px; padding: 14px 18px; }
+    .landing-button.primary { font-size: 13px; }
+    .hero-bottomline { font-size: 10px; }
+    .hero-bottomline > span { max-width: 150px; }
+    .product-caption { font-size: 10px; letter-spacing: .4px; }
+    .eyebrow { font-size: 10px; line-height: 1.6; }
+    .care-card p, .service-list p, .story-copy > p:not(.eyebrow), .contact-details > p:not(.eyebrow), .faq-list details p { font-size: 14px; }
+    .care-card h3 { font-size: 20px; }
+    .card-link, .text-link { font-size: 13px; min-height: 44px; }
+    .collection-filters a { display: inline-flex; align-items: center; min-height: 44px; padding: 10px 14px; font-size: 12px; }
+    .collection-art figcaption { font-size: 12px; }
+    .collection-empty .text-link { display: flex; justify-content: center; }
+    .contact-list dt, .contact-list dd { font-size: 14px; }
+    .faq-list summary { min-height: 64px; font-size: 14px; }
+    .visit-copy > p:not(.eyebrow) { font-size: 14px; }
+    .visit-location { font-size: 11px; }
+    .eye-chart { border-top-color: #ffffff60; }
+    .public-page .site-foot .fine a { display: inline-flex; align-items: center; min-height: 44px; }
+}
+
+/* Dark ink keeps small text readable on the sampled logo blue. */
+.public-page .site-head nav a.on, .nav-visit, .landing-button.primary,
+.collection-filters a.selected, .collection-art, .story-art, .location-panel,
+.visit-panel, .location-panel .location-address, .visit-copy > p:not(.eyebrow),
+.visit-location { color: #062236; }
+.nav-visit:hover, .landing-button.primary:hover { color: #fff; }
