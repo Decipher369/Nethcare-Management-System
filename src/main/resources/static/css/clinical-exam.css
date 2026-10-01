@@ -1,0 +1,30 @@
+/* ════════════════════════════════════════════════════════════════
+   clinical-exam.css
+   Styles for the multi-step examination form.
+   Shares the --ink / --bg / --line tokens from staff.css.
+   ════════════════════════════════════════════════════════════════ */
+
+/* ── Eyebrow ──────────────────────────────────────────────────── */
+.exam-eyebrow {
+    margin: 0 0 .25rem;
+    font-size: .72rem;
+    font-weight: 700;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+}
+
+.page-head h1 {
+    display: flex;
+    align-items: center;
+    gap: .65rem;
+    flex-wrap: wrap;
+    margin: 0 0 1.25rem;
+    font-size: 1.4rem;
+    color: var(--ink);
+}
+
+.exam-breadcrumb {
+    margin-bottom: .75rem;
+    font-size: .85rem;
+}
