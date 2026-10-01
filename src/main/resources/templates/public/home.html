@@ -1,45 +1,45 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{public/fragments :: head('Home')}"></head>
-<body>
-
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="A clearer view starts at Neth Opticians, Kolonnawa. Explore eyewear, prescription lenses and personal eye care, measured on site and fitted by hand.">
+    <title>Nethcare — See beautifully.</title>
+    <link rel="icon" type="image/png" th:href="@{/images/nethcare-logo.png}">
+    <link rel="stylesheet" th:href="@{/css/site.css}">
+    <link rel="stylesheet" th:href="@{/css/landing.css}">
+    <link rel="stylesheet" th:href="@{/css/home-editorial.css}">
+    <link rel="stylesheet" th:href="@{/css/glass-buttons.css}">
+</head>
+<body class="public-page landing-page">
+<a class="skip-link" href="#main">Skip to content</a>
 <header th:replace="~{public/fragments :: nav('home')}"></header>
 
-<section class="hero">
-    <div class="wrap">
-        <h1 th:text="${biz.NAME} + ' — ' + ${biz.LOCATION}">Neth Opticians</h1>
-        <p th:text="${biz.TAGLINE}">Optometrist and prescription eyewear.</p>
-        <a class="btn" th:href="@{/frames}">See the frames we stock</a>
-    </div>
-</section>
-
-<section class="band">
-    <div class="wrap">
-        <h2>What we do</h2>
-        <p class="lede">Everything below happens in the shop, on the same visit.</p>
-
-        <div class="grid three">
-            <div class="svc" th:each="s : ${biz.services()}" th:fragment="svc(s)">
-                <h3 th:text="${s.title}">Service</h3>
-                <p th:text="${s.detail()}">Detail</p>
-            </div>
+<main id="main">
+    <section class="editorial-hero landing-wrap" aria-labelledby="hero-title">
+        <div class="editorial-kicker"><span>Eyewear with a point of view.</span><span th:text="${biz.LOCATION}">Kolonnawa, Sri Lanka</span></div>
+        <div class="editorial-stage">
+            <h1 id="hero-title">See life.<br><em>Beautifully.</em></h1>
+            <img class="editorial-glasses" th:src="@{/images/eyewear-cutout.webp}" width="1536" height="1024" alt="Black acetate glasses with gently rounded frames" fetchpriority="high">
+            <span class="editorial-side" aria-hidden="true">A fresh perspective / Neth Opticians</span>
         </div>
-    </div>
-</section>
+        <div class="editorial-hero-bottom"><p>A frame that feels like you.<br>Care that sees the person behind it.</p><div class="editorial-actions"><a class="landing-button primary" th:href="@{/frames(category='FRAME')}">Find your frames <span aria-hidden="true">↗</span></a><a class="text-link" th:href="@{/contact}">Visit for an eye test <span aria-hidden="true">↗</span></a></div></div>
+        <div class="editorial-promises"><span>Measured with care</span><span>Fitted by hand</span><span>Here in Kolonnawa</span><a href="#collection">Take a closer look <span aria-hidden="true">↓</span></a></div>
+    </section>
 
-<section class="band soft">
-    <div class="wrap">
-        <h2>Come in and be measured</h2>
-        <p class="lede">
-            We have <span th:text="${biz.PREMISES}">reception, examination room and counter</span>.
-            Walk in during opening hours, or call the shop if you want to book a slot for
-            an examination.
-        </p>
-        <a class="btn ghost" th:href="@{/contact}">Contact us</a>
-    </div>
-</section>
+    <section class="home-collection landing-wrap" id="collection" aria-labelledby="collection-title">
+        <div class="editorial-section-heading"><div><p class="eyebrow">Find your everyday favourite</p><h2 id="collection-title">Good looks.<br><em>A better fit.</em></h2></div><a class="text-link" th:href="@{/frames(category='FRAME')}">Explore all frames <span aria-hidden="true">↗</span></a></div>
+        <div class="product-grid" th:if="${!featuredFrames.isEmpty()}"><th:block th:replace="~{public/fragments :: products(${featuredFrames})}"></th:block></div>
+        <div class="home-collection-note" th:if="${featuredFrames.isEmpty()}"><p>The right pair is personal. Visit us to explore the range, try a few shapes, and find the one that feels like you.</p><a class="text-link" th:href="@{/contact}">Find your fit in store <span aria-hidden="true">↗</span></a></div>
+    </section>
 
+    <section class="editorial-care landing-wrap" id="care" aria-labelledby="care-title">
+        <figure class="care-photo"><img th:src="@{/images/frame-adjustment.webp}" alt="Illustration of an optician’s hands carefully adjusting the hinge of an acetate frame" width="1024" height="1536" loading="lazy"><figcaption>The little details make the difference. <span>Illustrative image</span></figcaption></figure>
+        <div class="editorial-care-copy"><p class="eyebrow">The Nethcare approach</p><h2 id="care-title">Not just your eyes.<br><em>Your everyday.</em></h2><p>Reading the small print. Taking the long way home. Seeing a familiar face. We’re here to make the everyday a little clearer.</p><div class="care-steps"><a th:href="@{/about}"><span>01</span><div><h3>Start with your vision.</h3><p>A personal eye examination and advice for your prescription.</p></div><span aria-hidden="true">↗</span></a><a th:href="@{/frames(category='FRAME')}"><span>02</span><div><h3>Make it your own.</h3><p>Find the shape, the feel and the frame that work for you.</p></div><span aria-hidden="true">↗</span></a><a th:href="@{/contact}"><span>03</span><div><h3>Leave the details to us.</h3><p>Careful fitting, repairs and adjustments for everyday comfort.</p></div><span aria-hidden="true">↗</span></a></div><a class="text-link" th:href="@{/about}">Get to know Neth Opticians <span aria-hidden="true">↗</span></a></div>
+    </section>
+
+    <section class="editorial-visit landing-wrap" aria-labelledby="visit-title"><div class="editorial-visit-inner"><p class="eyebrow">Your neighbourhood. Your opticians.</p><h2 id="visit-title">Let’s find<br><em>your perspective.</em></h2><div><p>Come in, try a few frames.<br>We’ll take care of the little things.</p><a class="landing-button light" th:href="@{/contact}">Plan your visit <span aria-hidden="true">↗</span></a></div><span class="visit-signature" th:text="${biz.NAME} + ' / ' + ${biz.LOCATION}">Neth Opticians / Kolonnawa, Sri Lanka</span></div></section>
+</main>
 <footer th:replace="~{public/fragments :: foot}"></footer>
-
 </body>
 </html>
