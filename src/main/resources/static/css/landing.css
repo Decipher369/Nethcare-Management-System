@@ -84,3 +84,70 @@
 .public-page .site-foot p { font-size: 10px; }
 .public-page .site-foot .fine { font-size: 9px; }
 .public-page .site-foot .fine a { margin-left: 16px; text-decoration: none; }
+@media (min-width: 1500px) {
+    .hero-stage { height: 420px; }
+    .hero-product { width: 720px; }
+}
+@media (max-width: 900px) {
+    .public-page .head-in { padding: 20px 28px; gap: 24px; }
+    .public-page .site-head nav { gap: 20px; }
+    .public-page .staff { padding-left: 20px; }
+    .eyewear-hero, .landing-wrap { padding-left: 28px; padding-right: 28px; }
+    .hero-stage { height: 340px; }
+    .hero-stage h1 { top: 35px; }
+    .hero-product { max-width: 90%; }
+    .section-heading { align-items: flex-start; flex-direction: column; gap: 16px; }
+    .care-card { padding: 22px; }
+    .care-card h3 { font-size: 16px; }
+    .visit-panel { padding: 42px; }
+    .visit-copy h2 { font-size: 40px; }
+    .public-page .foot-in { padding: 0 28px; }
+}
+@media (max-width: 640px) {
+    .public-page .head-in { padding: 16px 22px 12px; gap: 16px; }
+    .public-page .brand img { width: 45px; height: 45px; }
+    .public-page .brand strong { font-size: 21px; }
+    .public-page .brand-copy > span { font-size: 8px; }
+    .public-page .staff { font-size: 9px; padding-left: 16px; }
+    .public-page .site-head nav { width: 100%; justify-content: space-between; gap: 12px; }
+    .public-page .site-head nav a { font-size: 9px; }
+    .eyewear-hero, .landing-wrap { padding-left: 22px; padding-right: 22px; }
+    .hero-topline { font-size: 7px; letter-spacing: 1px; gap: 10px; padding-top: 20px; }
+    .hero-location { gap: 3px; }
+    .location-mark { font-size: 14px; }
+    .hero-stage { height: clamp(230px, 62vw, 350px); }
+    .hero-stage h1 { top: 32px; font-size: 11.5vw; }
+    .hero-product { top: 22px; width: 100%; max-width: 100%; }
+    .hero-side-note { display: none; }
+    .product-caption { bottom: 0; font-size: 8px; }
+    .hero-intro { padding-top: 28px; padding-bottom: 30px; }
+    .eyebrow { font-size: 8px; letter-spacing: 1.3px; }
+    .hero-intro h2 { font-size: 33px; }
+    .hero-intro > p:not(.eyebrow) { font-size: 11px; }
+    .hero-actions { gap: 9px; }
+    .landing-button { padding: 12px 15px; font-size: 9px; gap: 18px; }
+    .hero-bottomline { align-items: flex-start; font-size: 8px; gap: 14px; }
+    .hero-bottomline > span { max-width: 165px; }
+    .care-dot { flex-shrink: 0; }
+    .hero-bottomline a { padding: 0; white-space: nowrap; gap: 8px; }
+    .care-section { padding-top: 45px; padding-bottom: 45px; }
+    .section-heading h2 { font-size: 29px; max-width: 16ch; }
+    .care-grid { grid-template-columns: 1fr; }
+    .care-card { padding: 26px; }
+    .care-card + .care-card { border-left: 0; border-top: 1px solid var(--rule); }
+    .care-card-top { margin-bottom: 15px; }
+    .care-card p { max-width: 42ch; }
+    .visit-section { padding-bottom: 45px; }
+    .visit-panel { grid-template-columns: 1fr; padding: 32px; }
+    .visit-copy h2 { font-size: 38px; }
+    .eye-chart { margin-top: 45px; padding-top: 28px; border-top: 1px solid #8bbbd8; }
+    .eye-chart > span:first-child { font-size: 86px; }
+    .eye-chart > span:nth-child(2) { font-size: 36px; }
+    .eye-chart > span:nth-child(3) { font-size: 22px; }
+    .public-page .foot-in { padding: 0 22px; flex-direction: column; align-items: flex-start; gap: 10px; }
+    .public-page .site-foot .fine a { display: block; margin: 10px 0 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .public-page *, .public-page *::before, .public-page *::after { transition: none !important; }
+}
+
