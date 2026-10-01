@@ -84,3 +84,5 @@
  .editorial-visit-inner > div > p { font-size: 15px; }
  .visit-signature { font-size: 10px; line-height: 1.8; }
 }
+@media (prefers-reduced-motion: reduce) { .editorial-glasses { animation: none; } .home-collection .product-image img { transition: none; } }
+@media (max-width: 640px) { .editorial-stage { overflow: clip; } }
