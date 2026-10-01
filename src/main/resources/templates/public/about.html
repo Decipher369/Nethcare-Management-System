@@ -1,43 +1,32 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{public/fragments :: head('About')}"></head>
-<body>
-
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{public/fragments :: head('Our story')}"></head>
+<body class="public-page">
+<a class="skip-link" href="#main">Skip to content</a>
 <header th:replace="~{public/fragments :: nav('about')}"></header>
-
-<section class="band">
-    <div class="wrap">
-        <h1 th:text="${biz.NAME}">Neth Opticians</h1>
-        <p class="lede" th:text="${biz.TAGLINE}">Optometrist and prescription eyewear.</p>
-
-        <ul class="facts">
-            <li><span class="k">Business</span><span class="v" th:text="${biz.NAME}">Name</span></li>
-            <li><span class="k">Location</span><span class="v" th:text="${biz.LOCATION}">Town</span></li>
-            <li><span class="k">Owner</span><span class="v" th:text="${biz.OWNER}">Owner</span></li>
-            <li><span class="k">Premises</span><span class="v" th:text="${biz.PREMISES}">Rooms</span></li>
-        </ul>
-
-        <p class="pending" th:if="${biz.isPending(biz.PHONE) or biz.isPending(biz.ADDRESS_LINE)
-                                    or biz.isPending(biz.OPENING_HOURS)}">
-            Some shop details are still to be confirmed by the client. Staff can fill these
-            in from the admin console.
-        </p>
-    </div>
-</section>
-
-<section class="band soft">
-    <div class="wrap">
-        <h2>Our services</h2>
-        <div class="grid three">
-            <div class="svc" th:each="s : ${biz.services()}">
-                <h3 th:text="${s.title}">Service</h3>
-                <p th:text="${s.detail()}">Detail</p>
-            </div>
+<main id="main">
+    <section class="page-intro landing-wrap">
+        <p class="eyebrow">The people behind your perspective</p>
+        <h1>A little closer.<br><em>A lot more personal.</em></h1>
+        <div class="intro-bottom"><p>We’re your neighbourhood opticians in Kolonnawa.<br>Here to help you see clearly, feel comfortable, and find your kind of frame.</p><span class="edition-label">OUR STORY / 01</span></div>
+    </section>
+    <section class="story-section landing-wrap" aria-labelledby="story-title">
+        <div class="story-art" aria-hidden="true"><span class="eyebrow">A fresh perspective</span><svg viewBox="0 0 320 200" fill="none"><path d="M20 100S75 25 160 25s140 75 140 75-55 75-140 75S20 100 20 100Z"/><circle cx="160" cy="100" r="49"/><circle cx="160" cy="100" r="22"/><path d="M160 4v-3M75 26 62 10m183 16 13-16"/></svg><span class="art-signature">See well. Live fully.</span></div>
+        <div class="story-copy"><p class="eyebrow">Neth Opticians / Kolonnawa</p><h2 id="story-title">Eye care with<br>a human touch.</h2><p>Great eyewear starts with understanding the person wearing it. At <span th:text="${biz.NAME}">Neth Opticians</span>, we bring eye examinations, prescription lenses and frame fitting together in one place.</p><p>Led by <span th:text="${biz.OWNER}">Ms. Udeni Gurusinghe</span>, our shop makes room for the details: how your glasses sit, what your eyes need, and what feels right for you.</p><a class="text-link" th:href="@{/contact}">Come and meet us <span aria-hidden="true">↗</span></a></div>
+    </section>
+    <section class="services-section landing-wrap" aria-labelledby="services-title">
+        <div class="section-heading"><div><p class="eyebrow">Care, from start to finish</p><h2 id="services-title">For every way you see.</h2></div><p>Practical expertise. Thoughtful details.<br>Support that goes beyond a new pair.</p></div>
+        <div class="service-list">
+            <article><span>01</span><h3>Eye examinations</h3><p>A refraction test to understand your vision and help find the right prescription.</p></article>
+            <article><span>02</span><h3>Prescription eyewear</h3><p>Single vision, bifocal and progressive lenses, tailored to your prescription.</p></article>
+            <article><span>03</span><h3>Frames with personality</h3><p>Explore everyday shapes, metal frames and acetate designs, fitted by hand.</p></article>
+            <article><span>04</span><h3>Contact lenses</h3><p>Help with fitting and choosing contact lenses to suit your needs.</p></article>
+            <article><span>05</span><h3>Repairs &amp; adjustments</h3><p>Hinge and temple repairs, plus free adjustments for glasses bought here.</p></article>
+            <article><span>06</span><h3>Care for the family</h3><p>Prescription records and repeat orders to make finding your next pair easier.</p></article>
         </div>
-    </div>
-</section>
-
+    </section>
+    <section class="strip-section landing-wrap"><div class="blue-strip"><div><p class="eyebrow">Let’s find your fit</p><h2>Your next perspective awaits.</h2></div><a class="landing-button primary" th:href="@{/frames(category='FRAME')}">Explore our frames <span aria-hidden="true">↗</span></a></div></section>
+</main>
 <footer th:replace="~{public/fragments :: foot}"></footer>
-
 </body>
 </html>
