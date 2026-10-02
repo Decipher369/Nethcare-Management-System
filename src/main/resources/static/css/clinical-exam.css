@@ -113,3 +113,92 @@
 .exam-step.done .step-label {
     color: #2e7d32;
 }
+
+/* ── Layout: sidebar + content ────────────────────────────────── */
+.exam-layout {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    gap: 1.2rem;
+    align-items: start;
+}
+
+/* ── Sidebar nav ──────────────────────────────────────────────── */
+.exam-sidenav {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    overflow: hidden;
+    position: sticky;
+    top: 80px;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidenav-item {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    width: 100%;
+    padding: .85rem 1rem;
+    background: none;
+    border: none;
+    border-left: 3px solid transparent;
+    border-bottom: 1px solid var(--line);
+    text-align: left;
+    cursor: pointer;
+    transition: background .15s, border-color .15s;
+    color: var(--ink-soft);
+}
+
+.sidenav-item:last-child {
+    border-bottom: none;
+}
+
+.sidenav-item:hover {
+    background: #f5f7fa;
+    color: var(--ink);
+}
+
+.sidenav-item.active {
+    background: #eef4fb;
+    border-left-color: var(--ink);
+    color: var(--ink);
+}
+
+.sidenav-num {
+    font-size: .7rem;
+    font-weight: 700;
+    letter-spacing: .04em;
+    color: inherit;
+    opacity: .6;
+    flex-shrink: 0;
+}
+
+.sidenav-item.active .sidenav-num {
+    opacity: 1;
+    color: var(--ink);
+}
+
+.sidenav-text {
+    display: flex;
+    flex-direction: column;
+    gap: .15rem;
+}
+
+.sidenav-text strong {
+    font-size: .84rem;
+    font-weight: 600;
+    line-height: 1.2;
+    color: inherit;
+}
+
+.sidenav-text small {
+    font-size: .72rem;
+    color: var(--ink-soft);
+    line-height: 1.3;
+}
+
+/* ── Exam content area ───────────────────────────────────────── */
+.exam-content {
+    min-width: 0;
+}
