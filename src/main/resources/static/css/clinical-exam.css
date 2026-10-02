@@ -28,3 +28,88 @@
     margin-bottom: .75rem;
     font-size: .85rem;
 }
+
+/* ── Stepper ──────────────────────────────────────────────────── */
+.exam-stepper {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin-bottom: 1.6rem;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    overflow: hidden;
+    padding: 0;
+}
+
+.exam-step {
+    display: flex;
+    align-items: center;
+    gap: .55rem;
+    flex: 1;
+    padding: .75rem 1rem;
+    position: relative;
+    color: var(--ink-soft);
+    font-size: .82rem;
+    transition: background .15s;
+}
+
+.exam-step + .exam-step {
+    border-left: 1px solid var(--line);
+}
+
+.step-num {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 2px solid var(--line);
+    font-size: .72rem;
+    font-weight: 700;
+    flex-shrink: 0;
+    background: #fff;
+    color: var(--ink-soft);
+    transition: background .2s, border-color .2s, color .2s;
+}
+
+.step-label {
+    font-size: .82rem;
+    font-weight: 500;
+}
+
+/* Active step */
+.exam-step.active {
+    background: #eef4fb;
+    color: var(--ink);
+}
+
+.exam-step.active .step-num {
+    background: var(--ink);
+    border-color: var(--ink);
+    color: #fff;
+}
+
+.exam-step.active .step-label {
+    font-weight: 700;
+    color: var(--ink);
+}
+
+/* Completed step */
+.exam-step.done .step-num {
+    background: #2e7d32;
+    border-color: #2e7d32;
+    color: #fff;
+    font-size: 0;
+}
+
+.exam-step.done .step-num::before {
+    content: '✓';
+    font-size: .75rem;
+    font-weight: 700;
+}
+
+.exam-step.done .step-label {
+    color: #2e7d32;
+}
