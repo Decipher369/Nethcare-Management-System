@@ -12,17 +12,12 @@
     </section>
     <section class="story-section landing-wrap" aria-labelledby="story-title">
         <div class="story-art" aria-hidden="true"><span class="eyebrow">A fresh perspective</span><svg viewBox="0 0 320 200" fill="none"><path d="M20 100S75 25 160 25s140 75 140 75-55 75-140 75S20 100 20 100Z"/><circle cx="160" cy="100" r="49"/><circle cx="160" cy="100" r="22"/><path d="M160 4v-3M75 26 62 10m183 16 13-16"/></svg><span class="art-signature">See well. Live fully.</span></div>
-        <div class="story-copy"><p class="eyebrow">Neth Opticians / Kolonnawa</p><h2 id="story-title">Eye care with<br>a human touch.</h2><p>Great eyewear starts with understanding the person wearing it. At <span th:text="${biz.NAME}">Neth Opticians</span>, we bring eye examinations, prescription lenses and frame fitting together in one place.</p><p>Led by <span th:text="${biz.OWNER}">Ms. Udeni Gurusinghe</span>, our shop makes room for the details: how your glasses sit, what your eyes need, and what feels right for you.</p><a class="text-link" th:href="@{/contact}">Come and meet us <span aria-hidden="true">↗</span></a></div>
+        <div class="story-copy"><p class="eyebrow">Neth Opticians / Kolonnawa</p><h2 id="story-title">Eye care with<br>a human touch.</h2><p>Great eyewear starts with understanding the person wearing it. At <span th:text="${biz.NAME}">Neth Opticians</span>, we bring eye examinations, prescription lenses and frame fitting together in one place.</p><p>Led by <span th:text="${biz.OWNER}">Ms. Udeni Gurusinghe</span>, our shop makes room for the details: how your glasses sit, what your eyes need, and what feels right for you.</p><p>We manage the eyecare and optical service at <span th:text="${biz.SERVICE_LOCATION}">Siri Suwasetha Medical Centre</span>, affiliated to <span th:text="${biz.SERVICE_AFFILIATION}">YIMBA - Kolonnawa</span>. The centre has served the community since <span th:text="${biz.SERVICE_SINCE}">2001</span>.</p><a class="text-link" th:href="@{/contact}">Come and meet us <span aria-hidden="true">↗</span></a></div>
     </section>
     <section class="services-section landing-wrap" aria-labelledby="services-title">
         <div class="section-heading"><div><p class="eyebrow">Care, from start to finish</p><h2 id="services-title">For every way you see.</h2></div><p>Practical expertise. Thoughtful details.<br>Support that goes beyond a new pair.</p></div>
         <div class="service-list">
-            <article><span>01</span><h3>Eye examinations</h3><p>A refraction test to understand your vision and help find the right prescription.</p></article>
-            <article><span>02</span><h3>Prescription eyewear</h3><p>Single vision, bifocal and progressive lenses, tailored to your prescription.</p></article>
-            <article><span>03</span><h3>Frames with personality</h3><p>Explore everyday shapes, metal frames and acetate designs, fitted by hand.</p></article>
-            <article><span>04</span><h3>Contact lenses</h3><p>Help with fitting and choosing contact lenses to suit your needs.</p></article>
-            <article><span>05</span><h3>Repairs &amp; adjustments</h3><p>Hinge and temple repairs, plus free adjustments for glasses bought here.</p></article>
-            <article><span>06</span><h3>Care for the family</h3><p>Prescription records and repeat orders to make finding your next pair easier.</p></article>
+            <article th:each="service, count : ${biz.services()}"><span th:text="${#numbers.formatInteger(count.count, 2)}">01</span><h3 th:text="${service.title}">Service</h3><p th:text="${service.detail}">Details</p></article>
         </div>
     </section>
     <section class="strip-section landing-wrap"><div class="blue-strip"><div><p class="eyebrow">Let’s find your fit</p><h2>Your next perspective awaits.</h2></div><a class="landing-button primary" th:href="@{/frames(category='FRAME')}">Explore our frames <span aria-hidden="true">↗</span></a></div></section>

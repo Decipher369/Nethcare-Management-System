@@ -5,11 +5,9 @@ import java.util.List;
 /**
  * The shop's public-facing details, in one place.
  *
- * The client proposal and the deck only ever gave us the business name, the
- * town, the owner's name and the fact that it is an optometrist and glasses
- * shop. Everything else here comes from those documents, and anything we were
- * not told is left as null so the page says "to confirm" rather than printing
- * an invented phone number on a real business.
+ * The client proposal and deck supply the shop details. The Siri Suwasetha
+ * eyecare poster supplies the service location, phone number and service list.
+ * Details absent from both sources stay null until confirmed.
  *
  * These are constants rather than database rows because the client has not
  * asked for them to be editable. If that changes, this becomes a table and
@@ -24,6 +22,9 @@ public final class BusinessProfile {
     public static final String NAME = "Neth Opticians";
     public static final String LOCATION = "Kolonnawa, Sri Lanka";
     public static final String OWNER = "Ms. Udeni Gurusinghe";
+    public static final String SERVICE_LOCATION = "Siri Suwasetha Medical Centre";
+    public static final String SERVICE_AFFILIATION = "YIMBA - Kolonnawa";
+    public static final String SERVICE_SINCE = "2001";
 
     /** One line for the top of the page. */
     public static final String TAGLINE =
@@ -32,40 +33,26 @@ public final class BusinessProfile {
     /** What the premises actually contain — the proposal lists these three. */
     public static final String PREMISES = "Reception, examination room, dispensing counter";
 
-    /**
-     * Not in any client document. Shown as "to confirm" on the page until the
-     * client gives us the real details — a made-up phone number on a real shop
-     * is worse than a blank.
-     */
-    public static final String PHONE = null;
+    /** Contact details printed on the eyecare service poster. */
+    public static final String PHONE = "+94 112 532 153";
+    public static final String PHONE_URI = "+94112532153";
     public static final String EMAIL = null;
-    public static final String ADDRESS_LINE = null;
+    public static final String ADDRESS_LINE = "No. 470, Kolonnawa Road, Kolonnawa";
     public static final String OPENING_HOURS = null;
 
-    /**
-     * What the shop does, taken from the project README and the proposal.
-     * Not a marketing list — each line is a service the system actually
-     * supports.
-     */
+    /** Services listed on the Siri Suwasetha eyecare poster. */
     public static List<Service> services() {
         return List.of(
-                new Service("Eye examinations",
-                        "A full refraction test in the examination room, with the result kept "
-                                + "on the patient's record."),
-                new Service("Prescription eyewear",
-                        "Single vision, bifocal and progressive lenses, cut to the prescription "
-                                + "taken on the day."),
-                new Service("Frames",
-                        "A stocked range, from everyday pairs to metal and acetate designs."),
-                new Service("Contact lenses",
-                        "Fitted and supplied with the expiry tracked, so nothing past its date "
-                                + "stays on the shelf."),
-                new Service("Repairs and adjustments",
-                        "Frame repairs, hinge and temple work, and free adjustments for glasses "
-                                + "bought here."),
-                new Service("Glasses for the family",
-                        "Repeat orders kept on file, so a replacement pair can be matched to the "
-                                + "last one without a re-examination."));
+                new Service("Specialist ophthalmology consultation",
+                        "Consultation for eye health concerns."),
+                new Service("Comprehensive eye care",
+                        "Personal attention to vision and eye health."),
+                new Service("Glaucoma screening",
+                        "Screening for glaucoma as part of the eyecare service."),
+                new Service("Refraction & optical service",
+                        "Vision testing and prescription eyewear."),
+                new Service("Quality and designer spectacle frames & accessories",
+                        "Frames and accessories with help finding a comfortable fit."));
     }
 
     /** One line of the services list. */

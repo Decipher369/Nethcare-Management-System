@@ -34,8 +34,15 @@ class PublicPagesTest {
                     .andExpect(content().string(containsString("class=\"public-page")))
                     .andExpect(content().string(containsString("aria-current=\"page\"")));
         }
-        mvc.perform(get("/contact")).andExpect(content().string(containsString("Phone number coming soon")))
-                .andExpect(content().string(not(containsString("tel:null"))));
+        mvc.perform(get("/contact"))
+                .andExpect(content().string(containsString("Siri Suwasetha Medical Centre")))
+                .andExpect(content().string(containsString("No. 470, Kolonnawa Road, Kolonnawa")))
+                .andExpect(content().string(containsString("tel:+94112532153")))
+                .andExpect(content().string(containsString("+94 112 532 153")));
+        mvc.perform(get("/about"))
+                .andExpect(content().string(containsString("Glaucoma screening")))
+                .andExpect(content().string(containsString("Specialist ophthalmology consultation")))
+                .andExpect(content().string(containsString("since <span>2001</span>")));
     }
 
     @Test
