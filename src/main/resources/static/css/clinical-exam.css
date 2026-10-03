@@ -202,3 +202,97 @@
 .exam-content {
     min-width: 0;
 }
+
+.exam-section {
+    /* panel styles come from staff.css .panel */
+}
+
+/* ── Refraction table ─────────────────────────────────────────── */
+.rx-table-wrap {
+    overflow-x: auto;
+    margin: 1rem 0;
+}
+
+.rx-table {
+    min-width: 500px;
+}
+
+.rx-table thead {
+    background: #eef4fb;
+}
+
+.rx-table thead th {
+    color: var(--ink);
+    font-size: .72rem;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    font-weight: 700;
+    border-bottom: 2px solid var(--line);
+    padding: .5rem .8rem;
+}
+
+.rx-table tbody td {
+    padding: .4rem .5rem;
+}
+
+.rx-table tbody td input {
+    width: 80px;
+    padding: .38rem .5rem;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    font-size: .88rem;
+    text-align: center;
+    background: #fff;
+    font-family: ui-monospace, monospace;
+    transition: border-color .15s;
+}
+
+.rx-table tbody td input:focus {
+    outline: 2px solid rgba(54,111,163,.22);
+    border-color: #5c91c5;
+}
+
+.eye-label {
+    padding: .5rem .8rem;
+    text-align: left;
+    white-space: nowrap;
+}
+
+.eye-badge {
+    display: inline-block;
+    font-size: .72rem;
+    font-weight: 700;
+    padding: .1rem .45rem;
+    border-radius: 3px;
+    margin-right: .3rem;
+    letter-spacing: .04em;
+}
+
+.eye-badge.od {
+    background: #e8eef4;
+    color: var(--ink);
+}
+
+.eye-badge.os {
+    background: #e7f0fd;
+    color: #1a4a9c;
+}
+
+.eye-label small {
+    display: block;
+    font-size: .7rem;
+    color: var(--ink-soft);
+    font-weight: 400;
+    margin-top: 2px;
+}
+
+/* ── Extra fields row (PD, Base curve, Diameter) ────────────── */
+.exam-extra-fields {
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: .8rem;
+    margin-bottom: 1rem;
+}
+
+.exam-meta-row {
+    margin-bottom: 1rem;
+}
