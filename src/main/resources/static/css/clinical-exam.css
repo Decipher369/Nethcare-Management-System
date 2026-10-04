@@ -398,3 +398,203 @@
     font-size: .9rem;
     font-weight: 600;
 }
+
+/* ════════════════════════════════════════════════════════════════
+   UNFLAG CONFIRMATION DIALOG
+   ════════════════════════════════════════════════════════════════ */
+
+/* Native <dialog> backdrop (Chromium/Firefox automatic backdrop) */
+.unflag-dialog::backdrop {
+    background: rgba(15, 28, 44, .55);
+    backdrop-filter: blur(2px);
+}
+
+/* Polyfill backdrop div (for older Safari) */
+.unflag-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 28, 44, .55);
+    backdrop-filter: blur(2px);
+    z-index: 999;
+}
+
+/* Dialog box */
+.unflag-dialog {
+    position: fixed;
+    inset: 0;
+    margin: auto;
+    z-index: 1000;
+    border: none;
+    border-radius: 8px;
+    padding: 0;
+    width: min(480px, 92vw);
+    max-height: 90vh;
+    overflow: auto;
+    box-shadow: 0 20px 60px rgba(10, 25, 42, .28), 0 4px 12px rgba(10, 25, 42, .14);
+    background: #fff;
+}
+
+.unflag-dialog[open] {
+    animation: dialog-in .18s ease-out;
+}
+
+@keyframes dialog-in {
+    from { opacity: 0; transform: scale(.96) translateY(-8px); }
+    to   { opacity: 1; transform: scale(1)  translateY(0); }
+}
+
+/* Dialog header */
+.unflag-dialog-header {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    padding: 1.2rem 1.4rem .9rem;
+    border-bottom: 1px solid var(--line);
+    background: #fffbf6;
+}
+
+.unflag-icon {
+    flex-shrink: 0;
+    color: var(--warn);
+    width: 22px;
+    height: 22px;
+}
+
+.unflag-dialog-header h2 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1.3;
+}
+
+/* Dialog body */
+.unflag-body {
+    margin: 0;
+    padding: 1rem 1.4rem .2rem;
+    font-size: .93rem;
+    color: var(--ink);
+    line-height: 1.6;
+}
+
+.unflag-body strong {
+    color: var(--warn);
+}
+
+/* Detail explanation block */
+.unflag-detail-block {
+    margin: .75rem 1.4rem;
+    padding: .8rem 1rem;
+    background: var(--warn-bg);
+    border: 1px solid #f0c680;
+    border-radius: 5px;
+    font-size: .83rem;
+    color: #6b3900;
+    line-height: 1.65;
+}
+
+.unflag-detail-block p {
+    margin: 0 0 .5rem;
+}
+
+.unflag-detail-block p:last-child {
+    margin: 0;
+}
+
+/* Dialog actions */
+.unflag-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: .75rem;
+    padding: 1rem 1.4rem 1.2rem;
+    border-top: 1px solid var(--line);
+    background: #fafbfd;
+}
+
+/* Danger confirm button */
+.btn-danger {
+    background: var(--bad);
+    border-color: var(--bad);
+    color: #fff;
+}
+
+.btn-danger:hover {
+    background: #a32520;
+    border-color: #a32520;
+}
+
+.btn-danger:focus-visible {
+    outline: 3px solid rgba(192, 57, 43, .4);
+    outline-offset: 3px;
+}
+
+/* Ghost cancel button in dialog */
+.unflag-cancel {
+    color: var(--ink);
+    border-color: var(--line);
+}
+
+/* ── Responsive ──────────────────────────────────────────────── */
+@media (max-width: 860px) {
+    .exam-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .exam-sidenav {
+        position: static;
+        flex-direction: row;
+        border-radius: 6px;
+    }
+
+    .sidenav-item {
+        flex: 1;
+        flex-direction: column;
+        align-items: flex-start;
+        border-left: none;
+        border-bottom: 3px solid transparent;
+        padding: .65rem .75rem;
+    }
+
+    .sidenav-item.active {
+        border-bottom-color: var(--ink);
+        border-left: none;
+        background: #eef4fb;
+    }
+
+    .sidenav-text small {
+        display: none;
+    }
+
+    .exam-stepper {
+        display: none;
+    }
+}
+
+@media (max-width: 560px) {
+    .sidenav-item {
+        padding: .55rem .5rem;
+    }
+
+    .sidenav-text strong {
+        font-size: .76rem;
+    }
+
+    .exam-extra-fields {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .history-checks,
+    .symptom-checks {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .unflag-actions {
+        flex-direction: column;
+    }
+
+    .unflag-actions .btn {
+        width: 100%;
+        justify-content: center;
+        text-align: center;
+    }
+}
