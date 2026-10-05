@@ -304,7 +304,7 @@ now provide the data sources needed to replace them with live queries.
 ### Setup
 ```bash
 # Option A — Docker (recommended)
-docker compose up -d              # starts MySQL on localhost:3306
+docker compose up -d              # starts MySQL on localhost:3307
 
 # Option B — Manual MySQL
 # Create the database
@@ -332,8 +332,37 @@ per role on first run, and prints the list on the login page itself:
 | patient | patient123 | PATIENT |
 
 Without the `dev` profile no accounts are created and there is nothing to log in with.
-
 Change the passwords in `application-dev.properties` before using this anywhere shared.
+
+### Deploy on Railway
+
+1. Add a **MySQL** service to the Railway project and wait for it to become available.
+2. Create a service from this GitHub repository. The `pom.xml` is at the
+   repository root, so leave Railway's **Root Directory** unset.
+3. In the app service's **Variables** tab, set the following values. Replace `MySQL`
+   with the exact name of your Railway database service if it differs:
+
+   ```text
+   SPRING_PROFILES_ACTIVE=prod
+   DB_URL=jdbc:mysql://${{MySQL.MYSQLHOST}}:${{MySQL.MYSQLPORT}}/${{MySQL.MYSQLDATABASE}}?serverTimezone=Asia/Colombo
+   DB_USER=${{MySQL.MYSQLUSER}}
+   DB_PASS=${{MySQL.MYSQLPASSWORD}}
+   ```
+
+   `DB_URL` must start with `jdbc:mysql://`; Railway's `MYSQL_URL` is not a JDBC URL.
+   Use the database's private host and port for the app in the same Railway project.
+   Review and deploy the staged variable changes, then redeploy the app.
+4. In the app service's **Settings → Networking**, generate a public domain. The
+   app listens on Railway's `PORT` variable. Set `/api/health` as the health check
+   path if you enable Railway health checks.
+
+Flyway V1 and V2 create the full application schema during startup. Hibernate
+is validation-only (`ddl-auto=validate`); it does not create or update tables.
+Flyway requires a working database connection. A
+`Connection refused` error means the configured host and port are not accepting
+connections; check that MySQL is running and inspect the rendered `DB_URL` host
+and port in the app's Railway variables. The `prod` profile does not create demo
+accounts, so an empty production database will need accounts provisioned separately.
 
 ### Console screens (M4)
 
