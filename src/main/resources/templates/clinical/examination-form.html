@@ -333,5 +333,155 @@
         </div><!-- /exam-layout -->
     </form>
 </main>
+
+<!-- ════════════════════════════════════════════════════════════
+     UNFLAG CONFIRMATION DIALOG
+     Shown when the user tries to uncheck an already-checked
+     medical history condition. Standard <dialog> element —
+     accessible, focus-trapped, keyboard-dismissible.
+     ════════════════════════════════════════════════════════════ -->
+<dialog id="unflag-dialog" class="unflag-dialog" aria-labelledby="unflag-title" aria-describedby="unflag-desc">
+    <form method="dialog">
+        <div class="unflag-dialog-header">
+            <svg class="unflag-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M12 9v4M12 17h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"
+                      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <h2 id="unflag-title">Confirm removal of medical flag</h2>
+        </div>
+
+        <p id="unflag-desc" class="unflag-body">
+            You are about to remove the flag for
+            <strong id="unflag-condition-name">[condition]</strong>
+            from this patient's confirmed medical history.
+        </p>
+
+        <div class="unflag-detail-block">
+            <p><strong>Clinical note:</strong> This flag was recorded in a previous examination.
+            Removing it indicates the patient has confirmed this condition is no longer active or applicable.</p>
+            <p>This action will be reflected in the examination record and the patient's clinical history snapshot.</p>
+        </div>
+
+        <div class="unflag-actions">
+            <button type="submit" value="cancel" class="btn ghost unflag-cancel" id="unflag-cancel-btn">
+                Cancel — keep flag
+            </button>
+            <button type="submit" value="confirm" class="btn btn-danger" id="unflag-confirm-btn">
+                Confirm removal
+            </button>
+        </div>
+    </form>
+</dialog>
+<!-- dialog backdrop -->
+<div id="unflag-backdrop" class="unflag-backdrop" hidden aria-hidden="true"></div>
+
+<!-- ── Scripts ────────────────────────────────────────────────── -->
+<script>
+(function () {
+    'use strict';
+
+    /* ── Tab / sidebar navigation ──────────────────────────── */
+    const sideItems  = document.querySelectorAll('.sidenav-item');
+    const sections   = document.querySelectorAll('.exam-section');
+    const steps      = document.querySelectorAll('.exam-step');
+
+    function showSection(targetId, stepNum) {
+        sections.forEach(s => {
+            s.hidden = (s.id !== targetId);
+            s.classList.toggle('active', s.id === targetId);
+        });
+        sideItems.forEach(btn => {
+            const isActive = btn.dataset.section === targetId;
+            btn.classList.toggle('active', isActive);
+            btn.setAttribute('aria-current', isActive ? 'true' : 'false');
+        });
+        steps.forEach((step, i) => {
+            step.classList.remove('active', 'done');
+            if (i + 1 < stepNum)  step.classList.add('done');
+            if (i + 1 === stepNum) step.classList.add('active');
+        });
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    sideItems.forEach(btn => {
+        btn.addEventListener('click', () =>
+            showSection(btn.dataset.section, parseInt(btn.dataset.step, 10)));
+    });
+
+    document.querySelectorAll('.next-btn').forEach(btn => {
+        btn.addEventListener('click', () =>
+            showSection(btn.dataset.next, parseInt(btn.dataset.step, 10)));
+    });
+
+    document.querySelectorAll('.back-btn').forEach(btn => {
+        btn.addEventListener('click', () =>
+            showSection(btn.dataset.back, parseInt(btn.dataset.step, 10)));
+    });
+
+    /* ── Medical history unflag confirmation ─────────────── */
+    const dialog    = document.getElementById('unflag-dialog');
+    const backdrop  = document.getElementById('unflag-backdrop');
+    const condName  = document.getElementById('unflag-condition-name');
+    const cancelBtn = document.getElementById('unflag-cancel-btn');
+
+    let pendingCheckbox = null; // the checkbox waiting for decision
+
+    function openDialog(checkbox) {
+        pendingCheckbox = checkbox;
+        condName.textContent = checkbox.dataset.condition || 'this condition';
+        backdrop.hidden = false;
+        dialog.showModal();
+        // Focus the safe/cancel action first (WCAG 2.4.3)
+        cancelBtn.focus();
+    }
+
+    function closeDialog(confirmed) {
+        dialog.close();
+        backdrop.hidden = true;
+        if (pendingCheckbox) {
+            if (!confirmed) {
+                // User cancelled — restore the checked state
+                pendingCheckbox.checked = true;
+            }
+            pendingCheckbox = null;
+        }
+    }
+
+    // Intercept unchecking on the history flags
+    document.querySelectorAll('.hx-flag').forEach(checkbox => {
+        // Record the server-rendered state once the page has loaded
+        checkbox.dataset.wasChecked = checkbox.checked ? 'true' : 'false';
+
+        checkbox.addEventListener('change', function (e) {
+            // Only intercept if the checkbox was originally CHECKED
+            // and the user is now trying to UNCHECK it
+            if (!this.checked && this.dataset.wasChecked === 'true') {
+                e.preventDefault();
+                // Temporarily restore checked while awaiting confirmation
+                this.checked = true;
+                openDialog(this);
+            } else {
+                // Freshly flagging — no confirmation needed
+                this.dataset.wasChecked = this.checked ? 'true' : 'false';
+            }
+        });
+    });
+
+    // Dialog form submit — value is 'cancel' or 'confirm'
+    dialog.addEventListener('close', () => {
+        closeDialog(dialog.returnValue === 'confirm');
+    });
+
+    // Backdrop click cancels (accessibility fallback)
+    backdrop.addEventListener('click', () => {
+        dialog.close('cancel');
+    });
+
+    // Escape key is handled natively by <dialog> — returnValue will be ''
+    // which is treated as cancel in closeDialog (empty string !== 'confirm')
+
+})();
+</script>
 </body>
 </html>
