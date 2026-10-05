@@ -94,6 +94,7 @@ public class ReportController {
         model.addAttribute("sent", rows.stream().filter(n -> n.getStatus() == NotificationStatus.SENT || n.getStatus() == NotificationStatus.DELIVERED).count());
         model.addAttribute("failed", rows.stream().filter(n -> n.getStatus() == NotificationStatus.FAILED).count());
         model.addAttribute("optedOut", rows.stream().filter(n -> n.getStatus() == NotificationStatus.EXCLUDED).count());
+        model.addAttribute("retryPending", rows.stream().filter(n -> n.getStatus() == NotificationStatus.RETRY_PENDING).count());
         model.addAttribute("rows", rows);
         return "console/notifications";
     }
