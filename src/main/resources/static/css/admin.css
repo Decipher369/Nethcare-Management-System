@@ -94,6 +94,9 @@ body {
 body:has(.admin-shell) .wrap { max-width: 1200px; margin: 0 0 0 250px; padding: 1.8rem 1.7rem; }
 body:has(.admin-shell) h1 { color: var(--admin-navy); }
 body:has(.admin-shell) button { cursor: pointer; }
+/* The same rail can be mounted inside the existing console shell. */
+.console:has(.admin-nav) { display: block; }
+.console:has(.admin-nav) .main { margin-left: 250px; }
 .admin-content { max-width: 1200px; }
 .admin-content .card { margin: 1rem 0; padding: 1.35rem; overflow: auto; background: #fff; border: 1px solid var(--admin-line); border-radius: 8px; }
 .admin-content .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .8rem; }

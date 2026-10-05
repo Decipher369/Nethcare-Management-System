@@ -6,11 +6,16 @@
     <title th:text="${title} + ' — Nethcare'">Nethcare</title>
     <link rel="icon" type="image/png" th:href="@{/images/nethcare-logo.png}">
     <link rel="stylesheet" th:href="@{/css/console.css}">
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
 </head>
 <body>
 
 <!-- The left rail. "active" is the key of the current screen. -->
-<aside class="side" th:fragment="side(active)">
+<th:block th:fragment="side(active)">
+<th:block th:if="${role == 'ADMIN'}">
+    <aside th:replace="~{admin/fragments :: rail(${active})}"></aside>
+</th:block>
+<aside class="side" th:unless="${role == 'ADMIN'}">
     <div class="brand">
         <img th:src="@{/images/nethcare-logo.png}" alt="Nethcare logo">
         <span class="brand-copy">
@@ -52,6 +57,7 @@
     </nav>
     <div class="out"><form th:action="@{/logout}" method="post"><button type="submit">Sign out</button></form></div>
 </aside>
+</th:block>
 
 <!-- Screen title on the left, who is signed in on the right. -->
 <div class="top" th:fragment="top(title, user, role)">

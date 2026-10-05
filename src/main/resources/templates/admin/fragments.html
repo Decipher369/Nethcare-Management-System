@@ -11,7 +11,7 @@
 
 <!-- Shared navigation for every administrator screen. Keep new admin pages on this fragment. -->
 <div th:fragment="bar(active, user)" class="admin-shell">
-    <aside class="admin-nav" aria-label="Administration navigation">
+    <aside class="admin-nav" th:fragment="rail(active)" aria-label="Administration navigation">
         <a class="admin-brand" th:href="@{/dashboard/console}">
             <img th:src="@{/images/nethcare-logo.png}" alt="">
             <span><strong>Nethcare</strong><small>Administration</small></span>
