@@ -44,8 +44,10 @@
     </div>
 
     <!-- ── Form wrapper with sidebar tabs ────────────────────── -->
-    <form method="post" th:action="@{/examinations}" id="exam-form">
+    <form method="post" th:action="@{/examinations}" id="exam-form" novalidate>
+
         <div class="exam-layout">
+
             <!-- ── Sidebar navigation ──────────────────────── -->
             <nav class="exam-sidenav" aria-label="Section navigation">
                 <button type="button" class="sidenav-item active"
@@ -77,86 +79,258 @@
                 </button>
             </nav>
 
+            <!-- ── Sections ──────────────────────────────────── -->
             <div class="exam-content">
-                <section class="panel" th:object="${exam}">
-                    <h2>Eye measurements</h2>
+
+                <!-- ── SECTION 1 · Eye measurements ─────────── -->
+                <section id="section-measurements" class="exam-section active panel"
+                         aria-labelledby="sec1-heading" th:object="${exam}">
+
+                    <h2 id="sec1-heading">Eye measurements</h2>
                     <div class="pad">
+
                         <input type="hidden" th:field="*{patientId}">
-                        <label class="field">Exam date<input type="date" th:field="*{examDate}" required></label>
-                        <table>
-                            <thead><tr><th>Eye</th><th>VA</th><th>SPH</th><th>CYL</th><th>Axis</th><th>ADD</th></tr></thead>
-                            <tbody>
-                            <tr><th>Right (OD)</th>
-                                <td><input th:field="*{odVa}" placeholder="6/6"></td>
-                                <td><input th:field="*{odSph}" placeholder="-0.50"></td>
-                                <td><input th:field="*{odCyl}" placeholder="-0.25"></td>
-                                <td><input th:field="*{odAxis}" placeholder="0–180"></td>
-                                <td><input th:field="*{odAdd}" placeholder="+1.00"></td></tr>
-                            <tr><th>Left (OS)</th>
-                                <td><input th:field="*{osVa}" placeholder="6/6"></td>
-                                <td><input th:field="*{osSph}" placeholder="-0.50"></td>
-                                <td><input th:field="*{osCyl}" placeholder="-0.25"></td>
-                                <td><input th:field="*{osAxis}" placeholder="0–180"></td>
-                                <td><input th:field="*{osAdd}" placeholder="+1.00"></td></tr>
-                            </tbody>
-                        </table>
-                        <div class="grid">
-                            <label class="field">PD<input th:field="*{ipd}" placeholder="62.0"></label>
-                            <label class="field">Base curve<input th:field="*{baseCurve}"></label>
-                            <label class="field">Diameter<input th:field="*{diameter}"></label>
+
+                        <div class="exam-meta-row">
+                            <label class="field">
+                                <span>Examination date</span>
+                                <input type="date" th:field="*{examDate}" required>
+                            </label>
                         </div>
-                        <label class="field">Clinical findings<textarea th:field="*{findings}"></textarea></label>
+
+                        <!-- Refraction table -->
+                        <div class="rx-table-wrap">
+                            <table class="rx-table">
+                                <thead>
+                                <tr>
+                                    <th scope="col">Eye</th>
+                                    <th scope="col">VA</th>
+                                    <th scope="col">SPH</th>
+                                    <th scope="col">CYL</th>
+                                    <th scope="col">Axis</th>
+                                    <th scope="col">ADD</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr class="rx-row od-row">
+                                    <th scope="row" class="eye-label">
+                                        <span class="eye-badge od">OD</span>
+                                        <small>Right</small>
+                                    </th>
+                                    <td><input th:field="*{odVa}"   placeholder="6/6"   aria-label="Right eye VA"></td>
+                                    <td><input th:field="*{odSph}"  placeholder="-0.50" aria-label="Right eye SPH"></td>
+                                    <td><input th:field="*{odCyl}"  placeholder="-0.25" aria-label="Right eye CYL"></td>
+                                    <td><input th:field="*{odAxis}" placeholder="0–180" aria-label="Right eye Axis"></td>
+                                    <td><input th:field="*{odAdd}"  placeholder="+1.00" aria-label="Right eye ADD"></td>
+                                </tr>
+                                <tr class="rx-row os-row">
+                                    <th scope="row" class="eye-label">
+                                        <span class="eye-badge os">OS</span>
+                                        <small>Left</small>
+                                    </th>
+                                    <td><input th:field="*{osVa}"   placeholder="6/6"   aria-label="Left eye VA"></td>
+                                    <td><input th:field="*{osSph}"  placeholder="-0.50" aria-label="Left eye SPH"></td>
+                                    <td><input th:field="*{osCyl}"  placeholder="-0.25" aria-label="Left eye CYL"></td>
+                                    <td><input th:field="*{osAxis}" placeholder="0–180" aria-label="Left eye Axis"></td>
+                                    <td><input th:field="*{osAdd}"  placeholder="+1.00" aria-label="Left eye ADD"></td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Additional metrics -->
+                        <div class="grid exam-extra-fields">
+                            <label class="field">
+                                <span>PD (mm)</span>
+                                <input th:field="*{ipd}" placeholder="62.0" aria-label="Pupillary distance">
+                            </label>
+                            <label class="field">
+                                <span>Base curve</span>
+                                <input th:field="*{baseCurve}" aria-label="Base curve">
+                            </label>
+                            <label class="field">
+                                <span>Diameter</span>
+                                <input th:field="*{diameter}" aria-label="Lens diameter">
+                            </label>
+                        </div>
+
+                        <label class="field wide">
+                            <span>Clinical findings</span>
+                            <textarea th:field="*{findings}" rows="3"
+                                      placeholder="Record objective clinical findings, IOP readings, and observations…"></textarea>
+                        </label>
+
+                        <div class="section-actions">
+                            <button type="button" class="btn next-btn" data-next="section-symptoms" data-step="2">
+                                Next: Reported symptoms →
+                            </button>
+                        </div>
                     </div>
                 </section>
 
-                <section class="panel" th:object="${symptoms}">
-                    <h2>Reported symptoms</h2>
-                    <div class="pad checks">
-                        <label><input type="checkbox" th:field="*{headache}"> Headache</label>
-                        <label><input type="checkbox" th:field="*{blurVision}"> Blurred vision</label>
-                        <label><input type="checkbox" th:field="*{tearing}"> Tearing</label>
-                        <label><input type="checkbox" th:field="*{redness}"> Redness</label>
-                        <label><input type="checkbox" th:field="*{itching}"> Itching</label>
-                        <label><input type="checkbox" th:field="*{strain}"> Eye strain</label>
-                        <label><input type="checkbox" th:field="*{floaters}"> Floaters</label>
-                        <label><input type="checkbox" th:field="*{flashes}"> Flashes</label>
-                        <label><input type="checkbox" th:field="*{burning}"> Burning</label>
-                        <label><input type="checkbox" th:field="*{discharge}"> Discharge</label>
-                        <label><input type="checkbox" th:field="*{doubleVision}"> Double vision</label>
-                        <label><input type="checkbox" th:field="*{squint}"> Squint</label>
-                        <label><input type="checkbox" th:field="*{glare}"> Glare</label>
-                        <label><input type="checkbox" th:field="*{pain}"> Pain</label>
-                        <label><input type="checkbox" th:field="*{distortion}"> Distortion</label>
-                        <label><input type="checkbox" th:field="*{dry}"> Dryness</label>
-                        <label><input type="checkbox" th:field="*{photophobia}"> Photophobia</label>
-                        <label class="field wide">Other symptoms<textarea th:field="*{additionalSymptoms}"></textarea></label>
+                <!-- ── SECTION 2 · Reported symptoms ─────────── -->
+                <section id="section-symptoms" class="exam-section panel" hidden
+                         aria-labelledby="sec2-heading" th:object="${symptoms}">
+
+                    <h2 id="sec2-heading">Reported symptoms</h2>
+                    <div class="pad">
+                        <p class="section-desc">Select all symptoms the patient has reported at this visit.</p>
+
+                        <div class="checks symptom-checks">
+                            <label><input type="checkbox" th:field="*{headache}">     Headache</label>
+                            <label><input type="checkbox" th:field="*{blurVision}">   Blurred vision</label>
+                            <label><input type="checkbox" th:field="*{tearing}">      Tearing</label>
+                            <label><input type="checkbox" th:field="*{redness}">      Redness</label>
+                            <label><input type="checkbox" th:field="*{itching}">      Itching</label>
+                            <label><input type="checkbox" th:field="*{strain}">       Eye strain</label>
+                            <label><input type="checkbox" th:field="*{floaters}">     Floaters</label>
+                            <label><input type="checkbox" th:field="*{flashes}">      Flashes</label>
+                            <label><input type="checkbox" th:field="*{burning}">      Burning</label>
+                            <label><input type="checkbox" th:field="*{discharge}">    Discharge</label>
+                            <label><input type="checkbox" th:field="*{doubleVision}"> Double vision</label>
+                            <label><input type="checkbox" th:field="*{squint}">       Squint</label>
+                            <label><input type="checkbox" th:field="*{glare}">        Glare</label>
+                            <label><input type="checkbox" th:field="*{pain}">         Pain</label>
+                            <label><input type="checkbox" th:field="*{distortion}">   Distortion</label>
+                            <label><input type="checkbox" th:field="*{dry}">          Dryness</label>
+                            <label><input type="checkbox" th:field="*{photophobia}">  Photophobia</label>
+                        </div>
+
+                        <div style="margin-top:1.2rem;">
+                            <label class="field wide">
+                                <span>Other symptoms</span>
+                                <textarea th:field="*{additionalSymptoms}" rows="3"
+                                          placeholder="Describe any additional symptoms not listed above…"></textarea>
+                            </label>
+                        </div>
+
+                        <div class="section-actions section-actions--dual">
+                            <button type="button" class="btn ghost back-btn" data-back="section-measurements" data-step="1">
+                                ← Back
+                            </button>
+                            <button type="button" class="btn next-btn" data-next="section-history" data-step="3">
+                                Next: Medical history →
+                            </button>
+                        </div>
                     </div>
                 </section>
 
-                <section class="panel" th:object="${history}">
-                    <h2>Medical and ocular history confirmed today</h2>
-                    <div class="pad checks">
-                        <label><input type="checkbox" th:field="*{diabetic}"> Diabetes</label>
-                        <label><input type="checkbox" th:field="*{asthma}"> Asthma</label>
-                        <label><input type="checkbox" th:field="*{hypertension}"> Hypertension</label>
-                        <label><input type="checkbox" th:field="*{cardiac}"> Cardiac condition</label>
-                        <label><input type="checkbox" th:field="*{sle}"> SLE</label>
-                        <label><input type="checkbox" th:field="*{cholesterol}"> High cholesterol</label>
-                        <label><input type="checkbox" th:field="*{tb}"> TB</label>
-                        <label><input type="checkbox" th:field="*{thyroid}"> Thyroid condition</label>
-                        <label><input type="checkbox" th:field="*{arthritis}"> Arthritis</label>
-                        <label><input type="checkbox" th:field="*{syphilis}"> Syphilis</label>
-                        <label><input type="checkbox" th:field="*{cancer}"> Cancer</label>
-                        <label><input type="checkbox" th:field="*{renal}"> Renal condition</label>
-                        <label><input type="checkbox" th:field="*{bronchitis}"> Bronchitis</label>
-                        <label><input type="checkbox" th:field="*{migraine}"> Migraine</label>
-                        <label class="field wide">Ocular history<textarea th:field="*{ocularHistory}"></textarea></label>
-                        <label class="field wide">Other conditions<textarea th:field="*{otherConditions}"></textarea></label>
+                <!-- ── SECTION 3 · Medical and ocular history ── -->
+                <section id="section-history" class="exam-section panel" hidden
+                         aria-labelledby="sec3-heading" th:object="${history}">
+
+                    <h2 id="sec3-heading">Medical and ocular history confirmed today</h2>
+                    <div class="pad">
+
+                        <div class="history-notice" role="note">
+                            <svg width="16" height="16" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                                <circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.6"/>
+                                <path d="M10 9v5M10 6.5v.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                            </svg>
+                            <span>Flags in this section represent the patient's <strong>current confirmed conditions</strong>.
+                            Removing a flag is a clinical decision — a confirmation is required to unflag any existing condition.</span>
+                        </div>
+
+                        <p class="section-label-heading">Systemic conditions</p>
+                        <div class="checks history-checks">
+                            <label class="hx-flag-label">
+                                <input type="checkbox" th:field="*{diabetic}"
+                                       class="hx-flag" data-condition="Diabetes">
+                                Diabetes
+                            </label>
+                            <label class="hx-flag-label">
+                                <input type="checkbox" th:field="*{asthma}"
+                                       class="hx-flag" data-condition="Asthma">
+                                Asthma
+                            </label>
+                            <label class="hx-flag-label">
+                                <input type="checkbox" th:field="*{hypertension}"
+                                       class="hx-flag" data-condition="Hypertension">
+                                Hypertension
+                            </label>
+                            <label class="hx-flag-label">
+                                <input type="checkbox" th:field="*{cardiac}"
+                                       class="hx-flag" data-condition="Cardiac condition">
+                                Cardiac condition
+                            </label>
+                            <label class="hx-flag-label">
+                                <input type="checkbox" th:field="*{sle}"
+                                       class="hx-flag" data-condition="SLE">
+                                SLE
+                            </label>
+                            <label class="hx-flag-label">
+                                <input type="checkbox" th:field="*{cholesterol}"
+                                       class="hx-flag" data-condition="High cholesterol">
+                                High cholesterol
+                            </label>
+                            <label class="hx-flag-label">
+                                <input type="checkbox" th:field="*{tb}"
+                                       class="hx-flag" data-condition="Tuberculosis (TB)">
+                                TB
+                            </label>
+                            <label class="hx-flag-label">
+                                <input type="checkbox" th:field="*{thyroid}"
+                                       class="hx-flag" data-condition="Thyroid condition">
+                                Thyroid condition
+                            </label>
+                            <label class="hx-flag-label">
+                                <input type="checkbox" th:field="*{arthritis}"
+                                       class="hx-flag" data-condition="Arthritis">
+                                Arthritis
+                            </label>
+                            <label class="hx-flag-label">
+                                <input type="checkbox" th:field="*{syphilis}"
+                                       class="hx-flag" data-condition="Syphilis">
+                                Syphilis
+                            </label>
+                            <label class="hx-flag-label">
+                                <input type="checkbox" th:field="*{cancer}"
+                                       class="hx-flag" data-condition="Cancer">
+                                Cancer
+                            </label>
+                            <label class="hx-flag-label">
+                                <input type="checkbox" th:field="*{renal}"
+                                       class="hx-flag" data-condition="Renal condition">
+                                Renal condition
+                            </label>
+                            <label class="hx-flag-label">
+                                <input type="checkbox" th:field="*{bronchitis}"
+                                       class="hx-flag" data-condition="Bronchitis">
+                                Bronchitis
+                            </label>
+                            <label class="hx-flag-label">
+                                <input type="checkbox" th:field="*{migraine}"
+                                       class="hx-flag" data-condition="Migraine">
+                                Migraine
+                            </label>
+                        </div>
+
+                        <div style="margin-top:1.4rem;">
+                            <label class="field wide">
+                                <span>Ocular history</span>
+                                <textarea th:field="*{ocularHistory}" rows="3"
+                                          placeholder="Previous eye surgery, trauma, known ocular conditions…"></textarea>
+                            </label>
+                            <label class="field wide" style="margin-top:.8rem;">
+                                <span>Other conditions</span>
+                                <textarea th:field="*{otherConditions}" rows="3"
+                                          placeholder="Any other systemic or relevant conditions not listed above…"></textarea>
+                            </label>
+                        </div>
+
+                        <div class="section-actions section-actions--dual">
+                            <button type="button" class="btn ghost back-btn" data-back="section-symptoms" data-step="2">
+                                ← Back
+                            </button>
+                            <button type="submit" class="btn btn-save">
+                                Save examination
+                            </button>
+                        </div>
                     </div>
                 </section>
-                <button class="btn" type="submit">Save examination</button>
-            </div>
-        </div>
+
+            </div><!-- /exam-content -->
+        </div><!-- /exam-layout -->
     </form>
 </main>
 </body>
