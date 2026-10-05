@@ -35,6 +35,8 @@ public class PublicController {
     public String index(Model model) {
         profile(model);
         model.addAttribute("active", "home");
+        model.addAttribute("featuredFrames", stock.gallery(StockCategory.FRAME, null).stream()
+                .limit(3).toList());
         return "public/home";
     }
 
