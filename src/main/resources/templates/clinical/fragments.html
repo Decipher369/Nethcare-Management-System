@@ -6,6 +6,7 @@
     <title th:text="${title} + ' — Nethcare'">Nethcare clinical</title>
     <link rel="icon" type="image/png" th:href="@{/images/nethcare-logo.png}">
     <link rel="stylesheet" th:href="@{/css/staff.css}">
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
 </head>
 <body>
 <th:block th:fragment="bar(active, user)" th:replace="~{staff/fragments :: bar(${active}, ${user})}"></th:block>

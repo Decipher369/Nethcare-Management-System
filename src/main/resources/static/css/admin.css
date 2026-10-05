@@ -92,6 +92,7 @@ body {
 .admin-flash { margin-left: 250px; padding: .55rem 1.7rem; color: #27623b; background: #e8f5ec; border-bottom: 1px solid #c5e4ce; font-size: .84rem; }
 
 body:has(.admin-shell) .wrap { max-width: 1200px; margin: 0 0 0 250px; padding: 1.8rem 1.7rem; }
+body:has(.admin-shell) { padding: 0 !important; }
 body:has(.admin-shell) h1 { color: var(--admin-navy); }
 body:has(.admin-shell) button { cursor: pointer; }
 /* The same rail can be mounted inside the existing console shell. */
