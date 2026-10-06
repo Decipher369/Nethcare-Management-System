@@ -7,8 +7,6 @@ body.patient-portal-page {
   padding: 0;
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   background-color: #E3EDF8;
-  background-image: radial-gradient(#B7CBE0 0.9px, transparent 0.9px);
-  background-size: 20px 20px;
   color: #0F2742;
   min-height: 100vh;
   min-width: 0;
@@ -343,6 +341,7 @@ body.patient-portal-page {
   box-shadow: 0 1px 2px rgba(15, 39, 66, 0.1);
   transition: all 0.15s ease;
   font-family: inherit;
+  text-decoration: none;
 }
 
 .patient-portal-page .portal-book-btn:hover {

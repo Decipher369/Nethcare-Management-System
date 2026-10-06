@@ -347,7 +347,15 @@
                     <h2 class="portal-card-heading">UPCOMING FRAMES</h2>
                     <span class="portal-count-pill">New arrivals</span>
                 </div>
-                <span class="portal-header-subtext">Available to view in store</span>
+                <div class="portal-card-header-right" style="gap: 12px;">
+                    <span class="portal-header-subtext">Available to view in store</span>
+                    <a id="check-out-frames" href="#" class="portal-book-btn">
+                        <svg class="portal-book-btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 13h2a3 3 0 003-3V9a3 3 0 00-3-3H3m18 7h-2a3 3 0 01-3-3V9a3 3 0 013-3h2m-10 4h2"/>
+                        </svg>
+                        <span>Check out the frames</span>
+                    </a>
+                </div>
             </div>
 
             <div class="portal-frames-body">
@@ -532,6 +540,15 @@
                     } else {
                         bookingModal.removeAttribute('open');
                     }
+                });
+            }
+
+            // Check out the frames button handler
+            var checkOutFramesBtn = document.getElementById('check-out-frames');
+            if (checkOutFramesBtn) {
+                checkOutFramesBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    // TODO: set the frames page URL here
                 });
             }
         });
