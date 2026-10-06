@@ -88,12 +88,11 @@
                             </span>
 
                             <!-- Status Badge -->
-                            <span class="badge-status-active" th:if="${patient.isActive}">
-                                <span class="status-emerald-dot"></span>
-                                <span>Active Patient</span>
+                            <span class="badge-status-rect" th:if="${patient.isActive}" aria-label="Patient status: Active">
+                                <span>Status: Active</span>
                             </span>
-                            <span class="badge-status-inactive" th:unless="${patient.isActive}">
-                                <span>Inactive</span>
+                            <span class="badge-status-rect" th:unless="${patient.isActive}" aria-label="Patient status: Inactive">
+                                <span>Status: Inactive</span>
                             </span>
                         </div>
 
