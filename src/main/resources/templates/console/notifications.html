@@ -11,16 +11,34 @@
 <div class="content">
 <div th:replace="~{console/fragments :: mocknote}"></div>
 
+    <!-- Editorial Header matching #collection style -->
+    <div class="editorial-heading">
+        <div>
+            <p class="eyebrow">Outreach &amp; SMS Dispatch</p>
+            <h2>Reminder Queue.<br><em>Staying in touch.</em></h2>
+            <p class="lead">Automated notifications, delivery receipts, and patient contact exceptions.</p>
+        </div>
+        <div style="display:flex; gap:10px;">
+            <a class="btn-editorial" th:href="@{/followups}">Review list <span aria-hidden="true">↗</span></a>
+        </div>
+    </div>
+
+    <!-- KPI row -->
     <div class="kpis">
         <div class="kpi">
             <div class="k">Sent this month</div>
             <div class="v" th:text="${sent}">178</div>
-            <div class="sub">delivered</div>
+            <div class="sub">delivered or confirmed sent</div>
         </div>
         <div class="kpi">
             <div class="k">Queued</div>
             <div class="v" th:text="${queued}">12</div>
             <div class="sub">next run Monday 08:00</div>
+        </div>
+        <div class="kpi">
+            <div class="k">Retry pending</div>
+            <div class="v" th:text="${retryPending ?: 0}">1</div>
+            <div class="sub">gateway failed — will retry</div>
         </div>
         <div class="kpi alert">
             <div class="k">Failed</div>
@@ -34,62 +52,211 @@
         </div>
     </div>
 
+    <!-- SMS gateway status banner -->
+    <div class="panel" th:if="${smsEnabled != null}">
+        <p class="readonly pad">
+            SMS Gateway status:
+            <span th:if="${smsEnabled}" class="tag good">Live &amp; Connected</span>
+            <span th:unless="${smsEnabled}" class="tag warn">Manual Mode — staff confirm sent</span>
+            <span th:if="${smsEnabled}" th:text="' · ' + ${smsEndpoint}"></span>
+        </p>
+    </div>
+
+    <!-- Reminder queue collection panel -->
     <div class="panel">
-        <h2>Reminder queue</h2>
+        <div style="padding:1rem 1.2rem; border-bottom:1px solid var(--line); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+            <div>
+                <span style="font-size:10px; font-weight:600; letter-spacing:1.5px; text-transform:uppercase; color:var(--brand-deep);">Dispatch Log</span>
+                <h3 style="margin:2px 0 0; font-family:Georgia, serif; font-size:22px; font-weight:400; color:var(--ink);">Active Reminders</h3>
+            </div>
+            <div style="font-size:12px; color:var(--ink-soft);">
+                Total: <strong th:text="${rows != null ? rows.size() : 0}">0</strong> dispatches
+            </div>
+        </div>
 
         <form class="filters" method="get" th:action="@{/notifications}">
             <div class="field">
                 <label for="ch">Channel</label>
                 <select id="ch" name="channel">
-                    <option>Any</option>
-                    <option>SMS</option>
-                    <option>In-app portal</option>
+                    <option value="">Any Channel</option>
+                    <option value="SMS">SMS</option>
+                    <option value="IN_APP">In-app portal</option>
                 </select>
             </div>
             <div class="field">
                 <label for="st">State</label>
                 <select id="st" name="state">
-                    <option>Any</option>
-                    <option>Pending</option>
-                    <option>Sent</option>
-                    <option>Delivered</option>
-                    <option>Failed</option>
-                    <option>Excluded</option>
+                    <option value="">Any State</option>
+                    <option value="PENDING">Pending</option>
+                    <option value="RETRY_PENDING">Retry pending</option>
+                    <option value="SENT">Sent</option>
+                    <option value="DELIVERED">Delivered</option>
+                    <option value="FAILED">Failed</option>
+                    <option value="EXCLUDED">Excluded</option>
                 </select>
             </div>
-            <button class="btn" type="submit">Apply</button>
-            <button class="btn ghost" type="button" disabled>Retry failed</button>
+            <button class="btn" type="submit">Filter notifications</button>
         </form>
 
+        <!-- Cards View -->
+        <div class="pad" style="background:#fafbfd;">
+            <div class="collection-grid" th:if="${rows != null and !rows.isEmpty()}">
+                <article class="collection-card" th:each="r : ${rows}">
+                    <div class="collection-card-header">
+                        <span class="collection-card-category" th:text="${r.channel.label()} + ' · ' + (${r.type != null ? r.type.name().replace('_',' ') : 'DISPATCH'})">SMS · VISIT REMINDER</span>
+                        <span class="tag"
+                              th:classappend="${r.status.name() == 'DELIVERED'} ? 'good' :
+                                             (${r.status.name() == 'SENT'} ? 'info' :
+                                             (${r.status.name() == 'FAILED'} ? 'bad' :
+                                             (${r.status.name() == 'EXCLUDED'} ? 'mute' : 'warn')))"
+                              th:text="${r.status.label()}">Sent</span>
+                    </div>
+                    <div class="collection-card-body">
+                        <div>
+                            <h4 class="collection-card-title" th:text="${r.patientName}">K. N. Perera</h4>
+                            <span style="font-size:11px; font-family:monospace; color:var(--ink-soft);" th:text="${r.reference}">NTF-000001</span>
+                        </div>
+                        <div class="collection-card-meta">
+                            <div class="collection-card-meta-row">
+                                <span class="collection-card-meta-label">Destination</span>
+                                <span class="collection-card-meta-val mono" th:text="${r.destination ?: '—'}">+94712345678</span>
+                            </div>
+                            <div class="collection-card-meta-row">
+                                <span class="collection-card-meta-label">Scheduled For</span>
+                                <span class="collection-card-meta-val" th:text="${r.scheduledFor}">12 Aug 2026 08:00</span>
+                            </div>
+                            <div class="collection-card-meta-row">
+                                <span class="collection-card-meta-label">Attempts</span>
+                                <span class="collection-card-meta-val" th:text="${r.retryCount}">0</span>
+                            </div>
+                            <div class="collection-card-meta-row" th:if="${r.gatewayReceiptId != null or r.failureReason != null or r.skippedReason != null}">
+                                <span class="collection-card-meta-label">Result</span>
+                                <span class="collection-card-meta-val" style="font-size:11px;" th:text="${r.gatewayReceiptId ?: (r.failureReason ?: r.skippedReason)}">Delivered</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="collection-card-footer">
+                        <div th:if="${r.queued}" style="width:100%;">
+                            <form method="post" th:action="@{/notifications/{id}/sent(id=${r.id})}" style="display:flex; gap:6px;">
+                                <input name="receipt" required placeholder="Receipt ID" style="min-width:110px; font-size:11px;">
+                                <button class="btn sm" type="submit">Confirm Sent</button>
+                            </form>
+                        </div>
+                        <div th:if="${r.status.name() == 'SENT'}" style="width:100%; text-align:right;">
+                            <form method="post" th:action="@{/notifications/{id}/delivered(id=${r.id})}" style="margin:0;">
+                                <button class="btn sm ghost" type="submit">Mark Delivered</button>
+                            </form>
+                        </div>
+                        <div th:if="${!r.queued and r.status.name() != 'SENT'}" style="color:var(--ink-soft); font-size:11px;">
+                            No action needed
+                        </div>
+                    </div>
+                </article>
+            </div>
+
+            <!-- Empty State -->
+            <div class="empty" th:if="${rows == null or rows.isEmpty()}" style="padding:3rem 1rem;">
+                <p style="font-family:Georgia, serif; font-size:22px; color:var(--ink); margin:0 0 6px;">No notifications in queue.</p>
+                <p class="note">Queue reminders from the review list to see them here.</p>
+            </div>
+        </div>
+
+        <!-- Tabular view details -->
+        <div style="border-top:1px solid var(--line); padding:0.8rem 1.1rem; background:#ffffff;">
+            <details>
+                <summary style="font-size:12px; cursor:pointer; color:var(--brand-deep); font-weight:600; padding:6px 0;">
+                    Switch to tabular queue view
+                </summary>
+                <div style="margin-top:12px; overflow-x:auto;">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>Ref</th>
+                            <th>Channel</th>
+                            <th>Type</th>
+                            <th>Patient</th>
+                            <th>Destination</th>
+                            <th>Scheduled</th>
+                            <th>Retry</th>
+                            <th>Status</th>
+                            <th>Result</th>
+                            <th class="num">Action</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="r : ${rows}">
+                            <td class="mono" th:text="${r.reference}">NTF-000001</td>
+                            <td th:text="${r.channel.label()}">SMS</td>
+                            <td><span class="tag info" th:text="${r.type != null} ? ${r.type.name().replace('_',' ')} : '—'">VISIT</span></td>
+                            <td th:text="${r.patientName}">K. N. Perera</td>
+                            <td class="mono" th:text="${r.destination ?: '—'}">+94712345678</td>
+                            <td th:text="${r.scheduledFor}">12 Aug 2026</td>
+                            <td class="num" th:text="${r.retryCount}">0</td>
+                            <td>
+                                <span class="tag"
+                                      th:classappend="${r.status.name() == 'DELIVERED'} ? 'good' :
+                                                     (${r.status.name() == 'SENT'} ? 'info' :
+                                                     (${r.status.name() == 'FAILED'} ? 'bad' :
+                                                     (${r.status.name() == 'EXCLUDED'} ? 'mute' : 'warn')))"
+                                      th:text="${r.status.label()}">Sent</span>
+                            </td>
+                            <td th:text="${r.gatewayReceiptId ?: (r.failureReason ?: (r.skippedReason ?: '—'))}">Delivered</td>
+                            <td class="num">
+                                <form method="post" th:if="${r.queued}" th:action="@{/notifications/{id}/sent(id=${r.id})}" style="display:inline-flex; gap:4px;">
+                                    <input name="receipt" required placeholder="Receipt" style="width:90px;">
+                                    <button class="btn sm ghost" type="submit">Sent</button>
+                                </form>
+                                <form method="post" th:if="${r.status.name() == 'SENT'}" th:action="@{/notifications/{id}/delivered(id=${r.id})}" style="display:inline-block;">
+                                    <button class="btn sm ghost" type="submit">Delivered</button>
+                                </form>
+                                <span th:if="${!r.queued and r.status.name() != 'SENT'}">—</span>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </details>
+        </div>
+
+        <p class="note pad" style="border-top:1px solid var(--line); margin:0;">
+            A dispatch becomes <em>sent</em> only after a gateway receipt is recorded.
+            Opt-outs remain as excluded evidence and cannot be retried.
+        </p>
+    </div>
+
+    <!-- Exceptions panel -->
+    <div class="panel">
+        <div style="padding:1rem 1.2rem; border-bottom:1px solid var(--line);">
+            <span style="font-size:10px; font-weight:600; letter-spacing:1.5px; text-transform:uppercase; color:var(--bad);">Attention Required</span>
+            <h3 style="margin:2px 0 0; font-family:Georgia, serif; font-size:20px; font-weight:400; color:var(--ink);">Exceptions &amp; Delivery Failures</h3>
+        </div>
         <table>
             <thead>
-            <tr><th>Ref</th><th>Channel</th><th>Patient</th><th>Queued for</th>
-                <th>State</th><th>Result</th><th class="num">Retry</th></tr>
+            <tr>
+                <th>Ref</th>
+                <th>Patient</th>
+                <th>State</th>
+                <th>Reason</th>
+                <th>Last attempt</th>
+            </tr>
             </thead>
             <tbody>
-            <tr th:each="r : ${rows}">
-                <td class="mono" th:text="${r.reference}">NTF-000001</td>
-                <td th:text="${r.channel.label()}">SMS</td>
+            <tr th:each="r : ${rows}" th:if="${r.status.name() == 'FAILED' or r.status.name() == 'EXCLUDED' or r.status.name() == 'RETRY_PENDING'}">
+                <td class="mono" th:text="${r.reference}">NTF-000002</td>
                 <td th:text="${r.patientName}">K. N. Perera</td>
-                <td th:text="${r.scheduledFor}">12 Aug 2026 08:00</td>
-                <td><span class="tag info" th:text="${r.status.label()}">Sent</span></td>
-                <td th:text="${r.gatewayReceiptId ?: (r.failureReason ?: (r.skippedReason ?: '—'))}">Delivered</td>
-                <td class="num">
-                    <form method="post" th:if="${r.queued}" th:action="@{/notifications/{id}/sent(id=${r.id})}">
-                        <input name="receipt" required placeholder="Gateway receipt">
-                        <button class="btn sm ghost" type="submit">Confirm sent</button>
-                    </form>
-                    <form method="post" th:if="${r.status.name() == 'SENT'}" th:action="@{/notifications/{id}/delivered(id=${r.id})}">
-                        <button class="btn sm ghost" type="submit">Delivered</button>
-                    </form>
+                <td>
+                    <span class="tag"
+                          th:classappend="${r.status.name() == 'FAILED'} ? 'bad' : (${r.status.name() == 'EXCLUDED'} ? 'mute' : 'warn')"
+                          th:text="${r.status.label()}">Failed</span>
                 </td>
+                <td th:text="${r.failureReason ?: (r.skippedReason ?: '—')}">Invalid number</td>
+                <td th:text="${r.lastAttemptAt ?: '—'}">—</td>
+            </tr>
+            <tr th:if="${rows == null or #lists.isEmpty(rows.?[status.name() == 'FAILED' or status.name() == 'EXCLUDED' or status.name() == 'RETRY_PENDING'])}">
+                <td colspan="5" class="empty">No delivery exceptions logged.</td>
             </tr>
             </tbody>
         </table>
-
-        <p class="note pad">
-            A dispatch becomes sent only after a gateway receipt is recorded. Opt-outs remain as excluded evidence.
-        </p>
     </div>
 
 </div>

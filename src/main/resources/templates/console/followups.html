@@ -11,6 +11,19 @@
 <div class="content">
 <div th:replace="~{console/fragments :: mocknote}"></div>
 
+    <!-- Editorial Header matching #collection style -->
+    <div class="editorial-heading">
+        <div>
+            <p class="eyebrow">Patient Care &amp; Review Cohorts</p>
+            <h2>Follow-up Cases.<br><em>Scheduled with care.</em></h2>
+            <p class="lead">Timely clinical recall, high-risk surveillance, and dedicated patient follow-ups.</p>
+        </div>
+        <div style="display:flex; gap:10px;">
+            <a class="btn-editorial" th:href="@{/notifications}">Reminder queue <span aria-hidden="true">↗</span></a>
+        </div>
+    </div>
+
+    <!-- KPI cards -->
     <div class="kpis">
         <div class="kpi">
             <div class="k">Due for review</div>
@@ -22,13 +35,28 @@
             <div class="v" th:text="${invalidContacts}">4</div>
             <div class="sub">reminders cannot reach them — call</div>
         </div>
+        <div class="kpi">
+            <div class="k">High-risk cases</div>
+            <div class="v" th:text="${rows != null} ? ${#lists.size(rows.?[highRisk])} : 0">2</div>
+            <div class="sub">flagged for urgent follow-up</div>
+        </div>
     </div>
 
-    <div class="panel">
-        <h2>Weekly review list
-            <span class="sp">scheduler runs Monday 08:00</span>
-        </h2>
+    <!-- Collection-style Toolbar -->
+    <div class="panel" style="margin-top:1.6rem;">
+        <div style="padding:1rem 1.2rem; border-bottom:1px solid var(--line); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+            <div>
+                <span style="font-size:10px; font-weight:600; letter-spacing:1.5px; text-transform:uppercase; color:var(--brand-deep);">Active Cohort</span>
+                <h3 style="margin:2px 0 0; font-family:Georgia, serif; font-size:22px; font-weight:400; color:var(--ink);">Weekly Review List</h3>
+            </div>
+            <div style="display:flex; align-items:center; gap:8px;">
+                <form method="post" th:action="@{/followups/queue(from=${from},to=${to})}" style="margin:0">
+                    <button class="btn-editorial" type="submit">Queue full cohort <span aria-hidden="true">↗</span></button>
+                </form>
+            </div>
+        </div>
 
+        <!-- Filter bar -->
         <form class="filters" method="get" th:action="@{/followups}">
             <div class="field">
                 <label for="from">From</label>
@@ -38,44 +66,169 @@
                 <label for="to">To</label>
                 <input id="to" name="to" type="date" th:value="${to}">
             </div>
-            <button class="btn" type="submit">Apply</button>
-            <a class="btn ghost" th:href="@{/notifications}">Reminder queue</a>
+            <div class="field">
+                <label for="cat">Category</label>
+                <select id="cat" name="category">
+                    <option value="">All Categories</option>
+                    <option value="ROUTINE_REVIEW">Routine review</option>
+                    <option value="REASSESSMENT">Reassessment</option>
+                    <option value="POST_OPERATIVE">Post-operative</option>
+                    <option value="CORNEAL_ULCER">Corneal ulcer</option>
+                    <option value="PEDIATRIC_AMBLYOPIA">Pediatric amblyopia</option>
+                </select>
+            </div>
+            <button class="btn" type="submit">Filter cases</button>
         </form>
 
-        <table>
-            <thead>
-            <tr>
-                <th>Patient no</th>
-                <th>Name</th>
-                <th>Contact</th>
-                <th>Last exam</th>
-                <th>Due</th>
-                <th>Category</th>
-                <th>Status</th>
-                <th class="num">Action</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="r : ${rows}">
-                <td class="mono" th:text="${r.patientId}">P-0148</td>
-                <td th:text="${r.patientName}">K. N. Perera</td>
-                <td th:text="${r.phone} ?: 'Invalid / missing'">071 234 5678</td>
-                <td th:text="${r.lastExamOn}">12 Aug 2025</td>
-                <td th:text="${r.dueOn}">12 Aug 2026</td>
-                <td th:text="${r.dueForWho}">Routine review</td>
-                <td><span class="tag" th:classappend="${r.highRisk} ? 'bad' : 'info'" th:text="${r.status.label()}">Active</span></td>
-                <td class="num">
-                    <form method="post" th:action="@{/followups/{id}/queue(id=${r.id})}">
-                        <button class="btn sm ghost" type="submit">Queue reminder</button>
-                    </form>
-                </td>
-            </tr>
-            </tbody>
-        </table>
+        <!-- Collection Cards Grid -->
+        <div class="pad" style="background:#fafbfd;">
+            <div class="collection-grid" th:if="${rows != null and !rows.isEmpty()}">
+                <article class="collection-card" th:each="r : ${rows}" th:classappend="${r.highRisk} ? 'card-risk' : ''">
+                    <div class="collection-card-header">
+                        <span class="collection-card-category" th:text="${r.dueForWho}">Routine review</span>
+                        <span class="tag"
+                              th:classappend="${r.status.name() == 'ACTIVE'} ? 'info' : (${r.status.name() == 'ATTENDED'} ? 'good' : (${r.status.name() == 'DEFAULTED'} ? 'bad' : 'warn'))"
+                              th:text="${r.status.label()}">Active</span>
+                    </div>
+                    <div class="collection-card-body">
+                        <div>
+                            <span class="tag bad" th:if="${r.highRisk}" style="margin-bottom:6px;">High Risk Case</span>
+                            <h4 class="collection-card-title" th:text="${r.patientName}">K. N. Perera</h4>
+                            <span style="font-size:11px; font-family:monospace; color:var(--ink-soft);" th:text="'Patient ID: ' + ${r.patientId}">P-0148</span>
+                        </div>
+                        <div class="collection-card-meta">
+                            <div class="collection-card-meta-row">
+                                <span class="collection-card-meta-label">Contact</span>
+                                <span class="collection-card-meta-val">
+                                    <span th:if="${r.contactReachable}" th:text="${r.phone}">071 234 5678</span>
+                                    <span th:unless="${r.contactReachable}" class="tag bad">Invalid / missing</span>
+                                </span>
+                            </div>
+                            <div class="collection-card-meta-row">
+                                <span class="collection-card-meta-label">Target Review</span>
+                                <strong class="collection-card-meta-val" th:text="${r.dueOn}" style="color:var(--brand-deep);">12 Aug 2026</strong>
+                            </div>
+                            <div class="collection-card-meta-row">
+                                <span class="collection-card-meta-label">Last Exam</span>
+                                <span class="collection-card-meta-val" th:text="${r.lastExamOn ?: '—'}">12 Aug 2025</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="collection-card-footer">
+                        <span class="note" style="font-size:11px;" th:text="${r.responseNote ?: 'Scheduled follow-up'}">Clinical review</span>
+                        <form method="post" th:action="@{/followups/{id}/queue(id=${r.id})}" style="margin:0;">
+                            <button class="btn sm" type="submit" th:disabled="${!r.open}">Queue SMS</button>
+                        </form>
+                    </div>
+                </article>
+            </div>
 
-        <p class="note pad">
+            <!-- Empty state -->
+            <div class="empty" th:if="${rows == null or rows.isEmpty()}" style="padding:3rem 1rem;">
+                <p style="font-family:Georgia, serif; font-size:22px; color:var(--ink); margin:0 0 6px;">No cases found in this period.</p>
+                <p class="note">Adjust the date range or category filter above to view follow-up records.</p>
+            </div>
+        </div>
+
+        <!-- Table view fallback / details -->
+        <div style="border-top:1px solid var(--line); padding:0.8rem 1.1rem; background:#ffffff;">
+            <details>
+                <summary style="font-size:12px; cursor:pointer; color:var(--brand-deep); font-weight:600; padding:6px 0;">
+                    Switch to tabular view (<span th:text="${rows != null ? rows.size() : 0}">0</span> records)
+                </summary>
+                <div style="margin-top:12px; overflow-x:auto;">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>Patient no</th>
+                            <th>Name</th>
+                            <th>Contact</th>
+                            <th>Last exam</th>
+                            <th>Due</th>
+                            <th>Category</th>
+                            <th>Risk</th>
+                            <th>Status</th>
+                            <th class="num">Action</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="r : ${rows}" th:classappend="${r.highRisk} ? 'row-risk' : ''">
+                            <td class="mono" th:text="${r.patientId}">P-0148</td>
+                            <td th:text="${r.patientName}">K. N. Perera</td>
+                            <td>
+                                <span th:if="${r.contactReachable}" th:text="${r.phone}">071 234 5678</span>
+                                <span th:unless="${r.contactReachable}" class="tag bad">Invalid / missing</span>
+                            </td>
+                            <td th:text="${r.lastExamOn}">12 Aug 2025</td>
+                            <td th:text="${r.dueOn}">12 Aug 2026</td>
+                            <td th:text="${r.dueForWho}">Routine review</td>
+                            <td>
+                                <span th:if="${r.highRisk}" class="tag bad">High risk</span>
+                                <span th:unless="${r.highRisk}" class="tag mute">Normal</span>
+                            </td>
+                            <td><span class="tag" th:classappend="${r.status.name() == 'ACTIVE'} ? 'info' : (${r.status.name() == 'ATTENDED'} ? 'good' : (${r.status.name() == 'DEFAULTED'} ? 'bad' : 'warn'))"
+                                      th:text="${r.status.label()}">Active</span></td>
+                            <td class="num">
+                                <form method="post" th:action="@{/followups/{id}/queue(id=${r.id})}">
+                                    <button class="btn sm ghost" type="submit" th:disabled="${!r.open}">Queue</button>
+                                </form>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </details>
+        </div>
+
+        <p class="note pad" style="border-top:1px solid var(--line); margin:0;">
             Invalid numbers are recorded as failed dispatches so staff can resolve them on the exceptions list.
+            High-risk cases are highlighted with priority borders and flags.
         </p>
+    </div>
+
+    <!-- Create new follow-up panel -->
+    <div class="panel" th:if="${role == 'ADMIN' or role == 'OPTICIAN'}">
+        <h2>Schedule new follow-up case</h2>
+        <form class="filters" method="post" th:action="@{/followups}" style="flex-wrap:wrap;gap:.8rem;">
+            <div class="field">
+                <label for="patientId">Patient ID</label>
+                <input id="patientId" name="patientId" type="number" placeholder="e.g. 148" required>
+            </div>
+            <div class="field">
+                <label for="visitId">Originating exam ID</label>
+                <input id="visitId" name="originatingVisitId" type="number" placeholder="e.g. 22" required>
+            </div>
+            <div class="field">
+                <label for="opticianId">Assigned optician ID</label>
+                <input id="opticianId" name="assignedOpticianId" type="number" placeholder="e.g. 3" required>
+            </div>
+            <div class="field">
+                <label for="newCat">Category</label>
+                <select id="newCat" name="category" required>
+                    <option value="">— select —</option>
+                    <option value="ROUTINE_REVIEW">Routine review</option>
+                    <option value="REASSESSMENT">Reassessment</option>
+                    <option value="POST_OPERATIVE">Post-operative surveillance</option>
+                    <option value="CORNEAL_ULCER">Corneal ulcer review</option>
+                    <option value="PEDIATRIC_AMBLYOPIA">Pediatric amblyopia</option>
+                </select>
+            </div>
+            <div class="field">
+                <label for="reviewDate">Target review date</label>
+                <input id="reviewDate" name="targetReviewDate" type="date" required>
+            </div>
+            <div class="field" style="flex-direction:row;align-items:center;gap:.45rem;padding-top:1.2rem;">
+                <input id="highRisk" name="highRisk" type="checkbox" value="true">
+                <label for="highRisk" style="font-size:.86rem;text-transform:none;letter-spacing:0;color:inherit;">High risk</label>
+            </div>
+            <div class="field" style="flex:1 1 100%;">
+                <label for="notes">Clinical notes</label>
+                <input id="notes" name="clinicalNotes" type="text" placeholder="Optional clinical notes" style="width:100%;min-width:300px;">
+            </div>
+            <div style="display:flex;align-items:flex-end;">
+                <button class="btn-editorial" type="submit">Schedule case <span aria-hidden="true">↗</span></button>
+            </div>
+        </form>
     </div>
 
 </div>

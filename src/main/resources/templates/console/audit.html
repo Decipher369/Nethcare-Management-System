@@ -11,45 +11,85 @@
 <div class="content">
 <div th:replace="~{console/fragments :: mocknote}"></div>
 
+    <!-- Editorial Header matching #collection style -->
+    <div class="editorial-heading">
+        <div>
+            <p class="eyebrow">Accountability &amp; Data Archival</p>
+            <h2>Audit Trail.<br><em>Tamper-proof evidence.</em></h2>
+            <p class="lead">Immutable cryptographic record of every create, update, and clinical alteration.</p>
+        </div>
+        <div style="display:flex; gap:10px;">
+            <a class="btn-editorial secondary" th:href="@{/audit}">Refresh log <span aria-hidden="true">↺</span></a>
+        </div>
+    </div>
+
+    <!-- Hash-chain integrity banner -->
+    <div class="panel" style="border-radius:8px; overflow:hidden;">
+        <div class="pad" style="display:flex; align-items:center; gap:14px;"
+             th:style="${chainValid} ? 'background:#e7f4ea; border-left:4px solid var(--good);' : 'background:#fdeaea; border-left:4px solid var(--bad);'">
+            <div style="font-size:20px;" th:text="${chainValid} ? '✓' : '⚠'">✓</div>
+            <div>
+                <strong style="display:block; font-size:14px;"
+                        th:text="${chainValid} ? 'Cryptographic Hash Chain Verified' : 'Hash Chain Tamper Warning!'">
+                    Cryptographic Hash Chain Verified
+                </strong>
+                <span style="font-size:12px; color:var(--ink-soft);"
+                      th:text="${chainValid} ? 'All SHA-256 block hashes match their canonical predecessors. Database records are authentic and intact.' : 'One or more entries failed cryptographic validation. Database triggers prevent further unauthorized writes.'">
+                    All SHA-256 block hashes match their canonical predecessors.
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Audit Trail Panel -->
     <div class="panel">
-        <h2>Audit trail
-            <span class="sp">read-only — no role can edit or delete these rows</span>
-        </h2>
-        <p class="readonly pad" th:text="${chainValid} ? 'Hash chain verified.' : 'WARNING: hash chain verification failed.'">Hash chain verified.</p>
+        <div style="padding:1rem 1.2rem; border-bottom:1px solid var(--line); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+            <div>
+                <span style="font-size:10px; font-weight:600; letter-spacing:1.5px; text-transform:uppercase; color:var(--brand-deep);">Immutable Log</span>
+                <h3 style="margin:2px 0 0; font-family:system-ui, sans-serif; font-size:18px; font-weight:650; color:var(--ink);">System Events &amp; Clinical Audit</h3>
+            </div>
+            <div style="font-size:12px; color:var(--ink-soft);">
+                Showing <strong th:text="${rows != null ? rows.size() : 0}">0</strong> audit records
+            </div>
+        </div>
 
         <form class="filters" method="get" th:action="@{/audit}">
             <div class="field">
                 <label for="u">User</label>
                 <select id="u" name="user">
                     <option value="">Anyone</option>
-                    <option>admin</option>
-                    <option>optician</option>
-                    <option>staff</option>
-                    <option>surgeon</option>
+                    <option value="admin">admin</option>
+                    <option value="optician">optician</option>
+                    <option value="staff">staff</option>
+                    <option value="surgeon">surgeon</option>
                 </select>
             </div>
             <div class="field">
                 <label for="e">Entity</label>
                 <select id="e" name="entity">
                     <option value="">Anything</option>
-                    <option>Patient</option>
-                    <option>Examination</option>
-                    <option>Prescription</option>
-                    <option>Referral</option>
-                    <option>Order</option>
-                    <option>Bill</option>
-                    <option>Payment</option>
-                    <option>StockItem</option>
-                    <option>User</option>
+                    <option value="Patient">Patient</option>
+                    <option value="Examination">Examination</option>
+                    <option value="Prescription">Prescription</option>
+                    <option value="Referral">Referral</option>
+                    <option value="PatientFollowUpCase">Follow-up case</option>
+                    <option value="NotificationDispatch">Notification dispatch</option>
+                    <option value="ClinicalAdviceLog">Clinical advice</option>
+                    <option value="Order">Order</option>
+                    <option value="Bill">Bill</option>
+                    <option value="Payment">Payment</option>
+                    <option value="StockItem">Stock item</option>
+                    <option value="User">User</option>
+                    <option value="SystemSummaryReport">Report</option>
                 </select>
             </div>
             <div class="field">
                 <label for="a">Action</label>
                 <select id="a" name="action">
-                    <option value="">Any</option>
-                    <option>CREATE</option>
-                    <option>UPDATE</option>
-                    <option>DELETE</option>
+                    <option value="">Any Action</option>
+                    <option value="CREATE">CREATE</option>
+                    <option value="UPDATE">UPDATE</option>
+                    <option value="DELETE">DELETE</option>
                 </select>
             </div>
             <div class="field">
@@ -60,35 +100,147 @@
                 <label for="to">To</label>
                 <input id="to" name="to" type="date">
             </div>
-            <button class="btn" type="submit">Filter</button>
+            <button class="btn" type="submit">Filter log</button>
+            <a class="btn ghost" th:href="@{/audit}">Clear</a>
         </form>
 
-        <table>
-            <thead>
-            <tr><th>When</th><th>User</th><th>Entity</th><th>Action</th>
-                <th>Record</th><th>What changed</th></tr>
-            </thead>
-            <tbody>
-            <tr th:each="r : ${rows}">
-                <td class="mono" th:text="${r.occurredAt}">2026-09-28 14:02</td>
-                <td th:text="${r.actor}">optician</td>
-                <td th:text="${r.entityName}">Examination</td>
-                <td>
-                    <span class="tag good" th:if="${r.action.name() == 'CREATE'}" th:text="${r.action}">CREATE</span>
-                    <span class="tag warn" th:unless="${r.action.name() == 'CREATE'}" th:text="${r.action}">UPDATE</span>
-                </td>
-                <td class="mono" th:text="${r.entityId}">#2411</td>
-                <td th:text="${r.note ?: (r.newValue ?: '—')}">—</td>
-            </tr>
-            </tbody>
-        </table>
+        <!-- Audit Card Grid -->
+        <div class="pad" style="background:#fafbfd;">
+            <div class="collection-grid" th:if="${rows != null and !rows.isEmpty()}">
+                <article class="collection-card" th:each="r : ${rows}">
+                    <div class="collection-card-header">
+                        <span class="collection-card-category" th:text="${r.entityName}">Examination</span>
+                        <span class="tag"
+                              th:classappend="${r.action.name() == 'CREATE'} ? 'good' : (${r.action.name() == 'UPDATE'} ? 'warn' : 'bad')"
+                              th:text="${r.action}">CREATE</span>
+                    </div>
+                    <div class="collection-card-body">
+                        <div>
+                            <h4 class="collection-card-title" th:text="${r.actor} + ' / ' + ${r.action}">optician / CREATE</h4>
+                            <span style="font-size:11px; font-family:monospace; color:var(--ink-soft);" th:text="'Target ID: #' + ${r.entityId}">#2411</span>
+                        </div>
+                        <div class="collection-card-meta">
+                            <div class="collection-card-meta-row">
+                                <span class="collection-card-meta-label">Occurred</span>
+                                <span class="collection-card-meta-val mono" th:text="${r.occurredAt}">2026-09-28 14:02</span>
+                            </div>
+                            <div class="collection-card-meta-row" th:if="${r.note != null or r.newValue != null}">
+                                <span class="collection-card-meta-label">Note / Change</span>
+                                <span class="collection-card-meta-val" style="font-size:11px;" th:text="${r.note ?: r.newValue}">Details</span>
+                            </div>
+                            <div class="collection-card-meta-row" th:if="${r.recordHash != null}">
+                                <span class="collection-card-meta-label">SHA-256</span>
+                                <span class="collection-card-meta-val mono" style="font-size:10px; color:var(--brand-deep);"
+                                      th:text="${#strings.substring(r.recordHash, 0, 10)} + '...' + ${#strings.substring(r.recordHash, #strings.length(r.recordHash) - 8)}">a1b2c3d4...</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="collection-card-footer">
+                        <span class="note" style="font-size:11px;">Immutable entry</span>
+                        <span class="tag mute" th:text="'ID: ' + ${r.id}">#1</span>
+                    </div>
+                </article>
+            </div>
 
-        <p class="readonly pad">
-            Entries are written on every create, update and delete across M1–M3.
+            <div class="empty" th:if="${rows == null or rows.isEmpty()}" style="padding:3rem 1rem;">
+                <p style="font-family:Georgia, serif; font-size:22px; color:var(--ink); margin:0 0 6px;">No audit records found.</p>
+                <p class="note">Try removing or widening your filter parameters.</p>
+            </div>
+        </div>
+
+        <!-- Tabular view details -->
+        <div style="border-top:1px solid var(--line); padding:0.8rem 1.1rem; background:#ffffff;">
+            <details>
+                <summary style="font-size:12px; cursor:pointer; color:var(--brand-deep); font-weight:600; padding:6px 0;">
+                    Switch to tabular audit view
+                </summary>
+                <div style="margin-top:12px; overflow-x:auto;">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>When</th>
+                            <th>User</th>
+                            <th>Entity</th>
+                            <th>Action</th>
+                            <th>Record</th>
+                            <th>What changed</th>
+                            <th>Hash (last 8)</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="r : ${rows}">
+                            <td class="mono" th:text="${r.occurredAt}">2026-09-28 14:02</td>
+                            <td th:text="${r.actor}">optician</td>
+                            <td><span class="tag mute" th:text="${r.entityName}">Examination</span></td>
+                            <td>
+                                <span class="tag good" th:if="${r.action.name() == 'CREATE'}" th:text="${r.action}">CREATE</span>
+                                <span class="tag warn" th:if="${r.action.name() == 'UPDATE'}" th:text="${r.action}">UPDATE</span>
+                                <span class="tag bad"  th:if="${r.action.name() == 'DELETE'}" th:text="${r.action}">DELETE</span>
+                            </td>
+                            <td class="mono" th:text="${r.entityId}">#2411</td>
+                            <td th:text="${r.note ?: (r.newValue ?: '—')}">—</td>
+                            <td class="mono" style="font-size:.72rem;color:var(--ink-soft);"
+                                th:text="${r.recordHash != null} ? ${#strings.substring(r.recordHash, #strings.length(r.recordHash) - 8)} : '—'">a1b2c3d4</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </details>
+        </div>
+
+        <p class="readonly pad" style="border-top:1px solid var(--line); margin:0;">
+            Entries are written on every create, update and delete across M1–M4.
             There is deliberately no edit or delete control on this screen, and
             the database refuses both — an audit trail that can be tidied up is
             not evidence of anything.
         </p>
+    </div>
+
+    <!-- Archival notice panel -->
+    <div class="panel" th:if="${role == 'ADMIN' or role == 'AUDITOR'}">
+        <div style="padding:1rem 1.2rem; border-bottom:1px solid var(--line);">
+            <span style="font-size:10px; font-weight:600; letter-spacing:1.5px; text-transform:uppercase; color:var(--brand-deep);">Legal &amp; Clinical Retention</span>
+            <h3 style="margin:2px 0 0; font-family:system-ui, sans-serif; font-size:17px; font-weight:650; color:var(--ink);">Archival &amp; Retention Protection</h3>
+        </div>
+        <div class="pad">
+            <p class="note" style="margin-bottom:1rem; font-size:13px; line-height:1.7;">
+                The clinical audit trail is append-only at the database engine level via MySQL triggers (<code>audit_immutable.sql</code>).
+                Rows cannot be modified or deleted by any administrative account.
+                For cold-storage archival, export a snapshot using <code>mysqldump</code> filtered by <code>occurred_at</code>.
+            </p>
+            <table>
+                <thead>
+                <tr>
+                    <th>Protection layer</th>
+                    <th>Mechanism</th>
+                    <th>Status</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>Application layer</td>
+                    <td><code>@Immutable</code> — Hibernate blocks entity modifications</td>
+                    <td><span class="tag good">Active</span></td>
+                </tr>
+                <tr>
+                    <td>Database engine layer</td>
+                    <td>MySQL trigger raises on UPDATE / DELETE (<code>audit_immutable.sql</code>)</td>
+                    <td>
+                        <span th:if="${chainValid}" class="tag good">Verified</span>
+                        <span th:unless="${chainValid}" class="tag bad">Check required</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Cryptographic integrity</td>
+                    <td>SHA-256 blockchain-style chaining back to genesis record</td>
+                    <td>
+                        <span th:if="${chainValid}" class="tag good">Intact</span>
+                        <span th:unless="${chainValid}" class="tag bad">Broken</span>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 
 </div>
