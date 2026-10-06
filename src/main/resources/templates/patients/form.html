@@ -10,6 +10,33 @@
 </head>
 <body class="patient-form-body">
 <div th:replace="~{staff/fragments :: bar('patients', ${currentUser})}"></div>
+
+<!-- Register Page Dedicated Topbar (Matching Patients Page design) -->
+<header class="patients-topbar">
+    <div class="topbar-left-group">
+        <span class="topbar-pulse-dot"></span>
+        <span class="topbar-workspace-label">WORKSPACE</span>
+        <span class="topbar-slash-sep">/</span>
+        <span class="topbar-workspace-title">Management workspace</span>
+    </div>
+
+    <div class="topbar-right-group">
+        <div class="topbar-user-block">
+            <div class="topbar-avatar" th:text="${currentUser != null and #strings.length(currentUser) >= 2 ? #strings.toUpperCase(#strings.substring(currentUser, 0, 2)) : 'AD'}">AD</div>
+            <span class="topbar-username" th:text="${currentUser != null ? currentUser : 'admin'}">admin</span>
+        </div>
+        
+        <div class="topbar-v-divider"></div>
+
+        <form th:action="@{/logout}" method="post" style="margin: 0; display: inline-flex;">
+            <button type="submit" class="topbar-signout-btn">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                <span>Sign out</span>
+            </button>
+        </form>
+    </div>
+</header>
+
 <main class="wrap">
     <div class="patient-register-page">
         <!-- Back Navigation Link -->

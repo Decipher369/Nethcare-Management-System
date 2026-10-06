@@ -1,16 +1,159 @@
-/* ==========================================================================
-   Patient Registration & Edit Form Dedicated Stylesheet
-   Strictly scoped under .patient-register-page & body.patient-form-body
-   ========================================================================== */
-
 /* Body Background Override for Patient Form Page */
 body.patient-form-body {
     background-color: #F3F6F9 !important;
 }
 
-/* Hide default shared topbar empty wrap from fragments.html if any */
+/* Hide default shared topbar and empty wrap from fragments.html on Register Page */
+body.patient-form-body .topbar,
 body.patient-form-body .staff-layout > .wrap {
     display: none !important;
+}
+
+/* Register Page Dedicated Sticky Topbar - Flush at y = 0 */
+body.patient-form-body .patients-topbar {
+    position: sticky;
+    top: 0 !important;
+    margin-top: 0 !important;
+    z-index: 100;
+    margin-left: 238px;
+    height: 56px;
+    background: #FFFFFF;
+    border-bottom: 1px solid #E2E8F0;
+    box-shadow: 0 1px 2px rgba(15, 39, 66, 0.04);
+    padding: 0 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-sizing: border-box;
+    font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+@media (max-width: 768px) {
+    body.patient-form-body .patients-topbar {
+        margin-left: 0;
+        padding: 0 16px;
+    }
+}
+
+/* Topbar Left Group */
+body.patient-form-body .topbar-left-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+body.patient-form-body .topbar-pulse-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #0284C7;
+    display: inline-block;
+    animation: pulseDot 2s infinite ease-in-out;
+}
+
+@keyframes pulseDot {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.4;
+        transform: scale(0.9);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    body.patient-form-body .topbar-pulse-dot {
+        animation: none;
+    }
+}
+
+body.patient-form-body .topbar-workspace-label {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #64748B;
+}
+
+body.patient-form-body .topbar-slash-sep {
+    font-size: 12px;
+    color: #CBD5E1;
+}
+
+body.patient-form-body .topbar-workspace-title {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: #15375B;
+}
+
+/* Topbar Right Group */
+body.patient-form-body .topbar-right-group {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+body.patient-form-body .topbar-user-block {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+body.patient-form-body .topbar-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: #F1F5F9;
+    border: 1px solid #E2E8F0;
+    color: #15375B;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+body.patient-form-body .topbar-username {
+    font-size: 12px;
+    font-weight: 700;
+    color: #0E243D;
+    letter-spacing: 0.02em;
+}
+
+body.patient-form-body .topbar-v-divider {
+    width: 1px;
+    height: 16px;
+    background: #E2E8F0;
+}
+
+body.patient-form-body .topbar-signout-btn {
+    background: transparent;
+    border: none;
+    color: #64748B;
+    font-size: 13px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    padding: 6px 10px;
+    border-radius: 8px;
+    transition: all 0.15s ease;
+    font-family: inherit;
+}
+
+body.patient-form-body .topbar-signout-btn:hover {
+    color: #0E243D;
+    background: #F1F5F9;
+}
+
+body.patient-form-body .topbar-signout-btn:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px #E2E8F0;
 }
 
 /* Outer Content Slot Wrapper */
