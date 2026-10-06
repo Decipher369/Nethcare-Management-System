@@ -21,7 +21,7 @@
         <div style="display:flex; gap:10px; align-items:center;">
             <form method="post" th:action="@{/notifications/dispatch-now}" style="margin:0;">
                 <button class="btn-editorial" type="submit" style="background:var(--brand-deep); color:#fff; border-color:var(--brand-deep); cursor:pointer;">
-                    ⚡ Dispatch Due Queue Now
+                    Dispatch Due Queue Now
                 </button>
             </form>
             <a class="btn-editorial" th:href="@{/followups}">Review list <span aria-hidden="true">↗</span></a>
@@ -81,7 +81,7 @@
     <div class="panel" style="margin-bottom: 1.2rem;">
         <details>
             <summary style="padding: 0.8rem 1.2rem; cursor: pointer; font-size: 13px; font-weight: 600; color: var(--brand-deep); display: flex; align-items: center; justify-content: space-between;">
-                <span>💬 Compose &amp; Send Direct SMS / Test SMS</span>
+                <span>Compose &amp; Send Direct SMS / Test SMS</span>
                 <span style="font-size: 11px; font-weight: normal; color: var(--ink-soft);">Click to open compose box ▾</span>
             </summary>
             <form method="post" th:action="@{/notifications/send-direct}" style="padding: 1rem 1.2rem; border-top: 1px solid var(--line); display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
@@ -98,7 +98,7 @@
                     <textarea id="directMsg" name="message" required rows="2" style="width: 100%; box-sizing: border-box; padding: 0.5rem; font-family: inherit; font-size: 12px; border: 1px solid var(--line); border-radius: 4px;">Nethcare: Your follow-up appointment is scheduled at Nethcare Clinic on Friday at 10:30 AM.</textarea>
                 </div>
                 <div style="grid-column: 1 / -1;">
-                    <button class="btn sm" type="submit" style="background: var(--brand-deep); color: #fff; cursor: pointer;">⚡ Send SMS Now</button>
+                    <button class="btn sm" type="submit" style="background: var(--brand-deep); color: #fff; cursor: pointer;">Send SMS Now</button>
                 </div>
             </form>
         </details>
@@ -180,7 +180,7 @@
                     <div class="collection-card-footer">
                         <div th:if="${r.queued}" style="width:100%; display:flex; flex-direction:column; gap:8px;">
                             <form method="post" th:action="@{/notifications/{id}/send-now(id=${r.id})}" style="margin:0;">
-                                <button class="btn sm" type="submit" style="width:100%; background:var(--brand-deep); color:#fff; cursor:pointer;">⚡ Send Now</button>
+                                <button class="btn sm" type="submit" style="width:100%; background:var(--brand-deep); color:#fff; cursor:pointer;">Send Now</button>
                             </form>
                             <details style="font-size:11px;">
                                 <summary style="cursor:pointer; color:var(--ink-soft);">Manual confirm</summary>
@@ -252,7 +252,7 @@
                             <td class="num">
                                 <div th:if="${r.queued}" style="display:inline-flex; align-items:center; gap:4px;">
                                     <form method="post" th:action="@{/notifications/{id}/send-now(id=${r.id})}" style="display:inline-block; margin:0;">
-                                        <button class="btn sm" type="submit" style="background:var(--brand-deep); color:#fff; padding:3px 8px; font-size:11px; cursor:pointer;">⚡ Send Now</button>
+                                        <button class="btn sm" type="submit" style="background:var(--brand-deep); color:#fff; padding:3px 8px; font-size:11px; cursor:pointer;">Send Now</button>
                                     </form>
                                     <form method="post" th:action="@{/notifications/{id}/sent(id=${r.id})}" style="display:inline-flex; gap:4px; margin:0;">
                                         <input name="receipt" required placeholder="Receipt" style="width:70px; font-size:11px;">
