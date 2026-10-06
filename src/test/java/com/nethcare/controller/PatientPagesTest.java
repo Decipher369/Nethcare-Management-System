@@ -61,4 +61,15 @@ class PatientPagesTest {
                 .andExpect(content().string(containsString("patient-register-page")))
                 .andExpect(content().string(containsString("action=\"/patients\"")));
     }
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void redesignedUserAdministrationPreservesSharedRailAndCreateForm() throws Exception {
+        mvc.perform(get("/admin/users"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("admin/users"))
+                .andExpect(content().string(containsString("user-admin-page")))
+                .andExpect(content().string(containsString("Administration navigation")))
+                .andExpect(content().string(containsString("/css/admin.css")))
+                .andExpect(content().string(containsString("action=\"/admin/users\"")));
+    }
 }

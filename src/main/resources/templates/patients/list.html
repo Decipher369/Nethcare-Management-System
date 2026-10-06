@@ -6,6 +6,7 @@
     <title>Patients — Nethcare</title>
     <link rel="icon" type="image/png" th:href="@{/images/nethcare-logo.png}">
     <link rel="stylesheet" th:href="@{/css/staff.css}">
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
     <link rel="stylesheet" th:href="@{/css/patients.css}">
 </head>
 <body class="patients-page-body">
@@ -25,7 +26,7 @@
             <div class="topbar-avatar" th:text="${currentUser != null and #strings.length(currentUser) >= 2 ? #strings.toUpperCase(#strings.substring(currentUser, 0, 2)) : 'AD'}">AD</div>
             <span class="topbar-username" th:text="${currentUser != null ? currentUser : 'admin'}">admin</span>
         </div>
-        
+
         <div class="topbar-v-divider"></div>
 
         <form th:action="@{/logout}" method="post" style="margin: 0; display: inline-flex;">
@@ -41,7 +42,7 @@
     <div class="patients-page">
         <!-- Main Card Container matching patients_admin_ui.html -->
         <div class="patients-card-box">
-            
+
             <!-- Card Header & Actions -->
             <div class="card-header-area">
                 <!-- Row 1: Header title, pill count, subtitle & Register patient action -->
@@ -62,22 +63,22 @@
 
                 <!-- Row 2: Status Filter Tabs -->
                 <div class="header-row-2">
-                    <a th:href="@{/patients(status='active')}" 
-                       class="filter-pill-link" 
+                    <a th:href="@{/patients(status='active')}"
+                       class="filter-pill-link"
                        th:classappend="${param.status == null or param.status[0] == 'active'} ? ' active' : ''">
                         <span class="filter-active-dot" th:if="${param.status == null or param.status[0] == 'active'}"></span>
                         <span>Active</span>
                     </a>
 
-                    <a th:href="@{/patients(status='inactive')}" 
-                       class="filter-pill-link" 
+                    <a th:href="@{/patients(status='inactive')}"
+                       class="filter-pill-link"
                        th:classappend="${param.status != null and param.status[0] == 'inactive'} ? ' active' : ''">
                         <span class="filter-active-dot" th:if="${param.status != null and param.status[0] == 'inactive'}"></span>
                         <span>Inactive</span>
                     </a>
 
-                    <a th:href="@{/patients(status='all')}" 
-                       class="filter-pill-link" 
+                    <a th:href="@{/patients(status='all')}"
+                       class="filter-pill-link"
                        th:classappend="${param.status != null and param.status[0] == 'all'} ? ' active' : ''">
                         <span class="filter-active-dot" th:if="${param.status != null and param.status[0] == 'all'}"></span>
                         <span>All</span>
@@ -90,10 +91,10 @@
                         <div class="search-icon-svg">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                         </div>
-                        <input type="text" 
-                               name="q" 
-                               th:value="${q}" 
-                               class="search-text-field" 
+                        <input type="text"
+                               name="q"
+                               th:value="${q}"
+                               class="search-text-field"
                                placeholder="Name, NIC, phone or patient number...">
                     </div>
                     <button type="submit" class="btn-search-submit">
@@ -123,7 +124,7 @@
                         </td>
                         <td>
                             <div class="avatar-name-cell">
-                                <div class="avatar-circle" 
+                                <div class="avatar-circle"
                                      th:classappend="${!p.isActive} ? ' inactive' : ''"
                                      th:text="${#strings.isEmpty(p.fullName) ? 'P' : #strings.substring(p.fullName, 0, 1)}">P</div>
                                 <span class="name-text-bold" th:text="${p.fullName}">Patient Name</span>

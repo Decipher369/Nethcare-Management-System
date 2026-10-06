@@ -6,10 +6,21 @@
     <title th:text="${title} + ' — Nethcare'">Nethcare</title>
     <link rel="icon" type="image/png" th:href="@{/images/nethcare-logo.png}">
     <link rel="stylesheet" th:href="@{/css/staff.css}">
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
 </head>
 <body>
 
-<div th:fragment="bar(active, user)" class="staff-layout">
+<!-- ADMIN users get the shared administrator rail on every staff-facing page. -->
+<th:block th:fragment="bar(active, user)">
+    <th:block th:if="${currentRole == 'ADMIN'}">
+        <div th:replace="~{admin/fragments :: bar(${active}, ${user})}"></div>
+    </th:block>
+    <th:block th:unless="${currentRole == 'ADMIN'}">
+        <div th:replace="~{staff/fragments :: staffBar(${active}, ${user})}"></div>
+    </th:block>
+</th:block>
+
+<div th:fragment="staffBar(active, user)" class="staff-layout">
     <aside class="app-side">
         <a class="app-brand" th:href="@{/dashboard}">
             <img th:src="@{/images/nethcare-logo.png}" alt="">

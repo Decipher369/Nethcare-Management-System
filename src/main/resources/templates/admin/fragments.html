@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head(title)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${title} + ' — Nethcare'">Nethcare administration</title>
+    <link rel="icon" type="image/png" th:href="@{/images/nethcare-logo.png}">
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+</head>
+<body>
+
+<!-- Shared navigation for every administrator screen. Keep new admin pages on this fragment. -->
+<div th:fragment="bar(active, user)" class="admin-shell">
+    <aside class="admin-nav" th:fragment="rail(active)" aria-label="Administration navigation">
+        <a class="admin-brand" th:href="@{/dashboard/console}">
+            <img th:src="@{/images/nethcare-logo.png}" alt="">
+            <span><strong>Nethcare</strong><small>Administration</small></span>
+        </a>
+
+        <nav>
+            <span class="admin-nav-group">Workspace</span>
+            <a th:href="@{/dashboard/console}"
+               th:classappend="${active == 'dashboard'} ? ' active' : ''">
+                <span aria-hidden="true">⌂</span> Dashboard
+            </a>
+
+            <span class="admin-nav-group">People and care</span>
+            <a th:href="@{/admin/users}"
+               th:classappend="${active == 'users'} ? ' active' : ''">
+                <span aria-hidden="true">♙</span> Users and access
+            </a>
+            <a th:href="@{/patients}"
+               th:classappend="${active == 'patients'} ? ' active' : ''">
+                <span aria-hidden="true">♙</span> Patients
+            </a>
+            <a th:href="@{/referrals}"
+               th:classappend="${active == 'referrals'} ? ' active' : ''">
+                <span aria-hidden="true">＋</span> Referrals
+            </a>
+            <a th:href="@{/followups}"
+               th:classappend="${active == 'followups'} ? ' active' : ''">
+                <span aria-hidden="true">↻</span> Follow-ups
+            </a>
+
+            <span class="admin-nav-group">Store operations</span>
+            <a th:href="@{/stock}" th:classappend="${active == 'stock'} ? ' active' : ''">
+                <span aria-hidden="true">▦</span> Stock
+            </a>
+            <a th:href="@{/orders}" th:classappend="${active == 'orders'} ? ' active' : ''">
+                <span aria-hidden="true">▤</span> Orders
+            </a>
+            <a th:href="@{/bills}" th:classappend="${active == 'bills'} ? ' active' : ''">
+                <span aria-hidden="true">▣</span> Bills
+            </a>
+
+            <span class="admin-nav-group">Reports and audit</span>
+            <a th:href="@{/reports/sales}" th:classappend="${active == 'sales'} ? ' active' : ''">
+                <span aria-hidden="true">▥</span> Sales report
+            </a>
+            <a th:href="@{/reports/orders}" th:classappend="${active == 'report-orders'} ? ' active' : ''">
+                <span aria-hidden="true">▤</span> Order report
+            </a>
+            <a th:href="@{/reports/stock}" th:classappend="${active == 'report-stock'} ? ' active' : ''">
+                <span aria-hidden="true">▦</span> Stock report
+            </a>
+            <a th:href="@{/audit}" th:classappend="${active == 'audit'} ? ' active' : ''">
+                <span aria-hidden="true">◌</span> Audit trail
+            </a>
+        </nav>
+
+        <a class="admin-public-link" th:href="@{/frames}">View public frames page ↗</a>
+    </aside>
+
+    <header class="admin-topbar">
+        <div>
+            <span class="admin-eyebrow">Nethcare</span>
+            <strong>Administration</strong>
+        </div>
+        <div class="admin-account">
+            <span th:text="${user}">admin</span>
+            <form th:action="@{/logout}" method="post">
+                <button type="submit">Sign out</button>
+            </form>
+        </div>
+    </header>
+    <div class="admin-flash" th:if="${msg}" th:text="${msg}">Saved</div>
+</div>
+
+</body>
+</html>

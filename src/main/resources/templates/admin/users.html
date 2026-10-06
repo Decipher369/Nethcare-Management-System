@@ -6,10 +6,11 @@
     <title>User Administration — Nethcare</title>
     <link rel="icon" type="image/png" th:href="@{/images/nethcare-logo.png}">
     <link rel="stylesheet" th:href="@{/css/staff.css}">
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
     <link rel="stylesheet" th:href="@{/css/user-admin.css}">
 </head>
 <body class="user-admin-body">
-<div th:replace="~{staff/fragments :: bar('admin', ${currentUser})}"></div>
+<div th:replace="~{admin/fragments :: rail('users')}"></div>
 
 <!-- Dedicated Sticky Topbar -->
 <header class="admin-topbar">

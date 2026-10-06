@@ -840,3 +840,12 @@ body.user-admin-body .topbar-signout-btn:focus {
         width: 100%;
     }
 }
+
+/* Align the redesigned page with the shared administrator rail. */
+@media (min-width: 901px) {
+    body.user-admin-body .admin-nav { width: 238px; }
+}
+@media (max-width: 900px) {
+    body.user-admin-body main.wrap,
+    body.user-admin-body .admin-topbar { margin-left: 0 !important; }
+}
