@@ -6,72 +6,168 @@
     <title>Patients — Nethcare</title>
     <link rel="icon" type="image/png" th:href="@{/images/nethcare-logo.png}">
     <link rel="stylesheet" th:href="@{/css/staff.css}">
-    <style>
-        body { font-family: system-ui, sans-serif; background: #f5f6f8; margin: 0; padding: 2rem; }
-        .wrap { max-width: 860px; margin: 0 auto; }
-        .card { background: #fff; border-radius: 8px; padding: 2rem;
-                box-shadow: 0 2px 12px rgba(0,0,0,.08); }
-        h1 { font-size: 1.4rem; margin: 0 0 .3rem; color: #1a3a5c; }
-        .sub { color: #888; font-size: .85rem; margin: 0 0 1.5rem; }
-        table { width: 100%; border-collapse: collapse; font-size: .9rem; }
-        th { text-align: left; font-size: .7rem; letter-spacing: .06em;
-             color: #888; border-bottom: 1px solid #e5e5e5; padding: .5rem .4rem; }
-        td { padding: .6rem .4rem; border-bottom: 1px solid #f0f0f0; color: #333; }
-        a { color: #1a3a5c; text-decoration: none; }
-        .empty { text-align: center; color: #999; padding: 2.5rem 0; font-size: .9rem; }
-        form.search { display: flex; gap: .5rem; margin-bottom: 1.5rem; }
-        form.search input { flex: 1; padding: .55rem .7rem; font-size: .9rem;
-                            border: 1px solid #ddd; border-radius: 4px; }
-        form.search button { padding: .55rem 1.1rem; font-size: .9rem;
-                             background: #1a3a5c; color: #fff; border: none;
-                             border-radius: 4px; cursor: pointer; }
-        .bar { display: flex; justify-content: space-between; align-items: baseline;
-               margin-bottom: 1.2rem; }
-        .bar a { font-size: .85rem; }
-        .filters { display:flex; gap:.8rem; margin-bottom:1rem; font-size:.85rem; }
-    </style>
+    <link rel="stylesheet" th:href="@{/css/patients.css}">
 </head>
-<body>
+<body class="patients-page-body">
 <div th:replace="~{staff/fragments :: bar('patients', ${currentUser})}"></div>
-<div class="wrap">
-    <div class="card">
-        <h1>Patients</h1>
-        <div class="bar">
-            <p class="sub"><span th:text="${total}">0</span> on the register</p>
-            <a th:href="@{/patients/new}">+ Register patient</a>
-        </div>
 
-        <div class="filters"><a th:href="@{/patients(status='active')}">Active</a><a th:href="@{/patients(status='inactive')}">Inactive</a><a th:href="@{/patients(status='all')}">All</a></div>
-
-        <form class="search" method="get" th:action="@{/patients}">
-            <input type="text" name="q" th:value="${q}" placeholder="Name, NIC, phone or patient number">
-            <button type="submit">Search</button>
-        </form>
-
-        <table th:if="${!patients.isEmpty()}">
-            <thead>
-            <tr>
-                <th>No.</th>
-                <th>Name</th>
-                <th>NIC</th>
-                <th>Phone</th>
-                <th>Registered</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="p : ${patients}">
-                <td><a th:href="@{/patients/{id}(id=${p.id})}" th:text="${p.patientNo}">P-1</a></td>
-                <td th:text="${p.fullName}">Name</td>
-                <td th:text="${p.nic} ?: '—'">NIC</td>
-                <td th:text="${p.phone}">Phone</td>
-                <td th:text="${p.registeredOn}">Date</td>
-            </tr>
-            </tbody>
-        </table>
-
-        <p class="empty" th:if="${patients.isEmpty()}"
-           th:text="${#strings.isEmpty(q)} ? 'No patients registered yet.' : 'Nothing matched that search.'">No patients yet.</p>
+<!-- Patients-Specific Topbar (Redesigned matching patients_admin_ui.html) -->
+<header class="patients-topbar">
+    <div class="topbar-left-group">
+        <span class="topbar-pulse-dot"></span>
+        <span class="topbar-workspace-label">WORKSPACE</span>
+        <span class="topbar-slash-sep">/</span>
+        <span class="topbar-workspace-title">Management workspace</span>
     </div>
-</div>
+
+    <div class="topbar-right-group">
+        <div class="topbar-user-block">
+            <div class="topbar-avatar" th:text="${currentUser != null and #strings.length(currentUser) >= 2 ? #strings.toUpperCase(#strings.substring(currentUser, 0, 2)) : 'AD'}">AD</div>
+            <span class="topbar-username" th:text="${currentUser != null ? currentUser : 'admin'}">admin</span>
+        </div>
+        
+        <div class="topbar-v-divider"></div>
+
+        <form th:action="@{/logout}" method="post" style="margin: 0; display: inline-flex;">
+            <button type="submit" class="topbar-signout-btn">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                <span>Sign out</span>
+            </button>
+        </form>
+    </div>
+</header>
+
+<main class="wrap">
+    <div class="patients-page">
+        <!-- Main Card Container matching patients_admin_ui.html -->
+        <div class="patients-card-box">
+            
+            <!-- Card Header & Actions -->
+            <div class="card-header-area">
+                <!-- Row 1: Header title, pill count, subtitle & Register patient action -->
+                <div class="header-row-1">
+                    <div class="header-left-group">
+                        <div class="title-with-badge">
+                            <h1 class="page-main-title">Patients</h1>
+                            <span class="count-badge-pill" th:text="${total} + ' registered'">0 registered</span>
+                        </div>
+                        <p class="header-subtitle">Showing all active patient records &amp; demographic indexes</p>
+                    </div>
+
+                    <a th:href="@{/patients/new}" class="btn-register-primary">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                        <span>Register patient</span>
+                    </a>
+                </div>
+
+                <!-- Row 2: Status Filter Tabs -->
+                <div class="header-row-2">
+                    <a th:href="@{/patients(status='active')}" 
+                       class="filter-pill-link" 
+                       th:classappend="${param.status == null or param.status[0] == 'active'} ? ' active' : ''">
+                        <span class="filter-active-dot" th:if="${param.status == null or param.status[0] == 'active'}"></span>
+                        <span>Active</span>
+                    </a>
+
+                    <a th:href="@{/patients(status='inactive')}" 
+                       class="filter-pill-link" 
+                       th:classappend="${param.status != null and param.status[0] == 'inactive'} ? ' active' : ''">
+                        <span class="filter-active-dot" th:if="${param.status != null and param.status[0] == 'inactive'}"></span>
+                        <span>Inactive</span>
+                    </a>
+
+                    <a th:href="@{/patients(status='all')}" 
+                       class="filter-pill-link" 
+                       th:classappend="${param.status != null and param.status[0] == 'all'} ? ' active' : ''">
+                        <span class="filter-active-dot" th:if="${param.status != null and param.status[0] == 'all'}"></span>
+                        <span>All</span>
+                    </a>
+                </div>
+
+                <!-- Row 3: Search Form -->
+                <form class="header-row-3" method="get" th:action="@{/patients}">
+                    <div class="search-input-wrap">
+                        <div class="search-icon-svg">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                        </div>
+                        <input type="text" 
+                               name="q" 
+                               th:value="${q}" 
+                               class="search-text-field" 
+                               placeholder="Name, NIC, phone or patient number...">
+                    </div>
+                    <button type="submit" class="btn-search-submit">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                        <span>Search</span>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Table Section -->
+            <div class="table-overflow-box" th:if="${!patients.isEmpty()}">
+                <table class="patient-data-table">
+                    <thead>
+                    <tr>
+                        <th scope="col">No.</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">NIC</th>
+                        <th scope="col">Phone</th>
+                        <th scope="col">Registered</th>
+                        <th scope="col" style="text-align: right;">Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="p : ${patients}" th:onclick="|window.location.href='@{/patients/{id}(id=${p.id})}'|">
+                        <td>
+                            <span class="no-badge-mono" th:text="${p.patientNo}">P-0001</span>
+                        </td>
+                        <td>
+                            <div class="avatar-name-cell">
+                                <div class="avatar-circle" 
+                                     th:classappend="${!p.isActive} ? ' inactive' : ''"
+                                     th:text="${#strings.isEmpty(p.fullName) ? 'P' : #strings.substring(p.fullName, 0, 1)}">P</div>
+                                <span class="name-text-bold" th:text="${p.fullName}">Patient Name</span>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="mono-data" th:text="${p.nic} ?: '—'">NIC</span>
+                        </td>
+                        <td>
+                            <span class="mono-data" th:text="${p.phone} ?: '—'">Phone</span>
+                        </td>
+                        <td>
+                            <span class="date-data" th:text="${p.registeredOn}">Date</span>
+                        </td>
+                        <td style="text-align: right;" onclick="event.stopPropagation();">
+                            <a th:href="@{/patients/{id}(id=${p.id})}" class="action-btn-circle" title="View Patient Details">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                            </a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Empty State -->
+            <div class="empty-state-box" th:if="${patients.isEmpty()}">
+                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="empty-search-icon"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="8" y1="8" x2="14" y2="14"></line></svg>
+                <p class="empty-main-text" th:text="${#strings.isEmpty(q)} ? 'No matching patients found' : 'Nothing matched that search keyword'">No matching patients found</p>
+                <p class="empty-sub-text">Try adjusting your filters or search keywords</p>
+            </div>
+
+            <!-- Card Footer -->
+            <div class="footer-strip-bar">
+                <div class="sync-status-left">
+                    <span class="dot-emerald"></span>
+                    <span>Live clinical database synchronized</span>
+                </div>
+                <div class="count-right-text">
+                    <span>Showing <strong th:text="${patients.size()}">0</strong> result(s)</span>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</main>
 </body>
 </html>
