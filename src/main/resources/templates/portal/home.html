@@ -55,7 +55,6 @@
 
         <!-- GREETING CARD -->
         <div class="portal-greeting-card">
-            <div class="portal-greeting-decor"></div>
             <h1 class="portal-greeting-title" id="greetingTitle"
                 th:data-firstname="${patient.fullName != null && patient.fullName.contains(' ') ? patient.fullName.substring(0, patient.fullName.indexOf(' ')) : patient.fullName}">
                 Good day

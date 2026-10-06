@@ -208,24 +208,12 @@ body.patient-portal-page {
 /* 2. GREETING CARD */
 .patient-portal-page .portal-greeting-card {
   position: relative;
-  background: linear-gradient(90deg, #FFFFFF 0%, rgba(240, 249, 255, 0.6) 100%);
+  background-color: #FFFFFF;
   border: 1px solid #E2E8F0;
   border-radius: 16px;
   padding: 28px;
   overflow: hidden;
   box-shadow: 0 1px 3px rgba(15, 39, 66, 0.05);
-}
-
-.patient-portal-page .portal-greeting-decor {
-  position: absolute;
-  top: -40px;
-  right: -40px;
-  width: 176px;
-  height: 176px;
-  border-radius: 9999px;
-  background-color: #F0F7FF;
-  filter: blur(20px);
-  pointer-events: none;
 }
 
 .patient-portal-page .portal-greeting-title {
@@ -1013,7 +1001,7 @@ body.patient-portal-page {
 }
 
 .patient-portal-page .portal-frame-img-box {
-  background: linear-gradient(180deg, #FFFFFF 0%, #F1F5F9 100%);
+  background-color: #F1F5F9;
   border: 1px solid #E2E8F0;
   border-radius: 8px;
   height: 120px;
