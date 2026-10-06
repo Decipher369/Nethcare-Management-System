@@ -361,8 +361,13 @@ is validation-only (`ddl-auto=validate`); it does not create or update tables.
 Flyway requires a working database connection. A
 `Connection refused` error means the configured host and port are not accepting
 connections; check that MySQL is running and inspect the rendered `DB_URL` host
-and port in the app's Railway variables. The `prod` profile does not create demo
-accounts, so an empty production database will need accounts provisioned separately.
+and port in the app's Railway variables. To create the initial admin login, set `SEED_ACCOUNTS_ENABLED=true` and
+`SEED_ADMIN_PASSWORD` on the app service, then deploy. Use a password of at least
+12 characters containing a letter and number (maximum 72 UTF-8 bytes).
+The bootstrap creates only `admin`, hashes its password, and requires a password
+change at first login. Existing accounts are preserved. After successful login,
+set `SEED_ACCOUNTS_ENABLED=false` and deploy again. Create additional users through
+the admin user-management page when needed.
 
 ### Console screens (M4)
 

@@ -19,6 +19,10 @@
 
     <properties>
         <java.version>17</java.version>
+        <!-- Keep IDE imports aligned with the Java release used by Maven. -->
+        <maven.compiler.release>${java.version}</maven.compiler.release>
+        <maven.compiler.source>${java.version}</maven.compiler.source>
+        <maven.compiler.target>${java.version}</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
