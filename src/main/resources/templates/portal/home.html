@@ -6,344 +6,387 @@
     <title>My NethCare records</title>
     <link rel="stylesheet" th:href="@{/css/portal.css}">
 </head>
-<body class="portal-body">
+<body class="patient-portal-page">
 
-    <!-- Top Navigation Bar -->
-    <nav class="portal-nav">
-        <div class="portal-nav-inner">
-            
-            <!-- Brand Logo & Page Breadcrumb -->
-            <div class="portal-brand-wrap">
-                <img th:src="@{/images/nethcare-logo.png}" alt="NethCare Logo" class="portal-brand-logo">
-                <div class="portal-brand-meta">
+    <!-- TOP BAR -->
+    <header class="portal-top-bar">
+        <div class="portal-top-bar-inner">
+            <div class="portal-brand-group">
+                <img th:src="@{/images/nethcare-logo.png}" alt="NethCare Logo" class="portal-logo-img">
+                <div class="portal-brand-text">
                     <div class="portal-brand-breadcrumbs">
-                        <span class="portal-brand-badge">PATIENT PORTAL</span>
+                        <span class="portal-brand-dot"></span>
+                        <span class="portal-brand-tag">PATIENT PORTAL</span>
                         <span class="portal-brand-slash">/</span>
-                        <span class="portal-brand-page">Personal Health Records</span>
+                        <span class="portal-brand-sub">PERSONAL HEALTH RECORDS</span>
                     </div>
-                    <div class="portal-brand-subtext">Nethcare Eye Clinic &amp; Optical Centre</div>
+                    <div class="portal-brand-clinic-name">Nethcare Eye Clinic &amp; Optical Centre</div>
                 </div>
             </div>
 
-            <!-- Right User Identity & Sign Out Action -->
-            <div class="portal-user-controls">
+            <div class="portal-top-right">
                 <div class="portal-user-pill">
-                    <div class="portal-avatar-sm" 
+                    <div class="portal-user-avatar" 
                          th:text="${patient.fullName != null && !patient.fullName.isEmpty() ? (patient.fullName.contains(' ') ? patient.fullName.substring(0,1) + patient.fullName.substring(patient.fullName.indexOf(' ') + 1, patient.fullName.indexOf(' ') + 2) : patient.fullName.substring(0,1)) : 'P'}">
                         EF
                     </div>
-                    <div class="portal-user-info">
-                        <div class="portal-user-name" th:text="${patient.fullName}">Patient Name</div>
-                        <div class="portal-user-id" th:text="${patient.patientNo}">P-0000</div>
+                    <div class="portal-user-meta">
+                        <span class="portal-user-name" th:text="${patient.fullName}">Patient Name</span>
+                        <span class="portal-user-no" th:text="${patient.patientNo}">P-0000</span>
                     </div>
                 </div>
 
-                <span class="portal-nav-divider">|</span>
+                <div class="portal-top-divider"></div>
 
-                <!-- Sign Out Form -->
                 <form th:action="@{/logout}" method="post" class="portal-signout-form">
                     <button type="submit" class="portal-signout-btn">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="portal-signout-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
                         </svg>
                         <span>Sign out</span>
                     </button>
                 </form>
             </div>
-
         </div>
-    </nav>
+    </header>
 
-    <!-- Main Content Area -->
-    <main class="portal-main">
+    <!-- MAIN CONTENT -->
+    <main class="portal-main-content">
 
-        <!-- Page Header Greeting -->
-        <header class="portal-header">
-            <h1 class="portal-greeting" id="greetingText" 
+        <!-- GREETING CARD -->
+        <div class="portal-greeting-card">
+            <div class="portal-greeting-decor"></div>
+            <h1 class="portal-greeting-title" id="greetingTitle"
                 th:data-firstname="${patient.fullName != null && patient.fullName.contains(' ') ? patient.fullName.substring(0, patient.fullName.indexOf(' ')) : patient.fullName}">
                 Good day
             </h1>
-            <p class="portal-subdate" id="currentDateText">Welcome to your digital optical &amp; clinical summary</p>
-        </header>
+            <p class="portal-greeting-sub">
+                <span id="currentDateDisplay">Today</span>
+                <span>&bull;</span>
+                <span>Patient ID: <span class="portal-patient-id-highlight" th:text="${patient.patientNo}">P-0000</span></span>
+            </p>
+        </div>
 
-        <!-- 1. Patient Profile Card -->
+        <!-- PATIENT PROFILE CARD -->
         <section class="portal-card">
             <div class="portal-card-header">
-                <div class="portal-card-title-group">
+                <div class="portal-card-header-left">
                     <svg class="portal-card-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
                     </svg>
-                    <h2 class="portal-card-title">Patient Profile</h2>
+                    <h2 class="portal-card-heading">PATIENT PROFILE</h2>
                 </div>
-                <span class="portal-badge-count" th:text="'Status: ' + (${patient.active} ? 'Active' : 'Inactive')">Status: Active</span>
+                <div class="portal-card-header-right">
+                    <span class="portal-status-badge" th:text="'Status: ' + (${patient.active} ? 'Active' : 'Inactive')">Status: Active</span>
+                    
+                    <!-- BOOK CONSULTATION BUTTON (Exactly one on the page, in profile header right of status badge with 10px gap) -->
+                    <button type="button" class="portal-book-btn" id="openBookingBtn">
+                        <svg class="portal-book-btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
+                        <span>Book Consultation</span>
+                    </button>
+                </div>
             </div>
 
-            <div class="portal-card-body">
-                <div class="profile-flex">
-                    
-                    <!-- Identity Summary -->
-                    <div class="profile-identity">
-                        <div class="portal-avatar-lg"
-                             th:text="${patient.fullName != null && !patient.fullName.isEmpty() ? (patient.fullName.contains(' ') ? patient.fullName.substring(0,1) + patient.fullName.substring(patient.fullName.indexOf(' ') + 1, patient.fullName.indexOf(' ') + 2) : patient.fullName.substring(0,1)) : 'P'}">
-                            EF
+            <div class="portal-profile-body">
+                <div class="portal-profile-identity">
+                    <div class="portal-avatar-lg"
+                         th:text="${patient.fullName != null && !patient.fullName.isEmpty() ? (patient.fullName.contains(' ') ? patient.fullName.substring(0,1) + patient.fullName.substring(patient.fullName.indexOf(' ') + 1, patient.fullName.indexOf(' ') + 2) : patient.fullName.substring(0,1)) : 'P'}">
+                        EF
+                    </div>
+                    <div>
+                        <div class="portal-profile-name-row">
+                            <h3 class="portal-profile-full-name" th:text="${patient.fullName}">Patient Full Name</h3>
+                            <span class="portal-patient-no-badge" th:text="${patient.patientNo}">P-0007</span>
                         </div>
-                        <div>
-                            <div class="profile-name-group">
-                                <h3 class="profile-full-name" th:text="${patient.fullName}">Patient Name</h3>
-                                <span class="profile-id-tag" th:text="${patient.patientNo}">P-0007</span>
-                            </div>
+                        <div class="portal-profile-subline">
+                            <span th:text="${patient.age != null ? (patient.age >= 18 ? 'Registered Adult Patient' : 'Registered Minor Patient') : 'Registered Patient'}">Registered Adult Patient</span>
+                            <span th:if="${patient.registeredOn != null}"> &bull; Registered on <span th:text="${#temporals.format(patient.registeredOn, 'dd MMM yyyy')}">01 Jan 2026</span></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="portal-tiles-grid">
+                    <!-- Date of Birth -->
+                    <div class="portal-tile">
+                        <div class="portal-tile-label">DATE OF BIRTH</div>
+                        <div class="portal-tile-val mono" th:text="${patient.dob} ?: '—'">1998-07-27</div>
+                        <div class="portal-tile-sub" th:if="${patient.age != null}" th:text="'Age ' + ${patient.age} + ' years'">Age 28 years</div>
+                    </div>
+
+                    <!-- Primary Phone -->
+                    <div class="portal-tile">
+                        <div class="portal-tile-label">PRIMARY PHONE</div>
+                        <div class="portal-tile-val mono" 
+                             th:text="${patient.phone != null && !patient.phone.isBlank() ? patient.phone : 'Not provided'}"
+                             th:classappend="${patient.phone == null || patient.phone.isBlank() ? 'portal-tile-val-muted' : ''}">
+                            +94773247985
                         </div>
                     </div>
 
-                    <!-- Info Tiles Grid -->
-                    <div class="profile-tiles-grid">
-                        
-                        <!-- Date of Birth & Age -->
-                        <div class="profile-tile">
-                            <div class="profile-tile-label">Date of Birth</div>
-                            <div class="profile-tile-val" th:text="${patient.dob} ?: '—'">1998-07-27</div>
-                            <div class="profile-tile-sub" th:if="${patient.age != null}" th:text="'Age ' + ${patient.age} + ' years'">Age 28 years</div>
+                    <!-- Email Address -->
+                    <div class="portal-tile">
+                        <div class="portal-tile-label">EMAIL ADDRESS</div>
+                        <div class="portal-tile-val" 
+                             th:text="${patient.email != null && !patient.email.isBlank() ? patient.email : 'Not provided'}"
+                             th:classappend="${patient.email == null || patient.email.isBlank() ? 'portal-tile-val-muted' : ''}">
+                            Not provided
                         </div>
-
-                        <!-- Phone -->
-                        <div class="profile-tile">
-                            <div class="profile-tile-label">Primary Phone</div>
-                            <div class="profile-tile-val mono" 
-                                 th:text="${patient.phone != null && !patient.phone.isBlank() ? patient.phone : 'Not provided'}"
-                                 th:classappend="${patient.phone == null || patient.phone.isBlank() ? 'text-muted-val' : ''}">
-                                +94773247985
-                            </div>
-                        </div>
-
-                        <!-- Email -->
-                        <div class="profile-tile">
-                            <div class="profile-tile-label">Email Address</div>
-                            <div class="profile-tile-val" 
-                                 th:text="${patient.email != null && !patient.email.isBlank() ? patient.email : 'Not provided'}"
-                                 th:classappend="${patient.email == null || patient.email.isBlank() ? 'text-muted-val' : ''}">
-                                Not provided
-                            </div>
-                        </div>
-
                     </div>
 
+                    <!-- Gender (optional if data exists) -->
+                    <div class="portal-tile" th:if="${patient.gender != null && !patient.gender.isBlank()}">
+                        <div class="portal-tile-label">GENDER</div>
+                        <div class="portal-tile-val" th:text="${patient.gender}">Male</div>
+                    </div>
+
+                    <!-- Blood Group (optional if data exists) -->
+                    <div class="portal-tile" th:if="${patient.bloodGroup != null && !patient.bloodGroup.isBlank()}">
+                        <div class="portal-tile-label">BLOOD GROUP</div>
+                        <div class="portal-tile-val" th:text="${patient.bloodGroup}">O+</div>
+                    </div>
+
+                    <!-- Address (optional if data exists) -->
+                    <div class="portal-tile" th:if="${patient.address != null && !patient.address.isBlank()}">
+                        <div class="portal-tile-label">ADDRESS</div>
+                        <div class="portal-tile-val" th:text="${patient.address}">Address</div>
+                    </div>
                 </div>
             </div>
         </section>
 
-        <!-- 2. Spectacle Orders Section -->
+        <!-- SPECTACLE ORDERS CARD -->
         <section class="portal-card">
             <div class="portal-card-header">
-                <div class="portal-card-title-group">
+                <div class="portal-card-header-left">
                     <svg class="portal-card-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 13h2a3 3 0 003-3V9a3 3 0 00-3-3H3m18 7h-2a3 3 0 01-3-3V9a3 3 0 013-3h2m-10 4h2"/>
                     </svg>
-                    <h2 class="portal-card-title">Spectacle Orders</h2>
-                    <span class="portal-badge-count" th:text="${orders.size() + (orders.size() == 1 ? ' Order' : ' Orders')}">0 Orders</span>
+                    <h2 class="portal-card-heading">SPECTACLE ORDERS</h2>
+                    <span class="portal-count-pill" th:text="${orders.size() + (orders.size() == 1 ? ' Order' : ' Orders')}">0 Orders</span>
                 </div>
-                <span class="portal-card-subtitle">Synced with Nethcare Dispensary</span>
+                <span class="portal-header-subtext">Synced with Nethcare Dispensary</span>
             </div>
 
-            <div class="portal-card-body">
-                <!-- Orders Populated List -->
+            <div class="portal-orders-body">
+                <!-- With Orders -->
                 <div th:if="${!orders.isEmpty()}">
-                    <div th:each="order : ${orders}" class="spec-order-item">
-                        <div class="spec-order-flex">
-                            
-                            <!-- Frame Graphic Box Placeholder -->
-                            <div class="spec-image-col">
-                                <div class="spec-image-box">
-                                    <svg class="spec-placeholder-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 13h2a3 3 0 003-3V9a3 3 0 00-3-3H3m18 7h-2a3 3 0 01-3-3V9a3 3 0 013-3h2m-10 4h2"/>
-                                    </svg>
-                                    <span class="spec-placeholder-label">Nethcare Eyewear</span>
+                    <div th:each="order : ${orders}" class="portal-order-card">
+                        <div class="portal-order-top-row">
+                            <div>
+                                <div class="portal-order-title-wrap">
+                                    <h3 class="portal-order-title" 
+                                        th:text="${order.frame != null ? (order.frame.brand + ' ' + order.frame.model) : 'Spectacle Eyewear Order'}">
+                                        Spectacle Eyewear Order
+                                    </h3>
+                                    
+                                    <!-- Status Badge -->
+                                    <span th:if="${order.status != null && order.status.name() == 'COLLECTED'}" class="portal-badge-collected">
+                                        <span class="portal-badge-dot"></span>
+                                        <span th:text="${order.status.label()}">Collected</span>
+                                    </span>
+                                    <span th:if="${order.status != null && (order.status.name() == 'PLACED' || order.status.name() == 'LAB' || order.status.name() == 'READY')}" class="portal-badge-inprogress">
+                                        <span class="portal-badge-dot"></span>
+                                        <span th:text="${order.status.label()}">In Progress</span>
+                                    </span>
+                                    <span th:if="${order.status == null || order.status.name() == 'CANCELLED'}" class="portal-badge-default">
+                                        <span class="portal-badge-dot"></span>
+                                        <span th:text="${order.status != null ? order.status.label() : 'Cancelled'}">Cancelled</span>
+                                    </span>
+                                </div>
+                                <div class="portal-order-date-line">
+                                    Purchased on <strong th:text="${#temporals.format(order.orderedOn, 'dd MMM yyyy')}">28 Sep 2026</strong>
+                                    <span th:if="${order.placedBy != null && !order.placedBy.isBlank()}" th:text="' &bull; Handled by ' + ${order.placedBy}"></span>
                                 </div>
                             </div>
 
-                            <!-- Spectacle Details & Specifications -->
-                            <div class="spec-details-col">
-                                
-                                <!-- Header Row -->
-                                <div class="spec-order-head">
-                                    <div>
-                                        <div class="spec-order-title-group">
-                                            <h3 class="spec-order-title" 
-                                                th:text="${order.frame != null ? (order.frame.brand + ' ' + order.frame.model) : 'Spectacle Eyewear Order'}">
-                                                Spectacle Eyewear Order
-                                            </h3>
-                                            
-                                            <!-- Replacement Status Tag -->
-                                            <span th:if="${order.status != null && order.status.name() == 'COLLECTED'}" 
-                                                  class="tag-status-collected"
-                                                  th:text="'COLLECTED' + (${order.collectedOn != null} ? ' · ' + ${#strings.toUpperCase(#temporals.format(order.collectedOn, 'dd MMM yyyy'))} : '')">
-                                                COLLECTED · 28 SEP 2026
-                                            </span>
-                                            <span th:if="${order.status == null || order.status.name() != 'COLLECTED'}" 
-                                                  class="tag-status-default"
-                                                  th:text="${order.status != null ? #strings.toUpperCase(order.status.label()) : 'IN PROGRESS'}">
-                                                IN PROGRESS
-                                            </span>
-                                        </div>
-                                        <p class="spec-order-meta">Purchased on <strong th:text="${order.orderedOn}">2026-09-28</strong></p>
-                                    </div>
+                            <div class="portal-order-ref-block">
+                                <div class="portal-order-ref-label">Order ref</div>
+                                <div class="portal-order-ref-no" th:text="${order.orderNo}">#ORD-0001</div>
+                            </div>
+                        </div>
 
-                                    <div class="spec-order-ref-group">
-                                        <div class="spec-order-ref-label">Order Reference</div>
-                                        <div class="spec-order-ref-code" th:text="${order.orderNo}">#ORD-2026-0001</div>
-                                    </div>
-                                </div>
-
-                                <!-- Real Specifications Grid (shows only non-null existing fields) -->
-                                <div class="spec-grid">
-                                    <div class="spec-tile" th:if="${order.lensType != null && !order.lensType.isBlank()}">
-                                        <span class="spec-tile-label">Lens Type</span>
-                                        <span class="spec-tile-val" th:text="${order.lensType}">Anti-Reflective</span>
-                                    </div>
-
-                                    <div class="spec-tile" th:if="${order.frame != null}">
-                                        <span class="spec-tile-label">Frame</span>
-                                        <span class="spec-tile-val" th:text="${order.frame.brand + ' ' + order.frame.model}">Nethcare Frame</span>
-                                        <span class="spec-tile-sub" th:if="${order.frame.size != null}" th:text="'Size: ' + ${order.frame.size}">Size 52-18</span>
-                                    </div>
-
-                                    <div class="spec-tile" th:if="${order.coating != null && !order.coating.isBlank()}">
-                                        <span class="spec-tile-label">Coating</span>
-                                        <span class="spec-tile-val" th:text="${order.coating}">Hydrophobic</span>
-                                    </div>
-
-                                    <div class="spec-tile" th:if="${order.pupillaryDistance != null && !order.pupillaryDistance.isBlank()}">
-                                        <span class="spec-tile-label">PD</span>
-                                        <span class="spec-tile-val" th:text="${order.pupillaryDistance}">63 mm</span>
-                                    </div>
-
-                                    <div class="spec-tile" th:if="${order.promisedOn != null}">
-                                        <span class="spec-tile-label">Promised Date</span>
-                                        <span class="spec-tile-val" th:text="${order.promisedOn}">2026-10-01</span>
-                                    </div>
-
-                                    <div class="spec-tile" th:if="${order.remarks != null && !order.remarks.isBlank()}">
-                                        <span class="spec-tile-label">Remarks</span>
-                                        <span class="spec-tile-val" th:text="${order.remarks}">Remarks</span>
-                                    </div>
-                                </div>
-
+                        <!-- Real Spec Fields Grid -->
+                        <div class="portal-spec-grid">
+                            <div class="portal-spec-tile" th:if="${order.lensType != null && !order.lensType.isBlank()}">
+                                <span class="portal-spec-tile-label">Lens Type</span>
+                                <span class="portal-spec-tile-val" th:text="${order.lensType}">Anti-Reflective</span>
                             </div>
 
+                            <div class="portal-spec-tile" th:if="${order.frame != null}">
+                                <span class="portal-spec-tile-label">Frame Details</span>
+                                <span class="portal-spec-tile-val" th:text="${order.frame.brand + ' ' + order.frame.model}">Nethcare Frame</span>
+                                <span class="portal-spec-tile-sub" th:if="${order.frame.size != null}" th:text="'Size: ' + ${order.frame.size}">Size: 52-18</span>
+                            </div>
+
+                            <div class="portal-spec-tile" th:if="${order.coating != null && !order.coating.isBlank()}">
+                                <span class="portal-spec-tile-label">Coating</span>
+                                <span class="portal-spec-tile-val" th:text="${order.coating}">Hydrophobic</span>
+                            </div>
+
+                            <div class="portal-spec-tile" th:if="${order.pupillaryDistance != null && !order.pupillaryDistance.isBlank()}">
+                                <span class="portal-spec-tile-label">Pupillary Distance (PD)</span>
+                                <span class="portal-spec-tile-val" th:text="${order.pupillaryDistance}">63 mm</span>
+                            </div>
+
+                            <div class="portal-spec-tile" th:if="${order.promisedOn != null}">
+                                <span class="portal-spec-tile-label">Promised Date</span>
+                                <span class="portal-spec-tile-val" th:text="${#temporals.format(order.promisedOn, 'dd MMM yyyy')}">01 Oct 2026</span>
+                            </div>
+
+                            <div class="portal-spec-tile" th:if="${order.collectedOn != null}">
+                                <span class="portal-spec-tile-label">Collection Date</span>
+                                <span class="portal-spec-tile-val" th:text="${#temporals.format(order.collectedOn, 'dd MMM yyyy')}">28 Sep 2026</span>
+                            </div>
+
+                            <div class="portal-spec-tile" th:if="${order.remarks != null && !order.remarks.isBlank()}">
+                                <span class="portal-spec-tile-label">Remarks</span>
+                                <span class="portal-spec-tile-val" th:text="${order.remarks}">Remarks</span>
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Empty State -->
                 <div th:if="${orders.isEmpty()}" class="portal-empty-state">
-                    <div class="portal-empty-box">
-                        <div class="portal-empty-icon">
-                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 13h2a3 3 0 003-3V9a3 3 0 00-3-3H3m18 7h-2a3 3 0 01-3-3V9a3 3 0 013-3h2m-10 4h2"/>
-                            </svg>
-                        </div>
-                        <h4 class="portal-empty-title">No spectacle orders are linked yet.</h4>
-                        <p class="portal-empty-text">Orders appear here after staff link an in-store purchase to your patient record.</p>
+                    <div class="portal-empty-icon-square">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 13h2a3 3 0 003-3V9a3 3 0 00-3-3H3m18 7h-2a3 3 0 01-3-3V9a3 3 0 013-3h2m-10 4h2"/>
+                        </svg>
                     </div>
+                    <h4 class="portal-empty-title">No spectacle orders are linked yet.</h4>
+                    <p class="portal-empty-desc">Orders appear here after staff link an in-store purchase to your patient record.</p>
                 </div>
-
             </div>
         </section>
 
-        <!-- 3. Prescriptions Section -->
-        <section class="portal-card">
+        <!-- PRESCRIPTIONS CARD -->
+        <section class="portal-card" id="prescriptions">
             <div class="portal-card-header">
-                <div class="portal-card-title-group">
+                <div class="portal-card-header-left">
                     <svg class="portal-card-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                     </svg>
-                    <h2 class="portal-card-title">Prescriptions</h2>
+                    <h2 class="portal-card-heading">PRESCRIPTIONS</h2>
+                    <span class="portal-count-pill" th:text="${prescriptions.size() + (prescriptions.size() == 1 ? ' Prescription' : ' Prescriptions')}">0 Prescriptions</span>
                 </div>
-                <span class="portal-card-subtitle">Refraction examination history</span>
+                <span class="portal-header-subtext">Refraction examination history</span>
             </div>
 
-            <div class="portal-card-body">
-                <!-- Prescriptions Populated List -->
+            <div class="portal-rx-body">
+                <!-- With Prescriptions -->
                 <div th:if="${!prescriptions.isEmpty()}">
-                    <div th:each="rx : ${prescriptions}" class="rx-card-item">
-                        
-                        <!-- Rx Header Bar -->
-                        <div class="rx-card-head">
-                            <div class="rx-ref-title">
-                                <span>Optical Prescription</span>
-                                <span class="rx-ref-code" th:text="${rx.rxNo}">RX-2026-0001</span>
+                    <div th:each="rx : ${prescriptions}" class="portal-rx-block">
+                        <div class="portal-rx-top-bar">
+                            <div class="portal-rx-title-group">
+                                <h3 class="portal-rx-title">Standard Distance Refraction</h3>
+                                <span class="portal-rx-badge" th:text="${rx.rxNo}">RX-0001</span>
                             </div>
-                            <div class="rx-meta-date">
-                                Exam Date: <strong th:text="${rx.issuedOn}">2026-09-20</strong>
-                                <span th:if="${rx.issuedBy != null && !rx.issuedBy.isBlank()}" th:text="' · Issued by ' + ${rx.issuedBy}"></span>
+                            <div class="portal-rx-date-meta">
+                                Exam date: <span class="portal-rx-date-bold" th:text="${#temporals.format(rx.issuedOn, 'dd MMM yyyy')}">20 Sep 2026</span>
+                                <span th:if="${rx.issuedBy != null && !rx.issuedBy.isBlank()}" th:text="' &bull; Issued by ' + ${rx.issuedBy}"></span>
                             </div>
                         </div>
 
-                        <!-- Refraction Data Table -->
-                        <div class="rx-table-wrap">
-                            <table class="rx-table">
+                        <div class="portal-rx-table-container">
+                            <table class="portal-rx-table">
                                 <thead>
                                     <tr>
                                         <th>EYE</th>
-                                        <th class="mono">SPHERE (SPH)</th>
-                                        <th class="mono">CYLINDER (CYL)</th>
-                                        <th class="mono">AXIS</th>
-                                        <th class="mono">ADD</th>
+                                        <th>SPHERE (SPH)</th>
+                                        <th>CYLINDER (CYL)</th>
+                                        <th>AXIS</th>
+                                        <th>ADD</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr>
-                                        <td class="rx-eye-name">Right Eye (OD)</td>
-                                        <td class="mono rx-val" th:text="${rx.odSph} ?: '—'">-1.25</td>
-                                        <td class="mono rx-val" th:text="${rx.odCyl} ?: '—'">-0.50</td>
-                                        <td class="mono rx-val" th:text="${rx.odAxis} ?: '—'">175°</td>
-                                        <td class="mono rx-val" th:text="${rx.odAdd} ?: '—'">—</td>
+                                        <td style="font-weight: 700;">Right Eye (OD)</td>
+                                        <td class="mono sph" th:text="${rx.odSph} ?: '—'" th:classappend="${rx.odSph == null ? 'muted-dash' : ''}">-1.25</td>
+                                        <td class="mono cyl" th:text="${rx.odCyl} ?: '—'" th:classappend="${rx.odCyl == null ? 'muted-dash' : ''}">-0.50</td>
+                                        <td class="mono" th:text="${rx.odAxis} ?: '—'" th:classappend="${rx.odAxis == null ? 'muted-dash' : ''}">175°</td>
+                                        <td class="mono" th:text="${rx.odAdd} ?: '—'" th:classappend="${rx.odAdd == null ? 'muted-dash' : ''}">—</td>
                                     </tr>
                                     <tr>
-                                        <td class="rx-eye-name">Left Eye (OS)</td>
-                                        <td class="mono rx-val" th:text="${rx.osSph} ?: '—'">-1.50</td>
-                                        <td class="mono rx-val" th:text="${rx.osCyl} ?: '—'">-0.75</td>
-                                        <td class="mono rx-val" th:text="${rx.osAxis} ?: '—'">005°</td>
-                                        <td class="mono rx-val" th:text="${rx.osAdd} ?: '—'">—</td>
+                                        <td style="font-weight: 700;">Left Eye (OS)</td>
+                                        <td class="mono sph" th:text="${rx.osSph} ?: '—'" th:classappend="${rx.osSph == null ? 'muted-dash' : ''}">-1.50</td>
+                                        <td class="mono cyl" th:text="${rx.osCyl} ?: '—'" th:classappend="${rx.osCyl == null ? 'muted-dash' : ''}">-0.75</td>
+                                        <td class="mono" th:text="${rx.osAxis} ?: '—'" th:classappend="${rx.osAxis == null ? 'muted-dash' : ''}">005°</td>
+                                        <td class="mono" th:text="${rx.osAdd} ?: '—'" th:classappend="${rx.osAdd == null ? 'muted-dash' : ''}">—</td>
                                     </tr>
                                 </tbody>
                             </table>
                         </div>
 
-                        <!-- Notes Bar -->
-                        <div class="rx-notes-bar" th:if="${rx.notes != null && !rx.notes.isBlank()}">
-                            <strong>Clinical Notes:</strong> <span th:text="${rx.notes}">Notes</span>
+                        <div class="portal-rx-bottom-bar" th:if="${rx.notes != null && !rx.notes.isBlank()}">
+                            <strong>Examiner advice:</strong> <span th:text="${rx.notes}">Clinical advice text</span>
                         </div>
-
                     </div>
                 </div>
 
                 <!-- Empty State -->
                 <div th:if="${prescriptions.isEmpty()}" class="portal-empty-state">
-                    <div class="portal-empty-box">
-                        <div class="portal-empty-icon">
-                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                            </svg>
-                        </div>
-                        <h4 class="portal-empty-title">No prescriptions have been issued.</h4>
+                    <div class="portal-empty-icon-square">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
                     </div>
+                    <h4 class="portal-empty-title">No prescriptions have been issued.</h4>
                 </div>
-
             </div>
         </section>
 
     </main>
 
-    <!-- Clean Minimal Footer -->
+    <!-- FOOTER BAR -->
     <footer class="portal-footer">
         <div class="portal-footer-inner">
-            <div>Nethcare Patient Portal</div>
-            <div>&copy; <span id="currentYear">2026</span> Nethcare Eye Clinic</div>
+            <div class="portal-footer-left">
+                <span>Last updated: <span id="lastUpdatedTime">--:--</span></span>
+                <span class="portal-footer-dot"></span>
+                <button type="button" class="portal-refresh-btn" id="refreshPageBtn">
+                    <svg class="portal-refresh-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                    </svg>
+                    <span>Refresh</span>
+                </button>
+            </div>
+            <div>&copy; <span id="footerYear">2026</span> Nethcare Eye Clinic</div>
         </div>
     </footer>
 
+    <!-- REAL CLINIC CONTACT DIALOG (Opened by Book Consultation button) -->
+    <dialog class="portal-dialog" id="bookingContactModal">
+        <div class="portal-dialog-header">
+            <h3 class="portal-dialog-title">Book a Consultation</h3>
+        </div>
+        <div class="portal-dialog-body">
+            <p style="margin: 0 0 6px 0;">To schedule an eye examination or optical consultation, please contact our clinic desk directly:</p>
+            
+            <div class="portal-dialog-item">
+                <span class="portal-dialog-item-label">CLINIC / CENTRE</span>
+                <span class="portal-dialog-item-val">Neth Opticians &bull; Siri Suwasetha Medical Centre</span>
+            </div>
+
+            <div class="portal-dialog-item">
+                <span class="portal-dialog-item-label">TELEPHONE / HOTLINE</span>
+                <span class="portal-dialog-item-val mono">+94 112 532 153</span>
+            </div>
+
+            <div class="portal-dialog-item">
+                <span class="portal-dialog-item-label">LOCATION</span>
+                <span class="portal-dialog-item-val">No. 470, Kolonnawa Road, Kolonnawa</span>
+            </div>
+        </div>
+        <div class="portal-dialog-footer">
+            <button type="button" class="portal-dialog-close-btn" id="closeBookingBtn">Close</button>
+        </div>
+    </dialog>
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Time-aware greeting
             var now = new Date();
             var hours = now.getHours();
             var greeting = "Good morning";
@@ -352,19 +395,67 @@
             } else if (hours >= 17) {
                 greeting = "Good evening";
             }
-            var greetingEl = document.getElementById('greetingText');
-            if (greetingEl) {
-                var firstName = greetingEl.getAttribute('data-firstname') || '';
-                greetingEl.textContent = greeting + (firstName ? ', ' + firstName : '') + '!';
+            var greetingTitle = document.getElementById('greetingTitle');
+            if (greetingTitle) {
+                var firstName = greetingTitle.getAttribute('data-firstname') || '';
+                greetingTitle.textContent = greeting + (firstName ? ', ' + firstName : '') + '!';
             }
-            var dateEl = document.getElementById('currentDateText');
-            if (dateEl) {
-                var options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-                dateEl.textContent = now.toLocaleDateString('en-US', options);
+
+            // Today's date display
+            var currentDateDisplay = document.getElementById('currentDateDisplay');
+            if (currentDateDisplay) {
+                var dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                currentDateDisplay.textContent = now.toLocaleDateString('en-US', dateOptions);
             }
-            var yearEl = document.getElementById('currentYear');
-            if (yearEl) {
-                yearEl.textContent = now.getFullYear();
+
+            // Footer last updated time (HH:MM 24-hour)
+            var lastUpdatedTime = document.getElementById('lastUpdatedTime');
+            if (lastUpdatedTime) {
+                var h = String(now.getHours()).padStart(2, '0');
+                var m = String(now.getMinutes()).padStart(2, '0');
+                lastUpdatedTime.textContent = h + ':' + m;
+            }
+
+            // Footer year
+            var footerYear = document.getElementById('footerYear');
+            if (footerYear) {
+                footerYear.textContent = now.getFullYear();
+            }
+
+            // Refresh button
+            var refreshBtn = document.getElementById('refreshPageBtn');
+            if (refreshBtn) {
+                refreshBtn.addEventListener('click', function() {
+                    refreshBtn.classList.add('spinning');
+                    setTimeout(function() {
+                        window.location.reload();
+                    }, 250);
+                });
+            }
+
+            // Book Consultation Modal
+            var openBookingBtn = document.getElementById('openBookingBtn');
+            var closeBookingBtn = document.getElementById('closeBookingBtn');
+            var bookingModal = document.getElementById('bookingContactModal');
+
+            if (openBookingBtn && bookingModal) {
+                openBookingBtn.addEventListener('click', function() {
+                    if (typeof bookingModal.showModal === 'function') {
+                        bookingModal.showModal();
+                    } else {
+                        bookingModal.setAttribute('open', 'true');
+                    }
+                });
+            }
+
+            if (closeBookingBtn && bookingModal) {
+                closeBookingBtn.addEventListener('click', function() {
+                    if (typeof bookingModal.close === 'function') {
+                        bookingModal.close();
+                    } else {
+                        bookingModal.removeAttribute('open');
+                    }
+                });
             }
         });
     </script>
