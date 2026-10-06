@@ -3,99 +3,444 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title th:text="'Patient ' + ${patient.patientNo} + ' — Nethcare'">Patient</title>
+    <title th:text="'Patient ' + ${patient.patientNo} + ' — Nethcare'">Patient Summary — Nethcare</title>
     <link rel="icon" type="image/png" th:href="@{/images/nethcare-logo.png}">
     <link rel="stylesheet" th:href="@{/css/staff.css}">
-    <style>
-        body { font-family: system-ui, sans-serif; background: #f5f6f8; margin: 0; padding: 2rem; }
-        .wrap { max-width: 620px; margin: 0 auto; }
-        .card { background: #fff; border-radius: 8px; padding: 2rem;
-                box-shadow: 0 2px 12px rgba(0,0,0,.08); }
-        h1 { font-size: 1.4rem; margin: 0 0 .3rem; color: #1a3a5c; }
-        .no { display: inline-block; font-size: .7rem; letter-spacing: .06em;
-              background: #e8eef4; color: #1a3a5c; padding: .25rem .6rem;
-              border-radius: 3px; margin-bottom: 1.5rem; }
-        dl { display: grid; grid-template-columns: 130px 1fr; gap: .55rem .8rem;
-             font-size: .9rem; margin: 0 0 1.5rem; }
-        dt { color: #888; font-size: .78rem; letter-spacing: .03em; }
-        dd { margin: 0; color: #333; }
-        a { color: #1a3a5c; }
-        h2 { font-size: .95rem; color: #1a3a5c; margin: 0 0 .8rem; }
-        .visits { list-style: none; padding: 0; margin: 0 0 1.5rem; }
-        .visits li { padding: .7rem 0; border-bottom: 1px solid #f0f0f0; font-size: .88rem; }
-        .visits .when { color: #888; font-size: .78rem; }
-        .none { color: #999; font-size: .88rem; padding: .7rem 0; }
-        .notice { padding:.8rem; border-radius:4px; margin-bottom:1rem; background:#e9f7ee; }
-        .credential { padding:1rem; background:#fff6d8; border:1px solid #efcf65; margin-bottom:1rem; }
-        .danger { margin-top:1.5rem; padding-top:1rem; border-top:1px solid #eee; }
-    </style>
+    <link rel="stylesheet" th:href="@{/css/patient-detail.css}">
 </head>
-<body>
+<body class="patient-detail-body">
 <div th:replace="~{staff/fragments :: bar('patients', ${currentUser})}"></div>
-<div class="wrap">
-    <div class="card">
-        <h1 th:text="${patient.fullName}">Name</h1>
-        <span class="no" th:text="${patient.patientNo}">P-0001</span>
-        <p class="notice" th:if="${success}" th:text="${success}"></p>
-        <div class="credential" th:if="${credential}"><strong>Portal credentials — show once:</strong><br>Username: <code th:text="${credential.username}"></code><br>Temporary password: <code th:text="${credential.temporaryPassword}"></code><br>The patient must change it at first login.</div>
-
-        <dl>
-            <dt>Date of birth</dt>   <dd th:text="${patient.dob}">dob</dd>
-            <dt>NIC</dt>             <dd th:text="${patient.nic} ?: '—'">nic</dd>
-            <dt>Gender</dt>          <dd th:text="${patient.gender} ?: '—'">gender</dd>
-            <dt>Phone</dt>           <dd th:text="${patient.phone} ?: '—'">phone</dd>
-            <dt>Email</dt>           <dd th:text="${patient.email} ?: '—'">email</dd>
-            <dt>Blood group</dt>     <dd th:text="${patient.bloodGroup} ?: '—'">bg</dd>
-            <dt>Address</dt>         <dd th:text="${patient.address} ?: '—'">address</dd>
-            <dt>Registered</dt>      <dd th:text="${patient.registeredOn}">date</dd>
-            <dt>Guardian</dt>        <dd th:text="${patient.guardianName} ?: '—'">guardian</dd>
-            <dt>Guardian phone</dt>  <dd th:text="${patient.guardianPhone} ?: '—'">guardian phone</dd>
-            <dt>Status</dt>          <dd th:text="${patient.isActive ? 'Active' : 'Inactive'}">status</dd>
-            <dt>Consent recorded</dt><dd th:text="${patient.consentGiven ? patient.consentRecordedAt : 'No'}">consent</dd>
-        </dl>
-
-        <p><a th:href="@{/patients/{id}/edit(id=${patient.id})}">Edit patient details</a></p>
-
-        <p><a th:href="@{/examinations/new(patientId=${patient.id})}">Record a new clinical examination →</a></p>
-
-        <h2>Visit history</h2>
-
-        <table th:if="${!visits.isEmpty()}">
-            <thead>
-            <tr><th>Date</th><th>Tested by</th><th>Right</th><th>Left</th></tr>
-            </thead>
-            <tbody>
-            <tr th:each="v : ${visits}">
-                <td><a th:href="@{/examinations/{id}(id=${v.id})}" th:text="${v.examDate}">date</a></td>
-                <td th:text="${v.examinedBy}">by</td>
-                <td th:text="${v.odSph} + ' ' + ${v.odCyl}">R</td>
-                <td th:text="${v.osSph} + ' ' + ${v.osCyl}">L</td>
-            </tr>
-            </tbody>
-        </table>
-        <p class="none" th:if="${visits.isEmpty()}">No examinations recorded yet.</p>
-
-        <h2>Prescriptions</h2>
-
-        <table th:if="${!prescriptions.isEmpty()}">
-            <thead>
-            <tr><th>Rx</th><th>Issued</th><th>Right</th><th>Left</th></tr>
-            </thead>
-            <tbody>
-            <tr th:each="rx : ${prescriptions}">
-                <td th:text="${rx.rxNo}">RX</td>
-                <td th:text="${rx.issuedOn}">date</td>
-                <td th:text="${rx.odSph} + ' ' + ${rx.odCyl}">R</td>
-                <td th:text="${rx.osSph} + ' ' + ${rx.osCyl}">L</td>
-            </tr>
-            </tbody>
-        </table>
-        <p class="none" th:if="${prescriptions.isEmpty()}">No prescriptions issued yet.</p>
-
-        <a th:href="@{/patients}">← Back to patients</a>
-        <div class="danger" th:if="${patient.isActive}"><form th:action="@{/patients/{id}/deactivate(id=${patient.id})}" method="post"><label>Reason for deactivation <input name="reason" required maxlength="300"></label><button type="submit">Deactivate record</button></form></div>
-        <div class="danger" th:unless="${patient.isActive}"><p th:text="${patient.deactivationReason}"></p><form th:action="@{/patients/{id}/reactivate(id=${patient.id})}" method="post"><button type="submit">Reactivate record</button></form></div>
+<!-- Patient Summary Dedicated Sticky Topbar -->
+<header class="patients-topbar">
+    <div class="topbar-left-group">
+        <span class="topbar-pulse-dot"></span>
+        <span class="topbar-workspace-label">WORKSPACE</span>
+        <span class="topbar-slash-sep">/</span>
+        <a th:href="@{/patients}" class="topbar-link-text">Patients</a>
+        <span class="topbar-slash-sep">/</span>
+        <span class="topbar-workspace-title" th:text="${patient != null and patient.fullName != null ? patient.fullName : '—'}">Patient Name</span>
     </div>
-</div>
+
+    <div class="topbar-right-group">
+        <div class="topbar-user-block">
+            <div class="topbar-avatar" th:text="${currentUser != null and #strings.length(currentUser) >= 2 ? #strings.toUpperCase(#strings.substring(currentUser, 0, 2)) : 'AD'}">AD</div>
+            <span class="topbar-username" th:text="${currentUser != null ? currentUser : 'admin'}">admin</span>
+        </div>
+        
+        <div class="topbar-v-divider"></div>
+
+        <form th:action="@{/logout}" method="post" style="margin: 0; display: inline-flex;">
+            <button type="submit" class="topbar-signout-btn">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                <span>Sign out</span>
+            </button>
+        </form>
+    </div>
+</header>
+
+<main class="wrap" th:with="age=${patient != null and patient.dob != null ? T(java.time.Period).between(patient.dob, T(java.time.LocalDate).now()).getYears() : null}, isMinor=${patient != null and patient.dob != null and T(java.time.Period).between(patient.dob, T(java.time.LocalDate).now()).getYears() < 18}">
+    <div class="patient-summary-page">
+        
+        <!-- Success / Notice Flash Banner -->
+        <div class="notice-banner-box" th:if="${success}">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            <span th:text="${success}">Action completed successfully.</span>
+        </div>
+
+        <!-- Temporary Credential Alert Box -->
+        <div class="credential-alert-box" th:if="${credential}">
+            <strong>Portal credentials — show once:</strong><br>
+            Username: <code th:text="${credential.username}">username</code> &nbsp;|&nbsp; 
+            Temporary password: <code th:text="${credential.temporaryPassword}">password</code><br>
+            <small style="color: #92400E;">The patient must change this temporary password at their first login.</small>
+        </div>
+
+        <!-- Block 1: Navigation Bar Card -->
+        <div class="nav-bar-card">
+            <a th:href="@{/patients}" class="nav-back-link">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                <span>Back to patients</span>
+            </a>
+            <div></div>
+        </div>
+
+        <!-- Block 2: Patient Identity Card -->
+        <div class="summary-card-box identity-card">
+            <div class="identity-gradient-strip"></div>
+            
+            <div class="identity-main-row">
+                <div class="identity-left-group">
+                    <div class="patient-avatar-large" th:text="${patient != null and !#strings.isEmpty(patient.fullName) ? #strings.substring(patient.fullName, 0, 1) : 'P'}">P</div>
+                    <div class="identity-text-details">
+                        <div class="name-badges-row">
+                            <h1 class="patient-name-title" th:text="${patient.fullName} ?: '—'">Patient Full Name</h1>
+                            
+                            <!-- Patient No Badge -->
+                            <span class="no-badge-pill" th:text="${patient.patientNo} ?: '—'">P-0001</span>
+
+                            <!-- Age Category Badge -->
+                            <span class="badge-minor-amber" th:if="${isMinor}">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                                <span>Minor (Under 18)</span>
+                            </span>
+                            <span class="badge-adult-slate" th:unless="${isMinor}">
+                                <span>Adult (18+)</span>
+                            </span>
+
+                            <!-- Status Badge -->
+                            <span class="badge-status-active" th:if="${patient.isActive}">
+                                <span class="status-emerald-dot"></span>
+                                <span>Active Patient</span>
+                            </span>
+                            <span class="badge-status-inactive" th:unless="${patient.isActive}">
+                                <span>Inactive</span>
+                            </span>
+                        </div>
+
+                        <!-- Meta Line -->
+                        <div class="identity-meta-line">
+                            <span>Registered: <strong th:text="${patient.registeredOn} ?: '—'">2026-01-01</strong></span>
+                            <span class="meta-dot-sep" th:if="${age != null}">•</span>
+                            <span th:if="${age != null}">Age: <strong th:text="${age}">30</strong> years</span>
+                            <span class="meta-dot-sep" th:if="${patient.consentRecordedAt != null}">•</span>
+                            <span th:if="${patient.consentRecordedAt != null}">Consent: <strong th:text="${#strings.length(patient.consentRecordedAt.toString()) >= 16 ? #strings.replace(#strings.substring(patient.consentRecordedAt.toString(), 0, 16), 'T', ' ') : patient.consentRecordedAt}">2026-01-01 10:00</strong></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Action Buttons -->
+                <div class="identity-actions-group">
+                    <a th:href="@{/patients/{id}/edit(id=${patient.id})}" class="btn-identity-edit">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 2 2h14a2 2 0 0 2 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                        <span>Edit patient details</span>
+                    </a>
+
+                    <a th:href="@{/examinations/new(patientId=${patient.id})}" class="btn-identity-exam">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect><line x1="12" y1="11" x2="12" y2="17"></line><line x1="9" y1="14" x2="15" y2="14"></line></svg>
+                        <span>Record examination</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Block 3: Guardian Banner (Only for Minors / when guardian info is present) -->
+        <div class="guardian-banner-card" th:if="${isMinor or (!#strings.isEmpty(patient.guardianName))}">
+            <div class="guardian-left-info">
+                <div class="amber-shield-icon">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                </div>
+                <div class="guardian-text-group">
+                    <div class="guardian-title-line">
+                        <h3 class="guardian-banner-title">Minor Protection &amp; Authorized Guardian</h3>
+                        <span class="child-tag-amber">CHILD PATIENT</span>
+                    </div>
+                    <p class="guardian-banner-desc">Clinical exams, pupillary dilation, and eyewear dispensing require guardian authorization.</p>
+                </div>
+            </div>
+
+            <div class="guardian-contact-whitebox">
+                <div class="guardian-box-item">
+                    <span class="guardian-box-label">DESIGNATED GUARDIAN</span>
+                    <span class="guardian-box-val" th:text="${patient.guardianName} ?: '—'">Guardian Name</span>
+                </div>
+                <div class="guardian-box-divider"></div>
+                <div class="guardian-box-item">
+                    <span class="guardian-box-label">EMERGENCY CONTACT</span>
+                    <a th:href="${patient.guardianPhone != null} ? 'tel:' + ${patient.guardianPhone} : '#'" 
+                       class="guardian-box-val tel-link" 
+                       th:text="${patient.guardianPhone} ?: '—'">+94 77 123 4567</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Block 4: Registration Details Card -->
+        <div class="summary-card-box registration-card">
+            <div class="card-header-row">
+                <h2 class="card-heading-title">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                    <span>REGISTRATION SPECIFICATION</span>
+                </h2>
+                <span class="card-header-subtext">Verified by optometrist front-desk</span>
+            </div>
+
+            <!-- Grid of Info Tiles -->
+            <div class="info-tiles-grid">
+                
+                <!-- Tile 1: Full Name -->
+                <div class="info-tile-box">
+                    <span class="tile-label-text">FULL LEGAL NAME</span>
+                    <span class="tile-val-text" th:text="${patient.fullName} ?: '—'">Patient Name</span>
+                </div>
+
+                <!-- Tile 2: Date of Birth -->
+                <div class="info-tile-box">
+                    <span class="tile-label-text">DATE OF BIRTH</span>
+                    <div class="tile-value-row">
+                        <span class="tile-val-text mono-val" style="white-space: nowrap;" th:text="${patient.dob} ?: '—'">1990-01-01</span>
+                        <span class="dob-age-pill" th:if="${age != null}" th:text="${age} + ' yrs'">30 yrs</span>
+                    </div>
+                </div>
+
+                <!-- Tile 3: NIC -->
+                <div class="info-tile-box">
+                    <span class="tile-label-text">NATIONAL IDENTITY CARD (NIC)</span>
+                    <div class="tile-value-row">
+                        <span class="tile-val-text mono-val" 
+                              th:classappend="${#strings.isEmpty(patient.nic)} ? ' empty-val' : ''"
+                              th:text="${!#strings.isEmpty(patient.nic) ? patient.nic : (isMinor ? 'Not required (minor)' : '—')}">NIC</span>
+                        <button type="button" 
+                                class="btn-copy-tile" 
+                                title="Copy NIC" 
+                                th:if="${!#strings.isEmpty(patient.nic)}"
+                                th:data-copy="${patient.nic}"
+                                onclick="copyText(this.getAttribute('data-copy'), this)">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Tile 4: Phone -->
+                <div class="info-tile-box">
+                    <span class="tile-label-text">PRIMARY PHONE</span>
+                    <div class="tile-value-row">
+                        <span class="tile-val-text mono-val" 
+                              th:classappend="${#strings.isEmpty(patient.phone)} ? ' empty-val' : ''"
+                              th:text="${patient.phone} ?: '—'">Phone</span>
+                        <button type="button" 
+                                class="btn-copy-tile" 
+                                title="Copy phone" 
+                                th:if="${!#strings.isEmpty(patient.phone)}"
+                                th:data-copy="${patient.phone}"
+                                onclick="copyText(this.getAttribute('data-copy'), this)">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Tile 5: Gender -->
+                <div class="info-tile-box">
+                    <span class="tile-label-text">GENDER</span>
+                    <span class="tile-val-text" 
+                          th:classappend="${#strings.isEmpty(patient.gender)} ? ' empty-val' : ''"
+                          th:text="${patient.gender} ?: '—'">Gender</span>
+                </div>
+
+                <!-- Tile 6: Blood Group -->
+                <div class="info-tile-box">
+                    <span class="tile-label-text">BLOOD GROUP</span>
+                    <span class="tile-val-text" 
+                          th:classappend="${#strings.isEmpty(patient.bloodGroup)} ? ' empty-val' : ''"
+                          th:text="${patient.bloodGroup} ?: '—'">O+</span>
+                </div>
+
+                <!-- Tile 7: Email -->
+                <div class="info-tile-box">
+                    <span class="tile-label-text">EMAIL ADDRESS</span>
+                    <span class="tile-val-text mono-val" 
+                          th:classappend="${#strings.isEmpty(patient.email)} ? ' empty-val' : ''"
+                          th:text="${patient.email} ?: '—'">Email</span>
+                </div>
+
+                <!-- Tile 8: Residential Address (Spans 2 columns) -->
+                <div class="info-tile-box span-2col">
+                    <span class="tile-label-text">RESIDENTIAL ADDRESS</span>
+                    <span class="tile-val-text" 
+                          th:classappend="${#strings.isEmpty(patient.address)} ? ' empty-val' : ''"
+                          th:text="${patient.address} ?: '—'">Address</span>
+                </div>
+
+            </div>
+
+            <!-- Sub-section: Guardian vs Self-Consent -->
+            <div class="reg-card-sub-section">
+                
+                <!-- If Minor: Guardian & Legal Representative Details -->
+                <div th:if="${isMinor}">
+                    <h3 class="sub-section-title">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                        <span>GUARDIAN &amp; LEGAL REPRESENTATIVE DETAILS</span>
+                    </h3>
+
+                    <div class="amber-tiles-row">
+                        <div class="amber-tile-box">
+                            <span class="tile-label-text">GUARDIAN NAME</span>
+                            <span class="tile-val-text" th:text="${patient.guardianName} ?: '—'">Guardian Name</span>
+                        </div>
+                        <div class="amber-tile-box">
+                            <span class="tile-label-text">GUARDIAN PHONE</span>
+                            <div class="tile-value-row">
+                                <span class="tile-val-text mono-val" th:text="${patient.guardianPhone} ?: '—'">Guardian Phone</span>
+                                <button type="button" 
+                                        class="btn-copy-tile" 
+                                        title="Copy guardian phone" 
+                                        th:if="${!#strings.isEmpty(patient.guardianPhone)}"
+                                        th:data-copy="${patient.guardianPhone}"
+                                        onclick="copyText(this.getAttribute('data-copy'), this)">
+                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- If Adult & Consented: Self-Consent Confirmation -->
+                <div th:unless="${isMinor}" th:if="${patient.consentGiven}">
+                    <div class="adult-consent-verified-row">
+                        <div class="consent-left-info">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            <span>Self-consented adult patient. No guardian representative required for clinical decisions.</span>
+                        </div>
+                        <span class="consent-tag-right">Consent verified</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Block 5: Visit History & Prescriptions Side-by-Side Cards -->
+        <div class="history-prescriptions-grid">
+            
+            <!-- Card A: Visit History -->
+            <div class="summary-card-box history-column-card">
+                <div class="card-header-row">
+                    <h2 class="card-heading-title">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                        <span>VISIT HISTORY</span>
+                    </h2>
+                    <span class="count-pill-gray" th:text="${visits.size()} + ' visits'">0 visits</span>
+                </div>
+
+                <div class="card-content-fill">
+                    <!-- Table if visits present -->
+                    <table class="history-table" th:if="${!visits.isEmpty()}">
+                        <thead>
+                        <tr><th>Date</th><th>Tested by</th><th>Right</th><th>Left</th></tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="v : ${visits}">
+                            <td><a th:href="@{/examinations/{id}(id=${v.id})}" th:text="${v.examDate}">2026-01-01</a></td>
+                            <td th:text="${v.examinedBy}">Dr. Smith</td>
+                            <td th:text="${v.odSph} + ' ' + ${v.odCyl}">R</td>
+                            <td th:text="${v.osSph} + ' ' + ${v.osCyl}">L</td>
+                        </tr>
+                        </tbody>
+                    </table>
+
+                    <!-- Dashed empty state if no visits -->
+                    <div class="dashed-empty-box" th:if="${visits.isEmpty()}">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="dashed-empty-icon"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect><line x1="10" y1="11" x2="14" y2="15"></line><line x1="14" y1="11" x2="10" y2="15"></line></svg>
+                        <p class="empty-title-line">No examinations recorded yet</p>
+                        <p class="empty-sub-line">Click below to record a new clinical examination.</p>
+                    </div>
+                </div>
+
+                <!-- Footer Action Button -->
+                <div class="card-footer-action-wrap">
+                    <a th:href="@{/examinations/new(patientId=${patient.id})}" class="btn-footer-blue">
+                        <span>Record a new clinical examination</span>
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Card B: Prescriptions -->
+            <div class="summary-card-box history-column-card">
+                <div class="card-header-row">
+                    <h2 class="card-heading-title">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="12" r="3"></circle><line x1="9" y1="12" x2="15" y2="12"></line></svg>
+                        <span>PRESCRIPTIONS</span>
+                    </h2>
+                    <span class="count-pill-gray" th:text="${prescriptions.size()} + ' orders'">0 orders</span>
+                </div>
+
+                <div class="card-content-fill">
+                    <!-- Table if prescriptions present -->
+                    <table class="history-table" th:if="${!prescriptions.isEmpty()}">
+                        <thead>
+                        <tr><th>Rx</th><th>Issued</th><th>Right</th><th>Left</th></tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="rx : ${prescriptions}">
+                            <td th:text="${rx.rxNo}">RX-001</td>
+                            <td th:text="${rx.issuedOn}">2026-01-01</td>
+                            <td th:text="${rx.odSph} + ' ' + ${rx.odCyl}">R</td>
+                            <td th:text="${rx.osSph} + ' ' + ${rx.osCyl}">L</td>
+                        </tr>
+                        </tbody>
+                    </table>
+
+                    <!-- Dashed empty state if no prescriptions -->
+                    <div class="dashed-empty-box" th:if="${prescriptions.isEmpty()}">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="dashed-empty-icon"><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="12" r="3"></circle><line x1="9" y1="12" x2="15" y2="12"></line></svg>
+                        <p class="empty-title-line">No prescriptions issued yet</p>
+                        <p class="empty-sub-line">Prescriptions are issued after a clinical exam.</p>
+                    </div>
+                </div>
+
+                <!-- Footer Action Button -->
+                <div class="card-footer-action-wrap">
+                    <a th:href="@{/examinations/new(patientId=${patient.id})}" class="btn-footer-gray">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                        <span>Issue frame &amp; lens prescription</span>
+                    </a>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Block 6: Deactivate / Reactivate Patient Record Card -->
+        <div class="summary-card-box deactivate-card-box" th:if="${patient.isActive}">
+            <div class="deactivate-left-text">
+                <h3 class="deactivate-title-rose">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                    <span>DEACTIVATE PATIENT RECORD</span>
+                </h3>
+                <p class="deactivate-sub-text">Deactivating hides the patient from active directory while preserving all clinical history.</p>
+            </div>
+
+            <form th:action="@{/patients/{id}/deactivate(id=${patient.id})}" method="post" class="deactivate-form-right">
+                <input type="text" name="reason" class="deactivate-input-field" placeholder="Reason for deactivation..." required maxlength="300">
+                <button type="submit" class="btn-deactivate-action">Deactivate record</button>
+            </form>
+        </div>
+
+        <div class="summary-card-box reactivate-card-box" th:unless="${patient.isActive}">
+            <div class="deactivate-left-text">
+                <h3 class="deactivate-title-rose" style="color: #475569;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                    <span>INACTIVE PATIENT RECORD</span>
+                </h3>
+                <p class="deactivate-sub-text" th:text="'Reason: ' + (${patient.deactivationReason} ?: 'Record deactivated.')">Reason: Deactivated</p>
+            </div>
+
+            <form th:action="@{/patients/{id}/reactivate(id=${patient.id})}" method="post" style="margin:0;">
+                <button type="submit" class="btn-reactivate-action">Reactivate record</button>
+            </form>
+        </div>
+
+    </div>
+</main>
+
+<!-- Copy Button Script -->
+<script>
+function copyText(text, btnElement) {
+    if (!text || text === '—' || text.includes('Not required')) return;
+    navigator.clipboard.writeText(text).then(function() {
+        const origSvg = btnElement.getAttribute('data-orig-svg') || btnElement.innerHTML;
+        btnElement.setAttribute('data-orig-svg', origSvg);
+        btnElement.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+        setTimeout(function() {
+            btnElement.innerHTML = origSvg;
+        }, 1500);
+    }).catch(function() {
+        const area = document.createElement('textarea');
+        area.value = text;
+        document.body.appendChild(area);
+        area.select();
+        document.execCommand('copy');
+        document.body.removeChild(area);
+    });
+}
+</script>
 </body>
 </html>
