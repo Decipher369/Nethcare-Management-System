@@ -1,54 +1,118 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Login — Nethcare Management System</title>
     <link rel="icon" type="image/png" th:href="@{/images/nethcare-logo.png}">
-    <style>
-        body { font-family: system-ui, sans-serif; background: #f5f6f8; display: flex;
-               align-items: center; justify-content: center; height: 100vh; margin: 0; }
-        .card { background: #fff; padding: 2.5rem; border-radius: 8px;
-                box-shadow: 0 2px 12px rgba(0,0,0,.1); width: 340px; }
-        .logo { display: block; width: 92px; height: 92px; object-fit: contain;
-                margin: 0 auto 1rem; }
-        h1 { font-size: 1.3rem; margin: 0 0 .25rem; color: #1a3a5c; }
-        p.sub { margin: 0 0 1.5rem; color: #666; font-size: .85rem; }
-        label { display: block; font-size: .8rem; margin-bottom: .3rem; color: #333; }
-        input { width: 100%; padding: .6rem; margin-bottom: 1rem; border: 1px solid #ccc;
-                border-radius: 4px; font-size: .95rem; box-sizing: border-box; }
-        button { width: 100%; padding: .65rem; background: #1a3a5c; color: #fff;
-                 border: none; border-radius: 4px; font-size: .95rem; cursor: pointer; }
-        .error { background: #fde8e8; color: #c0392b; padding: .6rem; border-radius: 4px;
-                 font-size: .85rem; margin-bottom: 1rem; }
-        .logout { background: #e8f5e9; color: #2e7d32; padding: .6rem; border-radius: 4px;
-                  font-size: .85rem; margin-bottom: 1rem; }
-        .hint { font-size: .75rem; color: #888; margin-top: 1.25rem; line-height: 1.5; }
-    </style>
+    <!-- Google Font Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/login.css}">
 </head>
 <body>
-<div class="card">
-    <img class="logo" th:src="@{/images/nethcare-logo.png}" alt="Nethcare logo">
-    <h1>Nethcare</h1>
-    <p class="sub">Neth Opticians — Management System</p>
+<div class="page-wrapper">
+    <div class="card">
+        <div class="header-group">
+            <img class="logo" th:src="@{/images/nethcare-logo.png}" alt="Nethcare logo">
+            <h1>Nethcare</h1>
+            <p class="sub">Neth Opticians — Management System</p>
+        </div>
 
-    <div th:if="${param.error}" class="error">Invalid username or password.</div>
-    <div th:if="${param.logout}" class="logout">You have been logged out.</div>
+        <!-- Banner for login error -->
+        <div id="errorBanner" th:if="${param.error != null or param.testError != null}" class="banner error-banner" role="alert">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+            </svg>
+            <span>Incorrect username or password.</span>
+        </div>
 
-    <form th:action="@{/login}" method="post">
-        <label for="username">Username</label>
-        <input type="text" id="username" name="username" autocomplete="username" autofocus required>
+        <!-- Banner for logout notice -->
+        <div th:if="${param.logout != null}" class="banner logout-banner" role="status">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+            </svg>
+            <span>You have been logged out.</span>
+        </div>
 
-        <label for="password">Password</label>
-        <input type="password" id="password" name="password" autocomplete="current-password" required>
+        <form id="loginForm" th:action="@{/login}" method="post">
+            <div class="field-group">
+                <label for="username">Username</label>
+                <div class="input-wrapper">
+                    <input type="text" id="username" name="username" autocomplete="username" autofocus required>
+                </div>
+            </div>
 
-        <button type="submit">Sign in</button>
-    </form>
+            <div class="field-group">
+                <label for="password">Password</label>
+                <div class="input-wrapper password-wrapper">
+                    <input type="password" id="password" name="password" autocomplete="current-password" required>
+                    <button type="button" id="togglePasswordBtn" class="toggle-password" aria-label="Show password" title="Show password">
+                        <svg id="eyeIcon" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                            <circle cx="12" cy="12" r="3"></circle>
+                        </svg>
+                        <svg id="eyeOffIcon" viewBox="0 0 24 24" aria-hidden="true" style="display: none;">
+                            <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                            <line x1="1" y1="1" x2="23" y2="23"></line>
+                        </svg>
+                    </button>
+                </div>
+            </div>
 
-    <p class="hint" th:if="${showHint}">
-        Dev accounts: admin/admin123, optician/optician123, staff/staff123,<br>
-        surgeon/surgeon123, patient/patient123
-    </p>
+            <div class="form-options">
+                <label class="remember-me">
+                    <input type="checkbox" name="remember-me" id="rememberMe">
+                    <span>Keep me signed in</span>
+                </label>
+            </div>
+
+            <button type="submit" id="submitBtn" class="submit-btn">
+                <span class="spinner" aria-hidden="true"></span>
+                <span id="btnText">Sign in</span>
+            </button>
+        </form>
+
+        <p class="hint" th:if="${showHint}">
+            <strong>Dev accounts:</strong> <code>admin/admin123</code>, <code>optician/optician123</code>, <code>staff/staff123</code>, <code>surgeon/surgeon123</code>, <code>patient/patient123</code>
+        </p>
+    </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Toggle password visibility
+        const togglePasswordBtn = document.getElementById('togglePasswordBtn');
+        const passwordInput = document.getElementById('password');
+        const eyeIcon = document.getElementById('eyeIcon');
+        const eyeOffIcon = document.getElementById('eyeOffIcon');
+
+        if (togglePasswordBtn && passwordInput) {
+            togglePasswordBtn.addEventListener('click', function () {
+                const isPassword = passwordInput.getAttribute('type') === 'password';
+                passwordInput.setAttribute('type', isPassword ? 'text' : 'password');
+                const labelText = isPassword ? 'Hide password' : 'Show password';
+                this.setAttribute('aria-label', labelText);
+                this.setAttribute('title', labelText);
+                eyeIcon.style.display = isPassword ? 'none' : 'block';
+                eyeOffIcon.style.display = isPassword ? 'block' : 'none';
+            });
+        }
+
+        // Loading state on form submit
+        const loginForm = document.getElementById('loginForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const btnText = document.getElementById('btnText');
+
+        if (loginForm && submitBtn && btnText) {
+            loginForm.addEventListener('submit', function () {
+                submitBtn.disabled = true;
+                submitBtn.classList.add('loading');
+                btnText.textContent = 'Signing in...';
+            });
+        }
+    });
+</script>
 </body>
 </html>

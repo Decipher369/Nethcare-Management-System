@@ -11,26 +11,46 @@
 <div class="content">
 <div th:replace="~{console/fragments :: mocknote}"></div>
 
-    <div class="kpis">
-        <div class="kpi">
-            <div class="k">Catalogue items</div>
-            <div class="v" th:text="${totalItems}">63</div>
-            <div class="sub">active lines</div>
+    <!-- Editorial Header matching front style -->
+    <div class="editorial-heading">
+        <div>
+            <p class="eyebrow">Dispensary &amp; Catalogue</p>
+            <h2>Stock Summary.<br><em>Frames &amp; inventory control.</em></h2>
+            <p class="lead">Dispensary items, low stock alerts, reorder thresholds, and unit valuation.</p>
         </div>
-        <div class="kpi alert">
-            <div class="k">Below reorder</div>
-            <div class="v" th:text="${lowCount}">7</div>
-            <div class="sub">need ordering</div>
-        </div>
-        <div class="kpi">
-            <div class="k">Stock value</div>
-            <div class="v" th:text="'LKR ' + ${stockValue}">LKR 1,284,000</div>
-            <div class="sub">at unit price</div>
+        <div style="display:flex; gap:10px;">
+            <a class="btn-editorial" th:href="@{/stock}">Inventory manager <span aria-hidden="true">↗</span></a>
         </div>
     </div>
 
-    <div class="panel">
-        <h2>Reorder list <span class="sp" th:text="${lowCount} + ' items'">7 items</span></h2>
+    <!-- Clean, practical KPI cards -->
+    <div class="kpis editorial">
+        <div class="kpi editorial-kpi">
+            <div>
+                <div class="k">Catalogue items</div>
+                <div class="v" th:text="${totalItems}">63</div>
+            </div>
+            <div class="sub">Active product lines</div>
+        </div>
+        <div class="kpi editorial-kpi alert">
+            <div>
+                <div class="k">Below reorder</div>
+                <div class="v" th:text="${lowCount}">7</div>
+            </div>
+            <div class="sub">Requires purchasing action</div>
+        </div>
+        <div class="kpi editorial-kpi">
+            <div>
+                <div class="k">Stock value</div>
+                <div class="v" th:text="'LKR ' + ${stockValue}">LKR 1,284,000</div>
+            </div>
+            <div class="sub">Total inventory at unit price</div>
+        </div>
+    </div>
+
+    <!-- Reorder list panel -->
+    <div class="panel editorial-panel">
+        <h2>Reorder list <span class="sp" th:text="${lowCount} + ' items requiring attention'">7 items</span></h2>
 
         <form class="filters" method="get" th:action="@{/reports/stock}">
             <div class="field">
@@ -51,20 +71,26 @@
                     <option>Everything</option>
                 </select>
             </div>
-            <button class="btn" type="submit">Apply</button>
+            <button class="btn" type="submit">Apply filter</button>
         </form>
 
         <table>
             <thead>
-            <tr><th>Code</th><th>Item</th><th>Category</th>
-                <th class="num">In stock</th><th class="num">Reorder at</th><th>Status</th></tr>
+            <tr>
+                <th>Code</th>
+                <th>Item</th>
+                <th>Category</th>
+                <th class="num">In stock</th>
+                <th class="num">Reorder at</th>
+                <th>Status</th>
+            </tr>
             </thead>
             <tbody>
             <tr th:each="r : ${rows}">
                 <td class="mono" th:text="${r[0]}">TR-204</td>
-                <td th:text="${r[1]}">Titan TR-204</td>
+                <td th:text="${r[1]}" style="font-weight:550;">Titan TR-204</td>
                 <td th:text="${r[2]}">Frames</td>
-                <td class="num" th:text="${r[3]}">2</td>
+                <td class="num" th:text="${r[3]}" style="font-weight:600;">2</td>
                 <td class="num" th:text="${r[4]}">4</td>
                 <td>
                     <span class="tag bad" th:if="${r[3] == '0'}">Out of stock</span>
@@ -73,9 +99,8 @@
             </tr>
             </tbody>
         </table>
-        <p class="note pad">
-            The same catalogue feeds the public frames page — ordering a frame in
-            here is what puts it on display.
+        <p class="note pad" style="border-top:1px solid var(--line-soft); margin:0;">
+            The same catalogue feeds the public frames page — ordering a frame in here is what puts it on display for patients.
         </p>
     </div>
 

@@ -11,8 +11,22 @@
 <div class="content">
 <div th:replace="~{console/fragments :: mocknote}"></div>
 
-    <div class="panel">
-        <h2>Period</h2>
+    <!-- Editorial Header matching front style -->
+    <div class="editorial-heading">
+        <div>
+            <p class="eyebrow">Financial Analytics · Kolonnawa</p>
+            <h2>Sales Report.<br><em>Billing &amp; revenue analysis.</em></h2>
+            <p class="lead">Aggregated turnover, customer advances, and outstanding order receivables.</p>
+        </div>
+        <div style="display:flex; gap:10px;">
+            <a class="btn-editorial secondary" th:href="@{/reports/sales.csv(from=${from},to=${to})}">Export CSV <span aria-hidden="true">↓</span></a>
+            <button class="btn-editorial" type="button" onclick="window.print()">Print / PDF <span aria-hidden="true">↗</span></button>
+        </div>
+    </div>
+
+    <!-- Filter Panel -->
+    <div class="panel editorial-panel" style="margin-top:0;">
+        <h2>Report period <span class="sp">Select date range</span></h2>
         <form class="filters" method="get" th:action="@{/reports/sales}">
             <div class="field">
                 <label for="from">From</label>
@@ -23,37 +37,43 @@
                 <input id="to" name="to" type="date" th:value="${to}">
             </div>
             <button class="btn" type="submit">Run report</button>
-            <button class="btn ghost" type="button" onclick="window.print()">Print / PDF</button>
-            <a class="btn ghost" th:href="@{/reports/sales.csv(from=${from},to=${to})}">Export CSV</a>
         </form>
     </div>
 
-    <div class="panel" th:if="${orphanPayments > 0}">
+    <div class="panel" th:if="${orphanPayments > 0}" style="border-left:4px solid var(--warn);">
         <p class="readonly pad" th:text="${orphanPayments} + ' payment record(s) reference a missing bill and require reconciliation.'">
             Orphan payments require reconciliation.
         </p>
     </div>
 
-    <div class="kpis">
-        <div class="kpi">
-            <div class="k">Total sales</div>
-            <div class="v" th:text="'LKR ' + ${monthTotal}">LKR 842,000</div>
-            <div class="sub" th:text="${monthBills} + ' bills'">141 bills</div>
+    <!-- Practical & Clear KPI Cards -->
+    <div class="kpis editorial" style="margin-top:20px;">
+        <div class="kpi editorial-kpi">
+            <div>
+                <div class="k">Total sales</div>
+                <div class="v" th:text="'LKR ' + ${monthTotal}">LKR 842,000</div>
+            </div>
+            <div class="sub" th:text="${monthBills} + ' bills recorded'">141 bills</div>
         </div>
-        <div class="kpi">
-            <div class="k">Advances taken</div>
-            <div class="v" th:text="'LKR ' + ${monthAdvances}">LKR 398,000</div>
-            <div class="sub">paid before collection</div>
+        <div class="kpi editorial-kpi">
+            <div>
+                <div class="k">Advances taken</div>
+                <div class="v" th:text="'LKR ' + ${monthAdvances}">LKR 398,000</div>
+            </div>
+            <div class="sub">Paid before collection</div>
         </div>
-        <div class="kpi alert">
-            <div class="k">Still outstanding</div>
-            <div class="v" th:text="'LKR ' + ${monthOutstanding}">LKR 61,500</div>
-            <div class="sub">balance left on orders</div>
+        <div class="kpi editorial-kpi alert">
+            <div>
+                <div class="k">Still outstanding</div>
+                <div class="v" th:text="'LKR ' + ${monthOutstanding}">LKR 61,500</div>
+            </div>
+            <div class="sub">Balance pending on orders</div>
         </div>
     </div>
 
-    <div class="panel">
-        <h2>Five month trend</h2>
+    <!-- 5 Month Trend -->
+    <div class="panel editorial-panel">
+        <h2>Five month trend <span class="sp">Monthly billing (LKR)</span></h2>
         <div class="pad">
             <div class="bars">
                 <div class="col" th:each="t : ${trend}">
@@ -65,19 +85,22 @@
         </div>
     </div>
 
-    <div class="panel">
-        <h2>Sales by category</h2>
+    <!-- Breakdown Table -->
+    <div class="panel editorial-panel">
+        <h2>Revenue by item category</h2>
         <table>
-            <thead><tr><th>Category</th><th class="num">Amount (LKR)</th><th class="num">Share</th></tr></thead>
+            <thead><tr><th>Category</th><th class="num">Amount (LKR)</th><th class="num">Share of total</th></tr></thead>
             <tbody>
             <tr th:each="c : ${byCategory}">
-                <td th:text="${c[0]}">Spectacles</td>
-                <td class="num" th:text="${c[1]}">612,000</td>
+                <td th:text="${c[0]}" style="font-weight:550;">Spectacles</td>
+                <td class="num" th:text="${c[1]}" style="font-weight:600;">612,000</td>
                 <td class="num" th:text="${c[2]}">72.7%</td>
             </tr>
             </tbody>
         </table>
-        <p class="note pad">Financial reports stay with the owner and admin.</p>
+        <p class="note pad" style="border-top:1px solid var(--line-soft); margin:0;">
+            Financial figures are restricted to administrator and auditor roles.
+        </p>
     </div>
 
 </div>

@@ -11,31 +11,53 @@
 <div class="content">
 <div th:replace="~{console/fragments :: mocknote}"></div>
 
-    <div class="kpis">
-        <div class="kpi">
-            <div class="k">Sales this month</div>
-            <div class="v" th:text="'LKR ' + ${salesThisMonth}">LKR 842,000</div>
-            <div class="sub">August 2026</div>
+    <!-- Editorial Welcome Hero matching front landing page -->
+    <section class="dashboard-hero">
+        <p class="eyebrow">Practice Overview · Kolonnawa</p>
+        <h2>Practice clearly.<br><em>Care beautifully.</em></h2>
+        <p class="lead">Real-time overview of clinic operations, store dispensing, patient review cohorts, and dispensary inventory.</p>
+        <div class="dashboard-hero-actions">
+            <a class="btn-editorial" th:href="@{/followups}">Patient review list <span aria-hidden="true">↗</span></a>
+            <a class="btn-editorial secondary" th:href="@{/reports/sales}">Sales report <span aria-hidden="true">↗</span></a>
+            <a class="btn-editorial secondary" th:href="@{/reports/stock}">Inventory status <span aria-hidden="true">↗</span></a>
         </div>
-        <div class="kpi">
-            <div class="k">Patients attended</div>
-            <div class="v" th:text="${patientsAttended}">196</div>
-            <div class="sub">this month</div>
+    </section>
+
+    <!-- Editorial KPI cards -->
+    <div class="kpis editorial">
+        <div class="kpi editorial-kpi">
+            <div>
+                <div class="k">Sales this month</div>
+                <div class="v" th:text="'LKR ' + ${salesThisMonth}">LKR 842,000</div>
+            </div>
+            <div class="sub">Total billed &amp; advance receipts</div>
         </div>
-        <div class="kpi">
-            <div class="k">Orders completed</div>
-            <div class="v" th:text="${ordersCompleted}">141</div>
-            <div class="sub">collected and paid</div>
+        <div class="kpi editorial-kpi">
+            <div>
+                <div class="k">Patients attended</div>
+                <div class="v" th:text="${patientsAttended}">196</div>
+            </div>
+            <div class="sub">Completed consultations</div>
         </div>
-        <div class="kpi alert">
-            <div class="k">Below reorder</div>
-            <div class="v" th:text="${lowStockCount}">7</div>
-            <div class="sub"><a th:href="@{/reports/stock}">view stock</a></div>
+        <div class="kpi editorial-kpi">
+            <div>
+                <div class="k">Orders completed</div>
+                <div class="v" th:text="${ordersCompleted}">141</div>
+            </div>
+            <div class="sub">Dispensed &amp; collected</div>
+        </div>
+        <div class="kpi editorial-kpi alert">
+            <div>
+                <div class="k">Below reorder</div>
+                <div class="v" th:text="${lowStockCount}">7</div>
+            </div>
+            <div class="sub"><a class="text-link-editorial" th:href="@{/reports/stock}">Review stock items <span>↗</span></a></div>
         </div>
     </div>
 
-    <div class="panel">
-        <h2>Monthly sales <span class="sp">last 5 months, LKR</span></h2>
+    <!-- Monthly sales trend -->
+    <div class="panel editorial-panel">
+        <h2>Monthly revenue <em>trend</em> <span class="sp">Last 5 months (LKR)</span></h2>
         <div class="pad">
             <div class="bars">
                 <div class="col" th:each="t : ${trend}">
@@ -44,34 +66,45 @@
                     <div class="mon" th:text="${t[0]}">Aug</div>
                 </div>
             </div>
-            <p class="note"><a th:href="@{/reports/sales}">Open the full sales report</a></p>
+            <div style="margin-top:14px; padding-top:12px; border-top:1px solid var(--line-soft); display:flex; justify-content:space-between; align-items:center;">
+                <span class="note">Figures aggregated across completed spectacles, lenses &amp; clinic services</span>
+                <a class="text-link-editorial" th:href="@{/reports/sales}">Open comprehensive sales report <span>↗</span></a>
+            </div>
         </div>
     </div>
 
-    <div class="panel">
-        <h2>Order status <span class="sp" th:text="${totalOrders} + ' orders in total'">141 orders</span></h2>
+    <!-- Order status distribution -->
+    <div class="panel editorial-panel">
+        <h2>Order fulfillment <em>breakdown</em> <span class="sp" th:text="${totalOrders} + ' active orders'">141 orders</span></h2>
         <div class="pad">
-            <div class="split">
+            <div class="split" style="border-radius:6px; height:28px;">
                 <div th:each="o : ${orderSplit}" th:class="${o[2]}"
                      th:style="'width:' + ${(T(java.lang.Integer).parseInt(o[1]) * 100 / 141)} + '%'"
                      th:text="${o[0]} + ' ' + ${o[1]}">Collected 84</div>
             </div>
-            <ul class="legend">
+            <ul class="legend" style="margin-top:12px;">
                 <li th:each="o : ${orderSplit}">
                     <i th:class="${o[2]}"></i>
-                    <span th:text="${o[0]}">Collected</span>
+                    <span th:text="${o[0]}" style="font-weight:500;">Collected</span>
                     <span class="n" th:text="${o[1]}">84</span>
                 </li>
             </ul>
-            <p class="note"><a th:href="@{/reports/orders}">Open the order status report</a></p>
+            <div style="margin-top:14px; padding-top:12px; border-top:1px solid var(--line-soft); display:flex; justify-content:space-between; align-items:center;">
+                <span class="note">Dispensing lab turnaround &amp; collection tracking</span>
+                <a class="text-link-editorial" th:href="@{/reports/orders}">Open order status report <span>↗</span></a>
+            </div>
         </div>
     </div>
 
-    <div class="panel">
-        <h2>Needs attention</h2>
+    <!-- Action items / Needs attention -->
+    <div class="panel editorial-panel">
+        <h2>Attention &amp; <em>follow-up required</em></h2>
         <div class="two">
-            <div class="pad">
-                <h3 style="font-size:.9rem;margin-top:0;">Low stock</h3>
+            <div class="pad" style="border-right:1px solid var(--line-soft);">
+                <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:12px;">
+                    <h3 style="font-family:system-ui, sans-serif; font-size:15px; font-weight:650; margin:0; color:var(--ink);">Low stock items</h3>
+                    <a class="text-link-editorial" th:href="@{/reports/stock}" style="font-size:12px;">View all <span>↗</span></a>
+                </div>
                 <table>
                     <thead><tr><th>Code</th><th>Item</th><th class="num">In stock</th><th class="num">Reorder</th></tr></thead>
                     <tbody>
@@ -84,13 +117,17 @@
                     </tbody>
                 </table>
             </div>
-            <div class="pad">
-                <h3 style="font-size:.9rem;margin-top:0;">Due for review</h3>
-                <p class="empty" style="padding:1.4rem 0;">
-                    <strong th:text="${dueForReview} + ' patients'">23 patients</strong><br>
-                    are past their review date
-                </p>
-                <a class="btn" th:href="@{/followups}">Open the review list</a>
+            <div class="pad" style="display:flex; flex-direction:column; justify-content:space-between;">
+                <div>
+                    <h3 style="font-family:system-ui, sans-serif; font-size:15px; font-weight:650; margin:0 0 12px; color:var(--ink);">Review cohorts due</h3>
+                    <div style="padding:1.4rem 1rem; text-align:center; background:#fafbfd; border-radius:8px; border:1px dashed var(--line);">
+                        <strong style="font-family:system-ui, sans-serif; font-size:26px; font-weight:700; color:var(--brand-deep); display:block;" th:text="${dueForReview} + ' patients'">23 patients</strong>
+                        <span class="note" style="display:block; margin-top:4px;">due or overdue for clinical re-examination</span>
+                    </div>
+                </div>
+                <div style="margin-top:16px;">
+                    <a class="btn-editorial" th:href="@{/followups}" style="width:100%;">Open patient review list <span aria-hidden="true">↗</span></a>
+                </div>
             </div>
         </div>
     </div>
