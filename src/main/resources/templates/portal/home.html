@@ -1,13 +1,372 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>My records | NethCare</title><link rel="stylesheet" th:href="@{/css/site.css}">
-    <style>.portal{max-width:960px;margin:2rem auto;padding:0 1rem}.card{background:#fff;padding:1.5rem;border-radius:10px;margin-bottom:1rem}table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:.65rem;border-bottom:1px solid #eee}.muted{color:#667}</style>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My NethCare records</title>
+    <link rel="stylesheet" th:href="@{/css/portal.css}">
 </head>
-<body><main class="portal">
-    <header><h1>My NethCare records</h1><p th:text="${patient.fullName + ' · ' + patient.patientNo}"></p></header>
-    <section class="card"><h2>Profile</h2><p><strong>Date of birth:</strong> <span th:text="${patient.dob}"></span></p><p><strong>Phone:</strong> <span th:text="${patient.phone} ?: '—'"></span></p><p><strong>Email:</strong> <span th:text="${patient.email} ?: '—'"></span></p></section>
-    <section class="card"><h2>Prescriptions</h2><table th:if="${!prescriptions.isEmpty()}"><thead><tr><th>Prescription</th><th>Issued</th><th>Right eye</th><th>Left eye</th></tr></thead><tbody><tr th:each="rx:${prescriptions}"><td th:text="${rx.rxNo}"></td><td th:text="${rx.issuedOn}"></td><td th:text="${rx.odSph + ' / ' + rx.odCyl}"></td><td th:text="${rx.osSph + ' / ' + rx.osCyl}"></td></tr></tbody></table><p class="muted" th:if="${prescriptions.isEmpty()}">No prescriptions have been issued.</p></section>
-    <section class="card"><h2>Spectacle orders</h2><p class="muted">Orders appear here after staff link an in-store purchase to your patient record.</p><table th:if="${!orders.isEmpty()}"><thead><tr><th>Order</th><th>Placed</th><th>Status</th><th>Promised</th></tr></thead><tbody><tr th:each="order:${orders}"><td th:text="${order.orderNo}"></td><td th:text="${order.orderedOn}"></td><td th:text="${order.status}"></td><td th:text="${order.promisedOn} ?: '—'"></td></tr></tbody></table><p class="muted" th:if="${orders.isEmpty()}">No spectacle orders are linked yet.</p></section>
-    <form th:action="@{/logout}" method="post"><button type="submit">Sign out</button></form>
-</main></body></html>
+<body class="portal-body">
+
+    <!-- Top Navigation Bar -->
+    <nav class="portal-nav">
+        <div class="portal-nav-inner">
+            
+            <!-- Brand Logo & Page Breadcrumb -->
+            <div class="portal-brand-wrap">
+                <img th:src="@{/images/nethcare-logo.png}" alt="NethCare Logo" class="portal-brand-logo">
+                <div class="portal-brand-meta">
+                    <div class="portal-brand-breadcrumbs">
+                        <span class="portal-brand-badge">PATIENT PORTAL</span>
+                        <span class="portal-brand-slash">/</span>
+                        <span class="portal-brand-page">Personal Health Records</span>
+                    </div>
+                    <div class="portal-brand-subtext">Nethcare Eye Clinic &amp; Optical Centre</div>
+                </div>
+            </div>
+
+            <!-- Right User Identity & Sign Out Action -->
+            <div class="portal-user-controls">
+                <div class="portal-user-pill">
+                    <div class="portal-avatar-sm" 
+                         th:text="${patient.fullName != null && !patient.fullName.isEmpty() ? (patient.fullName.contains(' ') ? patient.fullName.substring(0,1) + patient.fullName.substring(patient.fullName.indexOf(' ') + 1, patient.fullName.indexOf(' ') + 2) : patient.fullName.substring(0,1)) : 'P'}">
+                        EF
+                    </div>
+                    <div class="portal-user-info">
+                        <div class="portal-user-name" th:text="${patient.fullName}">Patient Name</div>
+                        <div class="portal-user-id" th:text="${patient.patientNo}">P-0000</div>
+                    </div>
+                </div>
+
+                <span class="portal-nav-divider">|</span>
+
+                <!-- Sign Out Form -->
+                <form th:action="@{/logout}" method="post" class="portal-signout-form">
+                    <button type="submit" class="portal-signout-btn">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                        </svg>
+                        <span>Sign out</span>
+                    </button>
+                </form>
+            </div>
+
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="portal-main">
+
+        <!-- Page Header Greeting -->
+        <header class="portal-header">
+            <h1 class="portal-greeting" id="greetingText" 
+                th:data-firstname="${patient.fullName != null && patient.fullName.contains(' ') ? patient.fullName.substring(0, patient.fullName.indexOf(' ')) : patient.fullName}">
+                Good day
+            </h1>
+            <p class="portal-subdate" id="currentDateText">Welcome to your digital optical &amp; clinical summary</p>
+        </header>
+
+        <!-- 1. Patient Profile Card -->
+        <section class="portal-card">
+            <div class="portal-card-header">
+                <div class="portal-card-title-group">
+                    <svg class="portal-card-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                    </svg>
+                    <h2 class="portal-card-title">Patient Profile</h2>
+                </div>
+                <span class="portal-badge-count" th:text="'Status: ' + (${patient.active} ? 'Active' : 'Inactive')">Status: Active</span>
+            </div>
+
+            <div class="portal-card-body">
+                <div class="profile-flex">
+                    
+                    <!-- Identity Summary -->
+                    <div class="profile-identity">
+                        <div class="portal-avatar-lg"
+                             th:text="${patient.fullName != null && !patient.fullName.isEmpty() ? (patient.fullName.contains(' ') ? patient.fullName.substring(0,1) + patient.fullName.substring(patient.fullName.indexOf(' ') + 1, patient.fullName.indexOf(' ') + 2) : patient.fullName.substring(0,1)) : 'P'}">
+                            EF
+                        </div>
+                        <div>
+                            <div class="profile-name-group">
+                                <h3 class="profile-full-name" th:text="${patient.fullName}">Patient Name</h3>
+                                <span class="profile-id-tag" th:text="${patient.patientNo}">P-0007</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Info Tiles Grid -->
+                    <div class="profile-tiles-grid">
+                        
+                        <!-- Date of Birth & Age -->
+                        <div class="profile-tile">
+                            <div class="profile-tile-label">Date of Birth</div>
+                            <div class="profile-tile-val" th:text="${patient.dob} ?: '—'">1998-07-27</div>
+                            <div class="profile-tile-sub" th:if="${patient.age != null}" th:text="'Age ' + ${patient.age} + ' years'">Age 28 years</div>
+                        </div>
+
+                        <!-- Phone -->
+                        <div class="profile-tile">
+                            <div class="profile-tile-label">Primary Phone</div>
+                            <div class="profile-tile-val mono" 
+                                 th:text="${patient.phone != null && !patient.phone.isBlank() ? patient.phone : 'Not provided'}"
+                                 th:classappend="${patient.phone == null || patient.phone.isBlank() ? 'text-muted-val' : ''}">
+                                +94773247985
+                            </div>
+                        </div>
+
+                        <!-- Email -->
+                        <div class="profile-tile">
+                            <div class="profile-tile-label">Email Address</div>
+                            <div class="profile-tile-val" 
+                                 th:text="${patient.email != null && !patient.email.isBlank() ? patient.email : 'Not provided'}"
+                                 th:classappend="${patient.email == null || patient.email.isBlank() ? 'text-muted-val' : ''}">
+                                Not provided
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. Spectacle Orders Section -->
+        <section class="portal-card">
+            <div class="portal-card-header">
+                <div class="portal-card-title-group">
+                    <svg class="portal-card-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 13h2a3 3 0 003-3V9a3 3 0 00-3-3H3m18 7h-2a3 3 0 01-3-3V9a3 3 0 013-3h2m-10 4h2"/>
+                    </svg>
+                    <h2 class="portal-card-title">Spectacle Orders</h2>
+                    <span class="portal-badge-count" th:text="${orders.size() + (orders.size() == 1 ? ' Order' : ' Orders')}">0 Orders</span>
+                </div>
+                <span class="portal-card-subtitle">Synced with Nethcare Dispensary</span>
+            </div>
+
+            <div class="portal-card-body">
+                <!-- Orders Populated List -->
+                <div th:if="${!orders.isEmpty()}">
+                    <div th:each="order : ${orders}" class="spec-order-item">
+                        <div class="spec-order-flex">
+                            
+                            <!-- Frame Graphic Box Placeholder -->
+                            <div class="spec-image-col">
+                                <div class="spec-image-box">
+                                    <svg class="spec-placeholder-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 13h2a3 3 0 003-3V9a3 3 0 00-3-3H3m18 7h-2a3 3 0 01-3-3V9a3 3 0 013-3h2m-10 4h2"/>
+                                    </svg>
+                                    <span class="spec-placeholder-label">Nethcare Eyewear</span>
+                                </div>
+                            </div>
+
+                            <!-- Spectacle Details & Specifications -->
+                            <div class="spec-details-col">
+                                
+                                <!-- Header Row -->
+                                <div class="spec-order-head">
+                                    <div>
+                                        <div class="spec-order-title-group">
+                                            <h3 class="spec-order-title" 
+                                                th:text="${order.frame != null ? (order.frame.brand + ' ' + order.frame.model) : 'Spectacle Eyewear Order'}">
+                                                Spectacle Eyewear Order
+                                            </h3>
+                                            
+                                            <!-- Replacement Status Tag -->
+                                            <span th:if="${order.status != null && order.status.name() == 'COLLECTED'}" 
+                                                  class="tag-status-collected"
+                                                  th:text="'COLLECTED' + (${order.collectedOn != null} ? ' · ' + ${#strings.toUpperCase(#temporals.format(order.collectedOn, 'dd MMM yyyy'))} : '')">
+                                                COLLECTED · 28 SEP 2026
+                                            </span>
+                                            <span th:if="${order.status == null || order.status.name() != 'COLLECTED'}" 
+                                                  class="tag-status-default"
+                                                  th:text="${order.status != null ? #strings.toUpperCase(order.status.label()) : 'IN PROGRESS'}">
+                                                IN PROGRESS
+                                            </span>
+                                        </div>
+                                        <p class="spec-order-meta">Purchased on <strong th:text="${order.orderedOn}">2026-09-28</strong></p>
+                                    </div>
+
+                                    <div class="spec-order-ref-group">
+                                        <div class="spec-order-ref-label">Order Reference</div>
+                                        <div class="spec-order-ref-code" th:text="${order.orderNo}">#ORD-2026-0001</div>
+                                    </div>
+                                </div>
+
+                                <!-- Real Specifications Grid (shows only non-null existing fields) -->
+                                <div class="spec-grid">
+                                    <div class="spec-tile" th:if="${order.lensType != null && !order.lensType.isBlank()}">
+                                        <span class="spec-tile-label">Lens Type</span>
+                                        <span class="spec-tile-val" th:text="${order.lensType}">Anti-Reflective</span>
+                                    </div>
+
+                                    <div class="spec-tile" th:if="${order.frame != null}">
+                                        <span class="spec-tile-label">Frame</span>
+                                        <span class="spec-tile-val" th:text="${order.frame.brand + ' ' + order.frame.model}">Nethcare Frame</span>
+                                        <span class="spec-tile-sub" th:if="${order.frame.size != null}" th:text="'Size: ' + ${order.frame.size}">Size 52-18</span>
+                                    </div>
+
+                                    <div class="spec-tile" th:if="${order.coating != null && !order.coating.isBlank()}">
+                                        <span class="spec-tile-label">Coating</span>
+                                        <span class="spec-tile-val" th:text="${order.coating}">Hydrophobic</span>
+                                    </div>
+
+                                    <div class="spec-tile" th:if="${order.pupillaryDistance != null && !order.pupillaryDistance.isBlank()}">
+                                        <span class="spec-tile-label">PD</span>
+                                        <span class="spec-tile-val" th:text="${order.pupillaryDistance}">63 mm</span>
+                                    </div>
+
+                                    <div class="spec-tile" th:if="${order.promisedOn != null}">
+                                        <span class="spec-tile-label">Promised Date</span>
+                                        <span class="spec-tile-val" th:text="${order.promisedOn}">2026-10-01</span>
+                                    </div>
+
+                                    <div class="spec-tile" th:if="${order.remarks != null && !order.remarks.isBlank()}">
+                                        <span class="spec-tile-label">Remarks</span>
+                                        <span class="spec-tile-val" th:text="${order.remarks}">Remarks</span>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Empty State -->
+                <div th:if="${orders.isEmpty()}" class="portal-empty-state">
+                    <div class="portal-empty-box">
+                        <div class="portal-empty-icon">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 13h2a3 3 0 003-3V9a3 3 0 00-3-3H3m18 7h-2a3 3 0 01-3-3V9a3 3 0 013-3h2m-10 4h2"/>
+                            </svg>
+                        </div>
+                        <h4 class="portal-empty-title">No spectacle orders are linked yet.</h4>
+                        <p class="portal-empty-text">Orders appear here after staff link an in-store purchase to your patient record.</p>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- 3. Prescriptions Section -->
+        <section class="portal-card">
+            <div class="portal-card-header">
+                <div class="portal-card-title-group">
+                    <svg class="portal-card-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                    <h2 class="portal-card-title">Prescriptions</h2>
+                </div>
+                <span class="portal-card-subtitle">Refraction examination history</span>
+            </div>
+
+            <div class="portal-card-body">
+                <!-- Prescriptions Populated List -->
+                <div th:if="${!prescriptions.isEmpty()}">
+                    <div th:each="rx : ${prescriptions}" class="rx-card-item">
+                        
+                        <!-- Rx Header Bar -->
+                        <div class="rx-card-head">
+                            <div class="rx-ref-title">
+                                <span>Optical Prescription</span>
+                                <span class="rx-ref-code" th:text="${rx.rxNo}">RX-2026-0001</span>
+                            </div>
+                            <div class="rx-meta-date">
+                                Exam Date: <strong th:text="${rx.issuedOn}">2026-09-20</strong>
+                                <span th:if="${rx.issuedBy != null && !rx.issuedBy.isBlank()}" th:text="' · Issued by ' + ${rx.issuedBy}"></span>
+                            </div>
+                        </div>
+
+                        <!-- Refraction Data Table -->
+                        <div class="rx-table-wrap">
+                            <table class="rx-table">
+                                <thead>
+                                    <tr>
+                                        <th>EYE</th>
+                                        <th class="mono">SPHERE (SPH)</th>
+                                        <th class="mono">CYLINDER (CYL)</th>
+                                        <th class="mono">AXIS</th>
+                                        <th class="mono">ADD</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="rx-eye-name">Right Eye (OD)</td>
+                                        <td class="mono rx-val" th:text="${rx.odSph} ?: '—'">-1.25</td>
+                                        <td class="mono rx-val" th:text="${rx.odCyl} ?: '—'">-0.50</td>
+                                        <td class="mono rx-val" th:text="${rx.odAxis} ?: '—'">175°</td>
+                                        <td class="mono rx-val" th:text="${rx.odAdd} ?: '—'">—</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="rx-eye-name">Left Eye (OS)</td>
+                                        <td class="mono rx-val" th:text="${rx.osSph} ?: '—'">-1.50</td>
+                                        <td class="mono rx-val" th:text="${rx.osCyl} ?: '—'">-0.75</td>
+                                        <td class="mono rx-val" th:text="${rx.osAxis} ?: '—'">005°</td>
+                                        <td class="mono rx-val" th:text="${rx.osAdd} ?: '—'">—</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Notes Bar -->
+                        <div class="rx-notes-bar" th:if="${rx.notes != null && !rx.notes.isBlank()}">
+                            <strong>Clinical Notes:</strong> <span th:text="${rx.notes}">Notes</span>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Empty State -->
+                <div th:if="${prescriptions.isEmpty()}" class="portal-empty-state">
+                    <div class="portal-empty-box">
+                        <div class="portal-empty-icon">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            </svg>
+                        </div>
+                        <h4 class="portal-empty-title">No prescriptions have been issued.</h4>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Clean Minimal Footer -->
+    <footer class="portal-footer">
+        <div class="portal-footer-inner">
+            <div>Nethcare Patient Portal</div>
+            <div>&copy; <span id="currentYear">2026</span> Nethcare Eye Clinic</div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var now = new Date();
+            var hours = now.getHours();
+            var greeting = "Good morning";
+            if (hours >= 12 && hours < 17) {
+                greeting = "Good afternoon";
+            } else if (hours >= 17) {
+                greeting = "Good evening";
+            }
+            var greetingEl = document.getElementById('greetingText');
+            if (greetingEl) {
+                var firstName = greetingEl.getAttribute('data-firstname') || '';
+                greetingEl.textContent = greeting + (firstName ? ', ' + firstName : '') + '!';
+            }
+            var dateEl = document.getElementById('currentDateText');
+            if (dateEl) {
+                var options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                dateEl.textContent = now.toLocaleDateString('en-US', options);
+            }
+            var yearEl = document.getElementById('currentYear');
+            if (yearEl) {
+                yearEl.textContent = now.getFullYear();
+            }
+        });
+    </script>
+</body>
+</html>
