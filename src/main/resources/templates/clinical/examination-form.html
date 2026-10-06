@@ -418,12 +418,16 @@
     }
 
     function closeDialog(confirmed) {
-        dialog.close();
         backdrop.hidden = true;
         if (pendingCheckbox) {
-            if (!confirmed) {
+            if (confirmed) {
+                // User approved removal — uncheck and update recorded state
+                pendingCheckbox.checked = false;
+                pendingCheckbox.dataset.wasChecked = 'false';
+            } else {
                 // User cancelled — restore the checked state
                 pendingCheckbox.checked = true;
+                pendingCheckbox.dataset.wasChecked = 'true';
             }
             pendingCheckbox = null;
         }
