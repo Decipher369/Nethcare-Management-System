@@ -28,6 +28,7 @@
                     <span class="pill-badge" th:text="${editing} ? 'Edit Record' : 'New Record'">New Record</span>
                 </div>
                 <p class="header-subtitle" th:text="${editing} ? 'Update existing patient details in the clinic directory.' : 'Add a new patient record to the clinic directory.'">Add a new patient record to the clinic directory.</p>
+                <p class="required-note-text">Fields marked with <span class="required-asterisk" aria-hidden="true">*</span> are required.</p>
 
                 <!-- Info Banner -->
                 <div class="info-banner-box">
@@ -47,7 +48,7 @@
             </div>
 
             <!-- Form Content -->
-            <form class="form-body-content" method="post" th:action="${editing} ? @{/patients/{id}(id=${patient.id})} : @{/patients}">
+            <form id="patientForm" class="form-body-content" method="post" th:action="${editing} ? @{/patients/{id}(id=${patient.id})} : @{/patients}">
                 
                 <!-- Section 1: Demographic & Contact Details -->
                 <div class="form-section-block">
@@ -58,27 +59,33 @@
 
                     <!-- Full Name -->
                     <div class="form-field-group">
-                        <label for="fullName" class="field-label">Full name</label>
+                        <label for="fullName" class="field-label">Full name <span class="required-asterisk" aria-hidden="true">*</span></label>
                         <div class="input-icon-wrapper">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-                            <input type="text" id="fullName" name="fullName" th:value="${form.fullName}" class="form-control-input" placeholder="e.g. Saman Kumara">
+                            <input type="text" id="fullName" name="fullName" th:value="${form.fullName}" class="form-control-input" placeholder="e.g. Saman Kumara" required aria-required="true">
                         </div>
+                        <span class="field-error-msg" id="fullNameError"></span>
                     </div>
 
                     <!-- NIC -->
                     <div class="form-field-group">
-                        <label for="nic" class="field-label">NIC (required for adults)</label>
+                        <label for="nic" class="field-label">
+                            <span>NIC (required for adults)</span>
+                            <span class="required-asterisk age-asterisk adult-asterisk" id="nicAsterisk" aria-hidden="true" style="display: none;">*</span>
+                        </label>
                         <div class="input-icon-wrapper">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
                             <input type="text" id="nic" name="nic" th:value="${form.nic}" class="form-control-input mono-input" placeholder="e.g. 199012345678 or 901234567V">
                         </div>
+                        <span class="field-error-msg" id="nicError"></span>
                     </div>
 
                     <!-- DOB & Gender -->
                     <div class="form-grid-2col">
                         <div class="form-field-group">
-                            <label for="dob" class="field-label">Date of birth</label>
-                            <input type="date" id="dob" name="dob" th:value="${form.dob}" class="form-control-input">
+                            <label for="dob" class="field-label">Date of birth <span class="required-asterisk" aria-hidden="true">*</span></label>
+                            <input type="date" id="dob" name="dob" th:value="${form.dob}" class="form-control-input" required aria-required="true">
+                            <span class="field-error-msg" id="dobError"></span>
                         </div>
                         <div class="form-field-group">
                             <label for="gender" class="field-label">Gender</label>
@@ -89,8 +96,12 @@
                     <!-- Phone & Blood Group -->
                     <div class="form-grid-2col">
                         <div class="form-field-group">
-                            <label for="phone" class="field-label">Phone</label>
+                            <label for="phone" class="field-label">
+                                <span>Phone</span>
+                                <span class="required-asterisk age-asterisk adult-asterisk" id="phoneAsterisk" aria-hidden="true" style="display: none;">*</span>
+                            </label>
                             <input type="text" id="phone" name="phone" th:value="${form.phone}" class="form-control-input mono-input" placeholder="e.g. 0771234567">
+                            <span class="field-error-msg" id="phoneError"></span>
                         </div>
                         <div class="form-field-group">
                             <label for="bloodGroup" class="field-label">Blood group</label>
@@ -126,12 +137,20 @@
 
                     <div class="form-grid-2col">
                         <div class="form-field-group">
-                            <label for="guardianName" class="field-label">Guardian name (required under 18)</label>
+                            <label for="guardianName" class="field-label">
+                                <span>Guardian name (required under 18)</span>
+                                <span class="required-asterisk age-asterisk child-asterisk" id="guardianNameAsterisk" aria-hidden="true" style="display: none;">*</span>
+                            </label>
                             <input type="text" id="guardianName" name="guardianName" th:value="${form.guardianName}" class="form-control-input">
+                            <span class="field-error-msg" id="guardianNameError"></span>
                         </div>
                         <div class="form-field-group">
-                            <label for="guardianPhone" class="field-label">Guardian phone</label>
+                            <label for="guardianPhone" class="field-label">
+                                <span>Guardian phone</span>
+                                <span class="required-asterisk age-asterisk child-asterisk" id="guardianPhoneAsterisk" aria-hidden="true" style="display: none;">*</span>
+                            </label>
                             <input type="text" id="guardianPhone" name="guardianPhone" th:value="${form.guardianPhone}" class="form-control-input mono-input">
+                            <span class="field-error-msg" id="guardianPhoneError"></span>
                         </div>
                     </div>
                 </div>
@@ -157,9 +176,10 @@
                     </label>
 
                     <label class="checkbox-label-row">
-                        <input type="checkbox" name="consentGiven" value="true" required th:checked="${form.consentGiven}" class="checkbox-custom-input">
-                        <span class="checkbox-text-label">Patient or guardian has consented to storing these records</span>
+                        <input type="checkbox" id="consentGiven" name="consentGiven" value="true" required aria-required="true" th:checked="${form.consentGiven}" class="checkbox-custom-input">
+                        <span class="checkbox-text-label">Patient or guardian has consented to storing these records <span class="required-asterisk" aria-hidden="true">*</span></span>
                     </label>
+                    <span class="field-error-msg" id="consentGivenError"></span>
                 </div>
 
                 <!-- Actions Row -->
@@ -174,5 +194,259 @@
         </div>
     </div>
 </main>
+
+<!-- Patient Registration Form Client Script for Dynamic Asterisks & Validation -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const dobInput = document.getElementById('dob');
+    const fullNameInput = document.getElementById('fullName');
+    const nicInput = document.getElementById('nic');
+    const phoneInput = document.getElementById('phone');
+    const guardianNameInput = document.getElementById('guardianName');
+    const guardianPhoneInput = document.getElementById('guardianPhone');
+    const consentInput = document.getElementById('consentGiven');
+    const patientForm = document.getElementById('patientForm');
+
+    const nicAsterisk = document.getElementById('nicAsterisk');
+    const phoneAsterisk = document.getElementById('phoneAsterisk');
+    const guardianNameAsterisk = document.getElementById('guardianNameAsterisk');
+    const guardianPhoneAsterisk = document.getElementById('guardianPhoneAsterisk');
+
+    function calculateAge(dobValue) {
+        if (!dobValue) return null;
+        const parts = dobValue.split('-');
+        if (parts.length !== 3) return null;
+        const year = parseInt(parts[0], 10);
+        const month = parseInt(parts[1], 10) - 1;
+        const day = parseInt(parts[2], 10);
+        const dob = new Date(year, month, day);
+        if (isNaN(dob.getTime())) return null;
+
+        const today = new Date();
+        let age = today.getFullYear() - dob.getFullYear();
+        const m = today.getMonth() - dob.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) {
+            age--;
+        }
+        return age;
+    }
+
+    function updateAgeRules() {
+        const age = calculateAge(dobInput ? dobInput.value : '');
+        
+        if (age === null) {
+            // Empty or invalid Date of birth: hide all age-dependent asterisks
+            if (nicAsterisk) nicAsterisk.style.display = 'none';
+            if (phoneAsterisk) phoneAsterisk.style.display = 'none';
+            if (guardianNameAsterisk) guardianNameAsterisk.style.display = 'none';
+            if (guardianPhoneAsterisk) guardianPhoneAsterisk.style.display = 'none';
+
+            if (nicInput) { nicInput.removeAttribute('required'); nicInput.removeAttribute('aria-required'); }
+            if (phoneInput) { phoneInput.removeAttribute('required'); phoneInput.removeAttribute('aria-required'); }
+            if (guardianNameInput) { guardianNameInput.removeAttribute('required'); guardianNameInput.removeAttribute('aria-required'); }
+            if (guardianPhoneInput) { guardianPhoneInput.removeAttribute('required'); guardianPhoneInput.removeAttribute('aria-required'); }
+            return;
+        }
+
+        const isAdult = age >= 18;
+
+        if (isAdult) {
+            // 18 and older: Adult required fields get asterisks & required attributes
+            if (nicAsterisk) nicAsterisk.style.display = 'inline';
+            if (phoneAsterisk) phoneAsterisk.style.display = 'inline';
+            if (guardianNameAsterisk) guardianNameAsterisk.style.display = 'none';
+            if (guardianPhoneAsterisk) guardianPhoneAsterisk.style.display = 'none';
+
+            if (nicInput) { nicInput.setAttribute('required', 'required'); nicInput.setAttribute('aria-required', 'true'); }
+            if (phoneInput) { phoneInput.setAttribute('required', 'required'); phoneInput.setAttribute('aria-required', 'true'); }
+            if (guardianNameInput) { guardianNameInput.removeAttribute('required'); guardianNameInput.removeAttribute('aria-required'); }
+            if (guardianPhoneInput) { guardianPhoneInput.removeAttribute('required'); guardianPhoneInput.removeAttribute('aria-required'); }
+        } else {
+            // Under 18: Child required fields get asterisks & required attributes
+            if (nicAsterisk) nicAsterisk.style.display = 'none';
+            if (phoneAsterisk) phoneAsterisk.style.display = 'none';
+            if (guardianNameAsterisk) guardianNameAsterisk.style.display = 'inline';
+            if (guardianPhoneAsterisk) guardianPhoneAsterisk.style.display = 'inline';
+
+            if (nicInput) { nicInput.removeAttribute('required'); nicInput.removeAttribute('aria-required'); }
+            if (phoneInput) { phoneInput.removeAttribute('required'); phoneInput.removeAttribute('aria-required'); }
+            if (guardianNameInput) { guardianNameInput.setAttribute('required', 'required'); guardianNameInput.setAttribute('aria-required', 'true'); }
+            if (guardianPhoneInput) { guardianPhoneInput.setAttribute('required', 'required'); guardianPhoneInput.setAttribute('aria-required', 'true'); }
+        }
+    }
+
+    function showFieldError(input, errorSpanId, message) {
+        const errorSpan = document.getElementById(errorSpanId);
+        if (input) input.classList.add('has-error');
+        if (errorSpan) {
+            errorSpan.textContent = message;
+            errorSpan.style.display = 'block';
+        }
+    }
+
+    function clearFieldError(input, errorSpanId) {
+        const errorSpan = document.getElementById(errorSpanId);
+        if (input) input.classList.remove('has-error');
+        if (errorSpan) {
+            errorSpan.textContent = '';
+            errorSpan.style.display = 'none';
+        }
+    }
+
+    function validateField(id) {
+        const age = calculateAge(dobInput ? dobInput.value : '');
+        const isAdult = age !== null && age >= 18;
+        const isMinor = age !== null && age < 18;
+
+        if (id === 'fullName' || !id) {
+            if (!fullNameInput.value.trim()) {
+                showFieldError(fullNameInput, 'fullNameError', 'Full name is required');
+                if (id === 'fullName') return false;
+            } else {
+                clearFieldError(fullNameInput, 'fullNameError');
+            }
+        }
+
+        if (id === 'dob' || !id) {
+            if (!dobInput.value) {
+                showFieldError(dobInput, 'dobError', 'Date of birth is required');
+                if (id === 'dob') return false;
+            } else {
+                const parts = dobInput.value.split('-');
+                const dob = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+                if (dob > new Date()) {
+                    showFieldError(dobInput, 'dobError', 'Date of birth cannot be in the future');
+                    if (id === 'dob') return false;
+                } else {
+                    clearFieldError(dobInput, 'dobError');
+                }
+            }
+        }
+
+        if (id === 'nic' || !id) {
+            if (isAdult && (!nicInput || !nicInput.value.trim())) {
+                showFieldError(nicInput, 'nicError', 'NIC is required for adults');
+                if (id === 'nic') return false;
+            } else {
+                clearFieldError(nicInput, 'nicError');
+            }
+        }
+
+        if (id === 'phone' || !id) {
+            if (isAdult && (!phoneInput || !phoneInput.value.trim())) {
+                showFieldError(phoneInput, 'phoneError', 'Phone is required for adults');
+                if (id === 'phone') return false;
+            } else {
+                clearFieldError(phoneInput, 'phoneError');
+            }
+        }
+
+        if (id === 'guardianName' || !id) {
+            if (isMinor && (!guardianNameInput || !guardianNameInput.value.trim())) {
+                showFieldError(guardianNameInput, 'guardianNameError', 'Guardian name is required for patients under 18');
+                if (id === 'guardianName') return false;
+            } else {
+                clearFieldError(guardianNameInput, 'guardianNameError');
+            }
+        }
+
+        if (id === 'guardianPhone' || !id) {
+            if (isMinor && (!guardianPhoneInput || !guardianPhoneInput.value.trim())) {
+                showFieldError(guardianPhoneInput, 'guardianPhoneError', 'Guardian phone is required for patients under 18');
+                if (id === 'guardianPhone') return false;
+            } else {
+                clearFieldError(guardianPhoneInput, 'guardianPhoneError');
+            }
+        }
+
+        if (id === 'consentGiven' || !id) {
+            if (consentInput && !consentInput.checked) {
+                showFieldError(consentInput, 'consentGivenError', 'Patient or guardian consent must be confirmed');
+                if (id === 'consentGiven') return false;
+            } else {
+                clearFieldError(consentInput, 'consentGivenError');
+            }
+        }
+    }
+
+    if (dobInput) {
+        dobInput.addEventListener('input', function() {
+            updateAgeRules();
+            validateField('dob');
+        });
+        dobInput.addEventListener('change', function() {
+            updateAgeRules();
+            validateField('dob');
+        });
+        updateAgeRules();
+    }
+
+    [fullNameInput, nicInput, phoneInput, guardianNameInput, guardianPhoneInput].forEach(function(input) {
+        if (input) {
+            input.addEventListener('blur', function() {
+                validateField(input.id);
+            });
+            input.addEventListener('input', function() {
+                clearFieldError(input, input.id + 'Error');
+            });
+        }
+    });
+
+    if (consentInput) {
+        consentInput.addEventListener('change', function() {
+            validateField('consentGiven');
+        });
+    }
+
+    if (patientForm) {
+        patientForm.addEventListener('submit', function(e) {
+            updateAgeRules();
+            const age = calculateAge(dobInput ? dobInput.value : '');
+            let hasError = false;
+
+            if (!fullNameInput.value.trim()) {
+                showFieldError(fullNameInput, 'fullNameError', 'Full name is required');
+                hasError = true;
+            }
+
+            if (!dobInput.value) {
+                showFieldError(dobInput, 'dobError', 'Date of birth is required');
+                hasError = true;
+            }
+
+            if (age !== null && age >= 18) {
+                if (nicInput && !nicInput.value.trim()) {
+                    showFieldError(nicInput, 'nicError', 'NIC is required for adults');
+                    hasError = true;
+                }
+                if (phoneInput && !phoneInput.value.trim()) {
+                    showFieldError(phoneInput, 'phoneError', 'Phone is required for adults');
+                    hasError = true;
+                }
+            }
+
+            if (age !== null && age < 18) {
+                if (guardianNameInput && !guardianNameInput.value.trim()) {
+                    showFieldError(guardianNameInput, 'guardianNameError', 'Guardian name is required for patients under 18');
+                    hasError = true;
+                }
+                if (guardianPhoneInput && !guardianPhoneInput.value.trim()) {
+                    showFieldError(guardianPhoneInput, 'guardianPhoneError', 'Guardian phone is required for patients under 18');
+                    hasError = true;
+                }
+            }
+
+            if (consentInput && !consentInput.checked) {
+                showFieldError(consentInput, 'consentGivenError', 'Patient or guardian consent must be confirmed');
+                hasError = true;
+            }
+
+            if (hasError) {
+                e.preventDefault();
+            }
+        });
+    }
+});
+</script>
 </body>
 </html>

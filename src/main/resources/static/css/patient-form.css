@@ -98,6 +98,35 @@ body.patient-form-body .staff-layout > .wrap {
     margin: 6px 0 0 0;
 }
 
+/* Required Note & Red Asterisk */
+.patient-register-page .required-note-text {
+    font-size: 13px;
+    color: #64748B;
+    margin: 12px 0 0 0;
+}
+
+.patient-register-page .required-asterisk {
+    color: #E11D48;
+    font-size: 14px;
+    font-weight: 700;
+    margin-left: 2px;
+}
+
+/* Inline Field Error Message */
+.patient-register-page .field-error-msg {
+    color: #E11D48;
+    font-size: 13px;
+    margin-top: 4px;
+    display: none;
+    line-height: 1.4;
+}
+
+.patient-register-page .form-control-input.has-error,
+.patient-register-page .form-control-textarea.has-error {
+    border-color: #E11D48 !important;
+    box-shadow: 0 0 0 3px rgba(225, 29, 72, 0.1) !important;
+}
+
 /* Info Banner */
 .patient-register-page .info-banner-box {
     margin-top: 20px;
