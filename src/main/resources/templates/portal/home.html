@@ -341,18 +341,11 @@
         <section class="portal-card">
             <div class="portal-card-header">
                 <div class="portal-card-header-left">
-                    <svg class="portal-card-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 13h2a3 3 0 003-3V9a3 3 0 00-3-3H3m18 7h-2a3 3 0 01-3-3V9a3 3 0 013-3h2m-10 4h2"/>
-                    </svg>
                     <h2 class="portal-card-heading">UPCOMING FRAMES</h2>
                     <span class="portal-count-pill">New arrivals</span>
                 </div>
-                <div class="portal-card-header-right" style="gap: 12px;">
-                    <span class="portal-header-subtext">Available to view in store</span>
+                <div class="portal-card-header-right">
                     <a id="check-out-frames" href="#" class="portal-book-btn">
-                        <svg class="portal-book-btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 13h2a3 3 0 003-3V9a3 3 0 00-3-3H3m18 7h-2a3 3 0 01-3-3V9a3 3 0 013-3h2m-10 4h2"/>
-                        </svg>
                         <span>Check out the frames</span>
                     </a>
                 </div>
@@ -437,7 +430,6 @@
                     <span>Refresh</span>
                 </button>
             </div>
-            <div>&copy; <span id="footerYear">2026</span> Nethcare Eye Clinic</div>
         </div>
     </footer>
 
@@ -499,12 +491,6 @@
                 var h = String(now.getHours()).padStart(2, '0');
                 var m = String(now.getMinutes()).padStart(2, '0');
                 lastUpdatedTime.textContent = h + ':' + m;
-            }
-
-            // Footer year
-            var footerYear = document.getElementById('footerYear');
-            if (footerYear) {
-                footerYear.textContent = now.getFullYear();
             }
 
             // Refresh button
