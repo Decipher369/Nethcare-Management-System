@@ -3,69 +3,258 @@
 <head th:replace="~{clinical/fragments :: head('Examination')}"></head>
 <body>
 <div th:replace="~{clinical/fragments :: bar('examinations', ${user})}"></div>
+
 <main class="wrap">
-    <p><a th:href="@{/patients/{id}(id=${patient.id})}">← Patient record</a></p>
-    <h1 th:text="'Examination · ' + ${patient.fullName}">Examination</h1>
+    <div style="margin-bottom: 1rem;">
+        <a th:href="@{/patients/{id}(id=${patient.id})}" style="font-size: 0.88rem; color: var(--ink); text-decoration: none; font-weight: 500;">
+            ← Patient record
+        </a>
+    </div>
+
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.2rem; flex-wrap: wrap; gap: 10px;">
+        <div style="display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap;">
+            <h1 style="margin: 0; font-size: 1.6rem; color: var(--ink);" th:text="'Examination · ' + ${patient.fullName}">Examination</h1>
+            <span class="tag info" th:text="${patient.patientNo}">P-0001</span>
+        </div>
+        <span class="tag good" th:text="'Exam Date: ' + ${exam.examDate}">Date</span>
+    </div>
+
+    <!-- Flash notifications -->
     <div class="flash" th:if="${msg}" th:text="${msg}">Saved</div>
     <div class="flash bad" th:if="${error}" th:text="${error}">Error</div>
 
-    <div class="grid">
-        <section class="panel"><h2>Visit</h2><div class="pad">
-            <dl class="detail-list">
-                <dt>Date</dt><dd th:text="${exam.examDate}">date</dd>
-                <dt>Clinician</dt><dd th:text="${exam.examinedBy}">name</dd>
-                <dt>Findings</dt><dd th:text="${exam.findings} ?: '—'">findings</dd>
-            </dl>
-        </div></section>
-        <section class="panel"><h2>Measurements</h2><div class="pad">
-            <table><thead><tr><th>Eye</th><th>VA</th><th>SPH</th><th>CYL</th><th>Axis</th><th>ADD</th></tr></thead>
-                <tbody>
-                <tr><th>OD</th><td th:text="${exam.odVa} ?: '—'"></td><td th:text="${exam.odSph} ?: '—'"></td><td th:text="${exam.odCyl} ?: '—'"></td><td th:text="${exam.odAxis} ?: '—'"></td><td th:text="${exam.odAdd} ?: '—'"></td></tr>
-                <tr><th>OS</th><td th:text="${exam.osVa} ?: '—'"></td><td th:text="${exam.osSph} ?: '—'"></td><td th:text="${exam.osCyl} ?: '—'"></td><td th:text="${exam.osAxis} ?: '—'"></td><td th:text="${exam.osAdd} ?: '—'"></td></tr>
-                </tbody></table>
-            <p class="note" th:text="'PD: ' + (${exam.ipd} ?: '—')">PD</p>
-        </div></section>
+    <!-- ── Clinical Visit & Measurements Row ────────────────────── -->
+    <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.4rem; margin-bottom: 1.4rem;">
+        
+        <!-- Visit summary -->
+        <section class="exam-detail-card" style="margin: 0;">
+            <h2>Visit details</h2>
+            <div class="pad">
+                <dl class="detail-list" style="margin: 0;">
+                    <dt>Examination Date</dt>
+                    <dd th:text="${exam.examDate}">date</dd>
+                    
+                    <dt>Clinician</dt>
+                    <dd><strong th:text="${exam.examinedBy}">name</strong></dd>
+                    
+                    <dt>Clinical Findings</dt>
+                    <dd style="white-space: pre-wrap; color: var(--ink);" th:text="${exam.findings} ?: 'No specific findings recorded.'">findings</dd>
+                </dl>
+            </div>
+        </section>
+
+        <!-- Refraction table -->
+        <section class="exam-detail-card" style="margin: 0;">
+            <h2>Measurements</h2>
+            <div class="pad">
+                <table class="rx-table" style="width: 100%; border-collapse: collapse; margin-bottom: 1rem;">
+                    <thead>
+                        <tr>
+                            <th scope="col" style="padding: 0.5rem 0.6rem; font-size: 0.72rem; text-transform: uppercase; color: var(--ink-soft); border-bottom: 1px solid var(--line);">Eye</th>
+                            <th scope="col" style="padding: 0.5rem 0.6rem; font-size: 0.72rem; text-transform: uppercase; color: var(--ink-soft); border-bottom: 1px solid var(--line);">VA</th>
+                            <th scope="col" style="padding: 0.5rem 0.6rem; font-size: 0.72rem; text-transform: uppercase; color: var(--ink-soft); border-bottom: 1px solid var(--line);">SPH</th>
+                            <th scope="col" style="padding: 0.5rem 0.6rem; font-size: 0.72rem; text-transform: uppercase; color: var(--ink-soft); border-bottom: 1px solid var(--line);">CYL</th>
+                            <th scope="col" style="padding: 0.5rem 0.6rem; font-size: 0.72rem; text-transform: uppercase; color: var(--ink-soft); border-bottom: 1px solid var(--line);">Axis</th>
+                            <th scope="col" style="padding: 0.5rem 0.6rem; font-size: 0.72rem; text-transform: uppercase; color: var(--ink-soft); border-bottom: 1px solid var(--line);">ADD</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="padding: 0.65rem 0.6rem; border-bottom: 1px solid var(--line);">
+                                <span class="eye-badge od" style="display: inline-block; padding: 2px 7px; background: #0284c7; color: #fff; border-radius: 4px; font-weight: 700; font-size: 0.75rem;">OD</span>
+                                <small style="display: block; color: var(--ink-soft); font-size: 0.72rem;">Right</small>
+                            </td>
+                            <td style="padding: 0.65rem 0.6rem; border-bottom: 1px solid var(--line); font-weight: 600;" th:text="${exam.odVa} ?: '—'">6/6</td>
+                            <td style="padding: 0.65rem 0.6rem; border-bottom: 1px solid var(--line);" th:text="${exam.odSph} ?: '—'">-0.50</td>
+                            <td style="padding: 0.65rem 0.6rem; border-bottom: 1px solid var(--line);" th:text="${exam.odCyl} ?: '—'">-0.25</td>
+                            <td style="padding: 0.65rem 0.6rem; border-bottom: 1px solid var(--line);" th:text="${exam.odAxis} ?: '—'">90</td>
+                            <td style="padding: 0.65rem 0.6rem; border-bottom: 1px solid var(--line);" th:text="${exam.odAdd} ?: '—'">+1.00</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 0.65rem 0.6rem;">
+                                <span class="eye-badge os" style="display: inline-block; padding: 2px 7px; background: #475569; color: #fff; border-radius: 4px; font-weight: 700; font-size: 0.75rem;">OS</span>
+                                <small style="display: block; color: var(--ink-soft); font-size: 0.72rem;">Left</small>
+                            </td>
+                            <td style="padding: 0.65rem 0.6rem; font-weight: 600;" th:text="${exam.osVa} ?: '—'">6/6</td>
+                            <td style="padding: 0.65rem 0.6rem;" th:text="${exam.osSph} ?: '—'">-0.50</td>
+                            <td style="padding: 0.65rem 0.6rem;" th:text="${exam.osCyl} ?: '—'">-0.25</td>
+                            <td style="padding: 0.65rem 0.6rem;" th:text="${exam.osAxis} ?: '—'">90</td>
+                            <td style="padding: 0.65rem 0.6rem;" th:text="${exam.osAdd} ?: '—'">+1.00</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div style="display: flex; gap: 15px; font-size: 0.85rem; color: var(--ink-soft); padding-top: 0.4rem; border-top: 1px solid var(--line);">
+                    <span><strong>Pupillary Distance (PD):</strong> <span th:text="${exam.ipd} ? ${exam.ipd} + ' mm' : '—'">—</span></span>
+                    <span th:if="${exam.baseCurve}"><strong>Base Curve:</strong> <span th:text="${exam.baseCurve}">—</span></span>
+                    <span th:if="${exam.diameter}"><strong>Diameter:</strong> <span th:text="${exam.diameter}">—</span></span>
+                </div>
+            </div>
+        </section>
     </div>
 
-    <section class="panel"><h2>Prescription</h2><div class="pad">
-        <div th:if="${prescription}">
-            <strong th:text="${prescription.rxNo}">RX</strong>
-            <span th:text="' · issued ' + ${prescription.issuedOn} + ' by ' + ${prescription.issuedBy}">date</span>
-            <p class="note">This is retained as a permanent clinical record and has no automatic expiry.</p>
-        </div>
-        <form th:unless="${prescription}" method="post" th:action="@{/examinations/{id}/prescription(id=${exam.id})}">
-            <button class="btn" type="submit">Issue prescription from this examination</button>
-        </form>
-    </div></section>
-
-    <section class="panel"><h2>Surgeon referral</h2><div class="pad">
-        <div th:if="${referral}">
-            <a th:href="@{/referrals/{id}(id=${referral.id})}" th:text="${referral.refNo}">REF</a>
-            <span th:text="' · ' + ${referral.status} + ' · assigned to ' + ${referral.surgeonName}">status</span>
-        </div>
-        <form th:unless="${referral}" method="post" th:action="@{/examinations/{id}/referral(id=${exam.id})}">
-            <div class="grid">
-                <label class="field">Assigned surgeon
-                    <select name="surgeon" required>
-                        <option value="">Select surgeon</option>
-                        <option th:each="s : ${surgeons}" th:value="${s.username}"
-                                th:text="${s.fullName} + ' (' + ${s.username} + ')'">Surgeon</option>
-                    </select>
-                </label>
-                <label class="field">Urgency
-                    <select name="urgency"><option value="ROUTINE">Routine</option><option value="URGENT">Urgent</option></select>
-                </label>
+    <!-- ── Prescription Card ────────────────────────────────────── -->
+    <section class="exam-detail-card">
+        <h2>Prescription</h2>
+        <div class="pad">
+            <div th:if="${prescription}" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+                <div>
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 0.35rem;">
+                        <strong style="font-size: 1.15rem; color: var(--ink);" th:text="${prescription.rxNo}">RX-0001</strong>
+                        <span class="tag good">Issued</span>
+                    </div>
+                    <p style="margin: 0; font-size: 0.85rem; color: var(--ink-soft);" th:text="'Issued on ' + ${prescription.issuedOn} + ' by ' + ${prescription.issuedBy}">date</p>
+                </div>
+                <p style="margin: 0; font-size: 0.82rem; color: var(--ink-soft); max-width: 320px;">
+                    Retained as an authentic clinical prescription record.
+                </p>
             </div>
-            <label class="field">Reason for referral<textarea name="reason" required></textarea></label>
-            <button class="btn" type="submit">Send referral</button>
-        </form>
-    </div></section>
+            
+            <div th:unless="${prescription}" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px;">
+                <div>
+                    <strong style="display: block; font-size: 0.95rem; color: var(--ink); margin-bottom: 0.2rem;">No prescription issued yet</strong>
+                    <span style="font-size: 0.84rem; color: var(--ink-soft);">You can generate an official prescription from these measurements.</span>
+                </div>
+                <form method="post" th:action="@{/examinations/{id}/prescription(id=${exam.id})}" style="margin: 0;">
+                    <button class="btn" type="submit" style="background: var(--ink); color: #fff; padding: 0.5rem 1.1rem; border-radius: 5px; font-weight: 600; cursor: pointer;">
+                        Issue prescription from this examination
+                    </button>
+                </form>
+            </div>
+        </div>
+    </section>
 
-    <section class="panel"><h2>Symptoms and history snapshot</h2><div class="pad grid">
-        <div><strong>Other symptoms</strong><p th:text="${symptoms.additionalSymptoms} ?: 'See recorded symptom flags.'">Symptoms</p></div>
-        <div><strong>Ocular history</strong><p th:text="${history.ocularHistory} ?: '—'">History</p></div>
-        <div><strong>Other medical conditions</strong><p th:text="${history.otherConditions} ?: '—'">History</p></div>
-    </div></section>
+    <!-- ── Surgeon Referral Card ────────────────────────────────── -->
+    <section class="exam-detail-card">
+        <h2>
+            <span>Surgeon referral</span>
+            <span th:if="${referral}" class="tag" th:classappend="${referral.urgency == 'URGENT'} ? ' bad' : ' info'" th:text="${referral.urgency}">Routine</span>
+        </h2>
+        <div class="pad">
+            <!-- Case A: Referral Already Exists -->
+            <div th:if="${referral}">
+                <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 1rem;">
+                    <div>
+                        <a th:href="@{/referrals/{id}(id=${referral.id})}" style="font-size: 1.1rem; font-weight: 700; color: #0284c7; text-decoration: none;" th:text="${referral.refNo}">REF-0001</a>
+                        <span style="margin: 0 8px; color: var(--line);">·</span>
+                        <span class="tag" th:classappend="${referral.status == 'COMPLETED'} ? ' good' : ' warn'" th:text="${referral.status}">PENDING</span>
+                    </div>
+                    <span style="font-size: 0.85rem; color: var(--ink-soft);" th:text="'Referred on ' + ${referral.referredOn}">date</span>
+                </div>
+                <div style="background: #f8fafc; border: 1px solid var(--line); border-radius: 6px; padding: 0.9rem 1.1rem; font-size: 0.88rem;">
+                    <p style="margin: 0 0 0.35rem;"><strong>Assigned Surgeon:</strong> <span th:text="${referral.surgeonName}">Dr. Specialist</span></p>
+                    <p style="margin: 0;"><strong>Reason:</strong> <span th:text="${referral.reason}">Reason detail</span></p>
+                </div>
+            </div>
+
+            <!-- Case B: No Referral Yet — Toggle Button revealing the form -->
+            <div th:unless="${referral}">
+                <div id="referral-prompt-area" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px;">
+                    <div>
+                        <strong style="display: block; font-size: 0.95rem; color: var(--ink); margin-bottom: 0.2rem;">Refer to Eye Surgeon</strong>
+                        <span style="font-size: 0.84rem; color: var(--ink-soft);">If the patient requires specialist ophthalmologist assessment, create a referral hand-off.</span>
+                    </div>
+                    <button type="button" id="btn-toggle-referral" class="btn-referral-toggle">
+                        <span>Make surgeon referral</span>
+                    </button>
+                </div>
+
+                <!-- Hidden by default until button clicked -->
+                <div id="referral-form-container" hidden style="margin-top: 1.2rem; padding-top: 1.2rem; border-top: 1px solid var(--line);">
+                    <form method="post" th:action="@{/examinations/{id}/referral(id=${exam.id})}">
+                        <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-bottom: 12px;">
+                            <label class="field">
+                                <span>Assigned surgeon</span>
+                                <select name="surgeon" required>
+                                    <option value="">Select surgeon</option>
+                                    <option th:each="s : ${surgeons}" th:value="${s.username}"
+                                            th:text="${s.fullName} + ' (' + ${s.username} + ')'">Surgeon</option>
+                                </select>
+                            </label>
+                            <label class="field">
+                                <span>Urgency level</span>
+                                <select name="urgency">
+                                    <option value="ROUTINE">Routine</option>
+                                    <option value="URGENT">Urgent</option>
+                                </select>
+                            </label>
+                        </div>
+                        <label class="field" style="margin-bottom: 14px;">
+                            <span>Reason for referral</span>
+                            <textarea name="reason" rows="3" required placeholder="Specify clinical findings, indications, and concerns for the surgeon…"></textarea>
+                        </label>
+                        <div style="display: flex; gap: 10px; align-items: center;">
+                            <button class="btn" type="submit" style="background: var(--ink); color: #fff; font-weight: 600;">
+                                Send referral to surgeon
+                            </button>
+                            <button type="button" id="btn-cancel-referral" class="btn ghost">
+                                Cancel
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── Symptoms and History Snapshot Card ───────────────────── -->
+    <section class="exam-detail-card">
+        <h2>Symptoms and history snapshot</h2>
+        <div class="pad grid" style="grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.2rem;">
+            <div>
+                <strong style="display: block; font-size: 0.8rem; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 0.3rem;">Other symptoms</strong>
+                <p style="margin: 0; font-size: 0.9rem;" th:text="${symptoms.additionalSymptoms} ?: 'See recorded symptom flags.'">Symptoms</p>
+            </div>
+            <div>
+                <strong style="display: block; font-size: 0.8rem; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 0.3rem;">Ocular history</strong>
+                <p style="margin: 0; font-size: 0.9rem;" th:text="${history.ocularHistory} ?: 'No ocular conditions noted.'">History</p>
+            </div>
+            <div>
+                <strong style="display: block; font-size: 0.8rem; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 0.3rem;">Other medical conditions</strong>
+                <p style="margin: 0; font-size: 0.9rem;" th:text="${history.otherConditions} ?: 'No systemic conditions noted.'">History</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── Bottom Action Navigation Bar ─────────────────────────── -->
+    <div class="bottom-actions-bar">
+        <div>
+            <span style="display: block; font-size: 0.82rem; color: var(--ink-soft); margin-bottom: 0.2rem;">Clinical workflow completed</span>
+            <strong style="font-size: 0.95rem; color: var(--ink);">Ready to return to console or review patient file</strong>
+        </div>
+        <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+            <a th:href="@{/patients/{id}(id=${patient.id})}" class="btn ghost">
+                Patient record
+            </a>
+            <a th:href="@{/dashboard}" class="btn-dashboard">
+                Return to Dashboard
+            </a>
+        </div>
+    </div>
 </main>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const toggleBtn = document.getElementById('btn-toggle-referral');
+    const referralFormContainer = document.getElementById('referral-form-container');
+    const cancelBtn = document.getElementById('btn-cancel-referral');
+    const promptArea = document.getElementById('referral-prompt-area');
+
+    if (toggleBtn && referralFormContainer) {
+        toggleBtn.addEventListener('click', function () {
+            referralFormContainer.hidden = false;
+            toggleBtn.style.display = 'none';
+            const selectEl = referralFormContainer.querySelector('select[name="surgeon"]');
+            if (selectEl) selectEl.focus();
+        });
+    }
+
+    if (cancelBtn && referralFormContainer && toggleBtn) {
+        cancelBtn.addEventListener('click', function () {
+            referralFormContainer.hidden = true;
+            toggleBtn.style.display = 'inline-flex';
+        });
+    }
+});
+</script>
 </body>
 </html>
