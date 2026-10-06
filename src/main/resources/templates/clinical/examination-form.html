@@ -25,60 +25,41 @@
 
     <div class="flash bad" th:if="${error}" th:text="${error}">Error</div>
 
-    <!-- ── Progress stepper ───────────────────────────────────── -->
-    <div class="exam-stepper" role="list" aria-label="Examination steps">
-        <div class="exam-step active" id="step-indicator-1" role="listitem">
-            <span class="step-num" aria-hidden="true">1</span>
-            <span class="step-label">Eye measurements</span>
-            <span class="step-connector" aria-hidden="true"></span>
-        </div>
-        <div class="exam-step" id="step-indicator-2" role="listitem">
-            <span class="step-num" aria-hidden="true">2</span>
-            <span class="step-label">Reported symptoms</span>
-            <span class="step-connector" aria-hidden="true"></span>
-        </div>
-        <div class="exam-step" id="step-indicator-3" role="listitem">
-            <span class="step-num" aria-hidden="true">3</span>
-            <span class="step-label">Medical history</span>
-        </div>
-    </div>
-
-    <!-- ── Form wrapper with sidebar tabs ────────────────────── -->
+    <!-- ── Form wrapper with horizontal top tabs ────────────────────── -->
     <form method="post" th:action="@{/examinations}" id="exam-form" novalidate>
 
+        <!-- ── Horizontal Top Navigation ──────────────────────── -->
+        <nav class="exam-topnav" aria-label="Section navigation">
+            <button type="button" class="topnav-item active"
+                    data-section="section-measurements" data-step="1"
+                    aria-current="true">
+                <span class="topnav-num">01</span>
+                <span class="topnav-text">
+                    <strong>Eye measurements</strong>
+                    <small>VA · SPH · CYL · Axis · ADD</small>
+                </span>
+            </button>
+            <button type="button" class="topnav-item"
+                    data-section="section-symptoms" data-step="2"
+                    aria-current="false">
+                <span class="topnav-num">02</span>
+                <span class="topnav-text">
+                    <strong>Reported symptoms</strong>
+                    <small>Patient-reported complaints</small>
+                </span>
+            </button>
+            <button type="button" class="topnav-item"
+                    data-section="section-history" data-step="3"
+                    aria-current="false">
+                <span class="topnav-num">03</span>
+                <span class="topnav-text">
+                    <strong>Medical history</strong>
+                    <small>Systemic &amp; ocular conditions</small>
+                </span>
+            </button>
+        </nav>
+
         <div class="exam-layout">
-
-            <!-- ── Sidebar navigation ──────────────────────── -->
-            <nav class="exam-sidenav" aria-label="Section navigation">
-                <button type="button" class="sidenav-item active"
-                        data-section="section-measurements" data-step="1"
-                        aria-current="true">
-                    <span class="sidenav-num">01</span>
-                    <span class="sidenav-text">
-                        <strong>Eye measurements</strong>
-                        <small>VA · SPH · CYL · Axis · ADD</small>
-                    </span>
-                </button>
-                <button type="button" class="sidenav-item"
-                        data-section="section-symptoms" data-step="2"
-                        aria-current="false">
-                    <span class="sidenav-num">02</span>
-                    <span class="sidenav-text">
-                        <strong>Reported symptoms</strong>
-                        <small>Patient-reported complaints</small>
-                    </span>
-                </button>
-                <button type="button" class="sidenav-item"
-                        data-section="section-history" data-step="3"
-                        aria-current="false">
-                    <span class="sidenav-num">03</span>
-                    <span class="sidenav-text">
-                        <strong>Medical history</strong>
-                        <small>Systemic &amp; ocular conditions</small>
-                    </span>
-                </button>
-            </nav>
-
             <!-- ── Sections ──────────────────────────────────── -->
             <div class="exam-content">
 
@@ -381,30 +362,30 @@
 (function () {
     'use strict';
 
-    /* ── Tab / sidebar navigation ──────────────────────────── */
-    const sideItems  = document.querySelectorAll('.sidenav-item');
+    /* ── Tab navigation ──────────────────────────── */
+    const navItems   = document.querySelectorAll('.topnav-item, .sidenav-item');
     const sections   = document.querySelectorAll('.exam-section');
-    const steps      = document.querySelectorAll('.exam-step');
 
     function showSection(targetId, stepNum) {
         sections.forEach(s => {
             s.hidden = (s.id !== targetId);
             s.classList.toggle('active', s.id === targetId);
         });
-        sideItems.forEach(btn => {
+        navItems.forEach(btn => {
             const isActive = btn.dataset.section === targetId;
             btn.classList.toggle('active', isActive);
             btn.setAttribute('aria-current', isActive ? 'true' : 'false');
-        });
-        steps.forEach((step, i) => {
-            step.classList.remove('active', 'done');
-            if (i + 1 < stepNum)  step.classList.add('done');
-            if (i + 1 === stepNum) step.classList.add('active');
+            const stepVal = parseInt(btn.dataset.step, 10);
+            if (stepVal < stepNum) {
+                btn.classList.add('done');
+            } else {
+                btn.classList.remove('done');
+            }
         });
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    sideItems.forEach(btn => {
+    navItems.forEach(btn => {
         btn.addEventListener('click', () =>
             showSection(btn.dataset.section, parseInt(btn.dataset.step, 10)));
     });
