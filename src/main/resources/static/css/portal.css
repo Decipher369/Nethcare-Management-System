@@ -25,6 +25,9 @@
   --collected-bg: #EEF4F0;
   --collected-border: #D4E4D9;
 
+  --portal-bg: #E8F3FC;
+  --portal-dot: #BAD4EC;
+
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
 }
@@ -37,8 +40,8 @@ body.portal-body {
   margin: 0;
   padding: 0;
   font-family: var(--font-sans);
-  background-color: #F8FAFC;
-  background-image: radial-gradient(#CBD5E1 0.75px, transparent 0.75px);
+  background-color: var(--portal-bg);
+  background-image: radial-gradient(var(--portal-dot) 0.75px, transparent 0.75px);
   background-size: 24px 24px;
   color: var(--slate-800);
   min-height: 100vh;
@@ -232,7 +235,7 @@ body.portal-body {
 
 .portal-subdate {
   font-size: 0.75rem;
-  color: var(--slate-500);
+  color: var(--slate-600);
   font-weight: 500;
   margin: 0;
 }
@@ -778,7 +781,7 @@ body.portal-body {
 /* Minimal Clean Footer */
 .portal-footer {
   width: 100%;
-  background-color: #ffffff;
+  background-color: transparent;
   border-top: 1px solid var(--slate-200);
   margin-top: 2rem;
 }
@@ -791,7 +794,7 @@ body.portal-body {
   align-items: center;
   justify-content: space-between;
   font-size: 0.75rem;
-  color: var(--slate-500);
+  color: var(--slate-600);
 }
 
 /* Responsive adjustments */
