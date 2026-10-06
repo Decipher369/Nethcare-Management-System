@@ -49,10 +49,10 @@
 
         <!-- Temporary Credential Alert Box -->
         <div class="credential-alert-box" th:if="${credential}">
-            <strong>Portal credentials — show once:</strong><br>
-            Username: <code th:text="${credential.username}">username</code> &nbsp;|&nbsp; 
+            <strong class="credential-alert-title">Portal credentials — show once:</strong><br>
+            Username: <code th:text="${credential.username}">username</code> &nbsp;<span class="credential-alert-sep">|</span>&nbsp; 
             Temporary password: <code th:text="${credential.temporaryPassword}">password</code><br>
-            <small style="color: #92400E;">The patient must change this temporary password at their first login.</small>
+            <small class="credential-alert-note">The patient must change this temporary password at their first login.</small>
         </div>
 
         <!-- Block 1: Navigation Bar Card -->
@@ -256,7 +256,7 @@
                 <!-- If Minor: Guardian & Legal Representative Details -->
                 <div th:if="${isMinor}">
                     <h3 class="sub-section-title">
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#15375B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
                         <span>GUARDIAN &amp; LEGAL REPRESENTATIVE DETAILS</span>
                     </h3>
 

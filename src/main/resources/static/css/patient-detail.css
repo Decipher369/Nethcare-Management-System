@@ -214,23 +214,40 @@ body.patient-detail-body .topbar-signout-btn:focus {
 }
 
 .patient-summary-page .credential-alert-box {
-    background: #FFFBEB;
-    border: 1px solid #FDE68A;
+    background: #EAF3FC;
+    border: 1px solid #BAE0FD;
     border-radius: 12px;
     padding: 16px 20px;
-    color: #78350F;
+    color: #475569;
     font-size: 13px;
     line-height: 1.5;
 }
 
+.patient-summary-page .credential-alert-box strong,
+.patient-summary-page .credential-alert-title {
+    color: #15375B;
+    font-weight: 700;
+}
+
+.patient-summary-page .credential-alert-sep {
+    color: #94A3B8;
+}
+
 .patient-summary-page .credential-alert-box code {
-    background: #FEF3C7;
+    background: #FFFFFF;
+    border: 1px solid #BAE0FD;
     padding: 2px 6px;
     border-radius: 4px;
     font-family: 'JetBrains Mono', ui-monospace, monospace;
     font-size: 13px;
-    color: #92400E;
+    color: #15375B;
     font-weight: 700;
+}
+
+.patient-summary-page .credential-alert-box small,
+.patient-summary-page .credential-alert-note {
+    color: #475569;
+    font-size: 13px;
 }
 
 /* Common Card Base Style */
@@ -460,8 +477,8 @@ body.patient-detail-body .topbar-signout-btn:focus {
 
 /* Block 3: Guardian Banner */
 .patient-summary-page .guardian-banner-card {
-    background: linear-gradient(180deg, rgba(245, 158, 11, 0.08) 0%, rgba(255, 255, 255, 1) 100%);
-    border: 2px solid #FCD34D;
+    background: #EAF3FC;
+    border: 2px solid #BAE0FD;
     border-radius: 16px;
     padding: 20px 24px;
     display: flex;
@@ -481,7 +498,7 @@ body.patient-detail-body .topbar-signout-btn:focus {
     width: 40px;
     height: 40px;
     border-radius: 12px;
-    background: #F59E0B;
+    background: #15375B;
     color: #FFFFFF;
     display: flex;
     align-items: center;
@@ -511,8 +528,9 @@ body.patient-detail-body .topbar-signout-btn:focus {
 .patient-summary-page .child-tag-amber {
     font-size: 11px;
     font-weight: 700;
-    background: #FEF3C7;
-    color: #78350F;
+    background: #D6E8FA;
+    color: #15375B;
+    border: 1px solid #BAE0FD;
     border-radius: 4px;
     padding: 2px 6px;
     text-transform: uppercase;
@@ -526,7 +544,7 @@ body.patient-detail-body .topbar-signout-btn:focus {
 
 .patient-summary-page .guardian-contact-whitebox {
     background: #FFFFFF;
-    border: 1px solid #FDE68A;
+    border: 1px solid #BAE0FD;
     border-radius: 12px;
     padding: 12px 18px;
     display: flex;
@@ -545,19 +563,19 @@ body.patient-detail-body .topbar-signout-btn:focus {
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.06em;
-    color: #94A3B8;
+    color: #64748B;
 }
 
 .patient-summary-page .guardian-box-val {
     font-size: 14px;
     font-weight: 600;
-    color: #0F2742;
+    color: #0E243D;
 }
 
 .patient-summary-page .guardian-box-divider {
     width: 1px;
     height: 28px;
-    background: #FCD34D;
+    background: #BAE0FD;
 }
 
 .patient-summary-page .tel-link {
@@ -702,7 +720,7 @@ body.patient-detail-body .topbar-signout-btn:focus {
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.06em;
-    color: #78350F;
+    color: #15375B;
     margin: 0 0 16px 0;
     display: flex;
     align-items: center;
@@ -716,13 +734,31 @@ body.patient-detail-body .topbar-signout-btn:focus {
 }
 
 .patient-summary-page .amber-tile-box {
-    background: #FFFBEB;
-    border: 1px solid #FDE68A;
+    background: #EAF3FC;
+    border: 1px solid #BAE0FD;
     border-radius: 12px;
     padding: 16px 18px;
     display: flex;
     flex-direction: column;
     gap: 6px;
+}
+
+.patient-summary-page .amber-tile-box .tile-label-text {
+    color: #64748B;
+}
+
+.patient-summary-page .amber-tile-box .tile-val-text {
+    color: #0E243D;
+    font-weight: 600;
+}
+
+.patient-summary-page .amber-tile-box .btn-copy-tile {
+    color: #64748B;
+}
+
+.patient-summary-page .amber-tile-box .btn-copy-tile:hover {
+    background: #D6E8FA;
+    color: #15375B;
 }
 
 .patient-summary-page .adult-consent-verified-row {
