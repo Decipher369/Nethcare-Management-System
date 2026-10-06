@@ -17,7 +17,12 @@ public class AccountController {
     public AccountController(UserService users) { this.users = users; }
 
     @GetMapping("/account/change-password")
-    public String form() { return "account/change-password"; }
+    public String form(Authentication authentication, Model model) {
+        if (authentication != null && authentication.isAuthenticated()) {
+            model.addAttribute("username", authentication.getName());
+        }
+        return "account/change-password";
+    }
 
     @PostMapping("/account/change-password")
     public String change(@RequestParam String currentPassword, @RequestParam String newPassword,
