@@ -627,3 +627,16 @@ configuration has `-Dspring-boot.run.profiles=dev`.
 - **30 Sep 2026** — Progress review (design pack + 50% module implementation)
 - **7 Oct 2026** — Group report submitted to Turnitin
 - **21 Oct 2026** — Final viva, demo, and code submission (Gradescope)
+
+### Stock photos
+
+On **Stock → Add stock item**, choose a spectacle photo before saving. JPEG and PNG
+images up to 5 MB and 4096 × 4096 pixels are supported. The form previews the photo;
+the saved photo appears in the staff catalogue and public frame gallery.
+
+Use **Edit** to replace the photo, leave the picker empty to retain it, or select
+**Remove current photo** to clear it. Old bundled catalogue images remain supported.
+Uploaded image bytes are stored in a separate `stock_images` MySQL table, created
+by Flyway V3. They survive application redeployments using the existing database;
+no additional Railway volume or image-storage credentials are required. Include
+this table in database backups. Failed stock saves roll back their image changes.

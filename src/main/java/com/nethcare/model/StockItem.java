@@ -57,7 +57,7 @@ public class StockItem extends BaseEntity {
     @Column(name = "expires_on")
     private LocalDate expiresOn;
 
-    /** File name under /static/images/frames, not a full path. */
+    /** Uploaded photo key, or a legacy file name under /static/images/frames. */
     @Column(name = "image_name", length = 200)
     private String imageName;
 
@@ -107,6 +107,11 @@ public class StockItem extends BaseEntity {
 
     public LocalDate getExpiresOn() { return expiresOn; }
     public void setExpiresOn(LocalDate expiresOn) { this.expiresOn = expiresOn; }
+
+    public String getImageUrl() {
+        if (imageName == null || imageName.isBlank()) return null;
+        return (imageName.startsWith("upload-") ? "/images/stock/" : "/images/frames/") + imageName;
+    }
 
     public String getImageName() { return imageName; }
     public void setImageName(String imageName) { this.imageName = imageName; }
