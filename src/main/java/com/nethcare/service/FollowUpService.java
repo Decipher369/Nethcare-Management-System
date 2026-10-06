@@ -177,6 +177,54 @@ public class FollowUpService {
     }
 
     @Transactional
+    public Notification sendPatientSms(Long patientId, String messageText, String actor) {
+        Patient patient = patients.findById(patientId)
+                .orElseThrow(() -> new ResourceNotFoundException("No patient with id " + patientId));
+        String phone = normalizeSriLankanPhone(patient.getPhone());
+        Notification n = new Notification();
+        n.setReference(nextReference());
+        n.setPatientId(patient.getId());
+        if (patient.getUserId() != null) n.setRecipientUserId(patient.getUserId());
+        n.setPatientName(patient.getFullName());
+        n.setType(NotificationType.PATIENT_SMS);
+        n.setChannel(NotificationChannel.SMS);
+        n.setDestination(phone == null ? patient.getPhone() : phone);
+        n.setMessage(messageText != null && !messageText.isBlank() ? messageText.trim() :
+                ("Nethcare: " + patient.getFullName() + ", your follow-up appointment is scheduled at Nethcare Clinic."));
+        n.setScheduledFor(LocalDateTime.now());
+        n.setStatus(phone == null ? NotificationStatus.FAILED : NotificationStatus.PENDING);
+        if (phone == null) {
+            n.setFailureReason("Missing or invalid Sri Lankan mobile number");
+        }
+        Notification saved = notifications.save(n);
+        audit.record(actor, AuditAction.CREATE, "NotificationDispatch", saved.getReference(),
+                null, "PATIENT_SMS -> " + n.getDestination());
+        return saved;
+    }
+
+    @Transactional
+    public Notification sendDirectSms(String rawPhone, String recipientName, String messageText, String actor) {
+        String phone = normalizeSriLankanPhone(rawPhone);
+        Notification n = new Notification();
+        n.setReference(nextReference());
+        n.setPatientName(recipientName != null && !recipientName.isBlank() ? recipientName.trim() : "Ad-hoc Recipient");
+        n.setType(NotificationType.PATIENT_SMS);
+        n.setChannel(NotificationChannel.SMS);
+        n.setDestination(phone == null ? rawPhone : phone);
+        n.setMessage(messageText != null && !messageText.isBlank() ? messageText.trim() :
+                ("Nethcare: " + n.getPatientName() + ", notification from Nethcare Clinic."));
+        n.setScheduledFor(LocalDateTime.now());
+        n.setStatus(phone == null ? NotificationStatus.FAILED : NotificationStatus.PENDING);
+        if (phone == null) {
+            n.setFailureReason("Missing or invalid Sri Lankan mobile number");
+        }
+        Notification saved = notifications.save(n);
+        audit.record(actor, AuditAction.CREATE, "NotificationDispatch", saved.getReference(),
+                null, "DIRECT_SMS -> " + n.getDestination());
+        return saved;
+    }
+
+    @Transactional
     public Notification markSent(Long id, String gatewayReceiptId, String actor) {
         Notification n = notification(id);
         if (!n.isQueued()) throw new BusinessException("Notification " + n.getReference() + " is not pending.");
