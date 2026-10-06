@@ -12,6 +12,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -30,13 +31,16 @@ public class ReportController {
     private final AuditService auditService;
     private final ReportingService reporting;
     private final UserRepository users;
+    private final NotificationDispatchService dispatchService;
 
     public ReportController(FollowUpService followUpService, FollowUpRepository followUps,
                             NotificationRepository notifications, AuditLogRepository auditLogs,
-                            AuditService auditService, ReportingService reporting, UserRepository users) {
+                            AuditService auditService, ReportingService reporting, UserRepository users,
+                            NotificationDispatchService dispatchService) {
         this.followUpService = followUpService; this.followUps = followUps;
         this.notifications = notifications; this.auditLogs = auditLogs;
         this.auditService = auditService; this.reporting = reporting; this.users = users;
+        this.dispatchService = dispatchService;
     }
 
     @GetMapping("/dashboard/console")
@@ -96,7 +100,56 @@ public class ReportController {
         model.addAttribute("optedOut", rows.stream().filter(n -> n.getStatus() == NotificationStatus.EXCLUDED).count());
         model.addAttribute("retryPending", rows.stream().filter(n -> n.getStatus() == NotificationStatus.RETRY_PENDING).count());
         model.addAttribute("rows", rows);
+
+        SmsGateway gateway = dispatchService.getGateway();
+        model.addAttribute("smsEnabled", true);
+        model.addAttribute("smsProvider", gateway.getProviderName());
+        model.addAttribute("isSimulator", gateway.isSimulator());
         return "console/notifications";
+    }
+
+    @PostMapping("/notifications/dispatch-now")
+    public String dispatchNow(Authentication auth, RedirectAttributes ra) {
+        NotificationDispatchService.DispatchResult res = dispatchService.dispatchDue(auth.getName());
+        ra.addFlashAttribute("dispatchMessage",
+                String.format("Dispatched due notifications: %d sent, %d failed. (Newly queued: %d)",
+                        res.sentCount(), res.failedCount(), res.queuedCount()));
+        return "redirect:/notifications";
+    }
+
+    @PostMapping("/notifications/{id}/send-now")
+    public String sendNow(@PathVariable Long id, Authentication auth, RedirectAttributes ra) {
+        boolean sent = dispatchService.dispatchById(id, auth.getName());
+        if (sent) {
+            ra.addFlashAttribute("dispatchMessage", "Notification #" + id + " sent successfully.");
+        } else {
+            ra.addFlashAttribute("dispatchError", "Failed to send notification #" + id + ". Check error / exceptions log.");
+        }
+        return "redirect:/notifications";
+    }
+
+    @PostMapping("/notifications/send-direct")
+    public String sendDirect(@RequestParam String phone,
+                             @RequestParam(required = false) String recipientName,
+                             @RequestParam String message,
+                             Authentication auth,
+                             RedirectAttributes ra) {
+        try {
+            Notification n = followUpService.sendDirectSms(phone, recipientName, message, auth.getName());
+            if (n.getStatus() == NotificationStatus.FAILED) {
+                ra.addFlashAttribute("dispatchError", "Failed to queue SMS: " + n.getFailureReason());
+                return "redirect:/notifications";
+            }
+            boolean sent = dispatchService.dispatchSingle(n, auth.getName());
+            if (sent) {
+                ra.addFlashAttribute("dispatchMessage", "SMS sent successfully to " + n.getDestination() + " (Receipt: " + n.getGatewayReceiptId() + ")");
+            } else {
+                ra.addFlashAttribute("dispatchMessage", "SMS queued for next dispatch (Reference: " + n.getReference() + ")");
+            }
+        } catch (Exception ex) {
+            ra.addFlashAttribute("dispatchError", "Error sending SMS: " + ex.getMessage());
+        }
+        return "redirect:/notifications";
     }
 
     @PostMapping("/notifications/{id}/sent")

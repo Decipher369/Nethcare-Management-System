@@ -46,6 +46,7 @@ logs/
 # ============================================================
 .env
 *.env
+application-dev.properties
 application-local.properties
 application-secrets.properties
 
