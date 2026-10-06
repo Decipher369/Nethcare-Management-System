@@ -47,6 +47,10 @@
             <span th:text="${success}">Action completed successfully.</span>
         </div>
 
+        <div class="notice-banner-box" role="alert" th:if="${error}" style="background:#fde8e8; color:#9b1c1c;">
+            <span th:text="${error}">SMS could not be sent.</span>
+        </div>
+
         <!-- Temporary Credential Alert Box -->
         <div class="credential-alert-box" th:if="${credential}">
             <strong>Portal credentials — show once:</strong><br>
@@ -121,6 +125,26 @@
                     </a>
                 </div>
             </div>
+        </div>
+
+        <!-- SMS Outreach Section -->
+        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 1.2rem; margin: 1.5rem 0;">
+            <h2 style="margin: 0 0 0.4rem; font-size: 1rem; color: #1a3a5c;">📱 Send SMS Notification</h2>
+            <p style="font-size: 0.84rem; color: #64748b; margin: 0 0 0.8rem;">
+                Dispatch an automated appointment reminder or custom text to <strong th:text="${patient.phone}">07XXXXXXXX</strong>.
+            </p>
+            <form method="post" th:action="@{/patients/{id}/send-sms(id=${patient.id})}">
+                <div style="margin-bottom: 0.8rem;">
+                    <textarea name="message" rows="2" style="width: 100%; box-sizing: border-box; padding: 0.5rem; font-family: inherit; font-size: 0.85rem; border: 1px solid #cbd5e1; border-radius: 4px;"
+                              th:text="'Nethcare: ' + ${patient.fullName} + ', your follow-up appointment at Nethcare Clinic is scheduled for ' + ${#temporals.format(T(java.time.LocalDate).now().plusDays(3), 'dd MMM yyyy')} + ' at 10:30 AM.'"></textarea>
+                </div>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <button type="submit" style="background: #1a3a5c; color: #fff; border: none; padding: 0.45rem 1rem; border-radius: 4px; cursor: pointer; font-size: 0.85rem; font-weight: 500;">
+                        ⚡ Send SMS Now
+                    </button>
+                    <a th:href="@{/notifications}" style="font-size: 0.84rem; color: #1a3a5c;">View Reminder Queue →</a>
+                </div>
+            </form>
         </div>
 
         <!-- Block 3: Guardian Banner (Only for Minors / when guardian info is present) -->

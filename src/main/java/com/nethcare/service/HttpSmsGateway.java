@@ -8,7 +8,7 @@ import org.springframework.web.client.RestClient;
 import java.util.Map;
 
 @Component
-@ConditionalOnProperty(name = "nethcare.sms.enabled", havingValue = "true")
+@ConditionalOnProperty(name = "nethcare.sms.provider", havingValue = "http")
 public class HttpSmsGateway implements SmsGateway {
     private final RestClient client;
     private final String endpoint;
@@ -32,4 +32,10 @@ public class HttpSmsGateway implements SmsGateway {
         }
         return receipt.toString();
     }
+
+    @Override
+    public String getProviderName() {
+        return "HTTP Gateway (" + endpoint + ")";
+    }
 }
+
