@@ -156,6 +156,66 @@
             </div>
         </section>
 
+        <!-- UPCOMING CONSULTATIONS CARD -->
+        <section class="portal-card">
+            <div class="portal-card-header">
+                <div class="portal-card-header-left">
+                    <svg class="portal-card-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                    <h2 class="portal-card-heading">UPCOMING CONSULTATIONS</h2>
+                    <span class="portal-count-pill" th:text="${consultations != null ? (consultations.size() + (consultations.size() == 1 ? ' Upcoming' : ' Upcoming')) : '0 Upcoming'}">0 Upcoming</span>
+                </div>
+            </div>
+
+            <div class="portal-consultation-body">
+                <!-- With Consultations -->
+                <div th:if="${consultations != null && !consultations.isEmpty()}" style="display: flex; flex-direction: column; gap: 16px;">
+                    <div th:each="c : ${consultations}" class="portal-consultation-item">
+                        <div class="portal-consultation-left">
+                            
+                            <!-- Date Tile -->
+                            <div class="portal-date-tile">
+                                <span class="portal-date-tile-month" th:text="${#strings.toUpperCase(#temporals.format(c.dueOn, 'MMM'))}">OCT</span>
+                                <span class="portal-date-tile-day" th:text="${#temporals.format(c.dueOn, 'dd')}">14</span>
+                            </div>
+
+                            <!-- Details Column -->
+                            <div class="portal-consultation-details">
+                                <div class="portal-consultation-row1">
+                                    <span th:if="${c.status != null && (c.status.name() == 'ACTIVE' || c.status.name() == 'REVIEW_QUEUED')}" class="portal-badge-confirmed">Confirmed</span>
+                                    <span th:if="${c.status != null && c.status.name() == 'NOTIFIED'}" class="portal-badge-pending">Pending</span>
+                                    <span th:if="${c.status == null || (c.status.name() != 'ACTIVE' && c.status.name() != 'REVIEW_QUEUED' && c.status.name() != 'NOTIFIED')}" class="portal-badge-consult-default" th:text="${c.status != null ? c.status.label() : 'Scheduled'}">Scheduled</span>
+                                    <span class="portal-consultation-ref" th:if="${c.id != null}" th:text="'CASE-' + ${c.id}">CASE-0001</span>
+                                </div>
+
+                                <h3 class="portal-consultation-title" th:text="${c.category != null ? c.category.label() : 'Consultation'}">Routine Review</h3>
+
+                                <div class="portal-consultation-time-line">
+                                    <svg class="portal-clock-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                    <span th:text="${#temporals.format(c.dueOn, 'EEEE, MMM d, yyyy')}">Wednesday, Oct 14, 2026</span>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Empty State -->
+                <div th:if="${consultations == null || consultations.isEmpty()}" class="portal-empty-state" style="padding: 40px 16px;">
+                    <div class="portal-empty-icon-square" style="width: 44px; height: 44px;">
+                        <svg class="portal-card-icon" style="width: 22px; height: 22px; color: #94A3B8;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
+                    </div>
+                    <h4 class="portal-empty-title">No upcoming consultations.</h4>
+                    <p class="portal-empty-desc">Your scheduled consultations will appear here.</p>
+                </div>
+            </div>
+        </section>
+
         <!-- SPECTACLE ORDERS CARD -->
         <section class="portal-card">
             <div class="portal-card-header">
