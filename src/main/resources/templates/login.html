@@ -9,385 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --primary-blue: #2E86C1;
-            --primary-hover: #256FA3;
-            --dark-navy: #1B3A5C;
-            --label-slate: #334155;
-            --muted-gray: #5B6675;
-            --border-gray: #D0D7DE;
-            --error-red: #C0392B;
-            --error-bg: #FDECEA;
-            --error-border: #F8C4C0;
-            --success-green: #2E7D32;
-            --success-bg: #E8F5E9;
-        }
-
-        * {
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Inter', system-ui, -apple-system, sans-serif;
-            background: linear-gradient(135deg, #FFF8EC 0%, #EAF3FA 100%);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            margin: 0;
-            padding: 1.5rem;
-            color: var(--label-slate);
-            position: relative;
-        }
-
-        body::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background-image: radial-gradient(circle at 10% 20%, rgba(46, 134, 193, 0.04) 0%, transparent 40%),
-                              radial-gradient(circle at 90% 80%, rgba(27, 58, 92, 0.05) 0%, transparent 40%);
-            pointer-events: none;
-        }
-
-        .page-wrapper {
-            width: 100%;
-            max-width: 420px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            position: relative;
-            z-index: 1;
-        }
-
-        .card {
-            background: #ffffff;
-            padding: 40px;
-            border-radius: 16px;
-            box-shadow: 0 10px 30px rgba(27, 58, 92, 0.08), 0 2px 8px rgba(0, 0, 0, 0.04);
-            width: 100%;
-        }
-
-        .header-group {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            width: 100%;
-            margin-bottom: 28px;
-        }
-
-        .logo {
-            display: block;
-            width: 72px;
-            height: 72px;
-            object-fit: cover;
-            object-position: right bottom;
-            border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            margin: 0 auto 24px;
-        }
-
-        h1 {
-            font-size: 24px;
-            font-weight: 700;
-            color: var(--dark-navy);
-            margin: 0 0 6px;
-            line-height: 1.2;
-        }
-
-        p.sub {
-            margin: 0;
-            color: var(--muted-gray);
-            font-size: 14px;
-            line-height: 1.4;
-        }
-
-        .banner {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 12px 16px;
-            border-radius: 10px;
-            font-size: 14px;
-            margin-bottom: 20px;
-            line-height: 1.4;
-        }
-
-        .error-banner {
-            background: var(--error-bg);
-            color: var(--error-red);
-            border: 1px solid var(--error-border);
-        }
-
-        .error-banner svg {
-            flex-shrink: 0;
-            fill: currentColor;
-            width: 18px;
-            height: 18px;
-        }
-
-        .logout-banner {
-            background: var(--success-bg);
-            color: var(--success-green);
-            border: 1px solid #C8E6C9;
-        }
-
-        .logout-banner svg {
-            flex-shrink: 0;
-            fill: currentColor;
-            width: 18px;
-            height: 18px;
-        }
-
-        .field-group {
-            margin-bottom: 18px;
-        }
-
-        label {
-            display: block;
-            font-size: 14px;
-            font-weight: 500;
-            margin-bottom: 6px;
-            color: var(--label-slate);
-            text-align: left;
-        }
-
-        .input-wrapper {
-            position: relative;
-            display: flex;
-            align-items: center;
-        }
-
-        input[type="text"],
-        input[type="password"] {
-            width: 100%;
-            height: 48px;
-            padding: 0 14px;
-            border: 1px solid var(--border-gray);
-            border-radius: 10px;
-            font-size: 16px;
-            font-family: inherit;
-            color: #1E293B;
-            background-color: #FFFFFF;
-            box-sizing: border-box;
-            outline: none;
-            transition: border-color 0.2s ease, box-shadow 0.2s ease;
-        }
-
-        .password-wrapper input {
-            padding-right: 46px;
-        }
-
-        input[type="text"]:focus,
-        input[type="password"]:focus {
-            border-color: var(--primary-blue);
-            box-shadow: 0 0 0 4px rgba(46, 134, 193, 0.15);
-        }
-
-        .toggle-password {
-            position: absolute;
-            right: 8px;
-            background: none;
-            border: none;
-            padding: 8px;
-            margin: 0;
-            cursor: pointer;
-            color: var(--muted-gray);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 6px;
-            transition: color 0.2s ease, background-color 0.2s ease;
-        }
-
-        .toggle-password:hover {
-            color: var(--dark-navy);
-            background-color: #F1F5F9;
-        }
-
-        .toggle-password:focus-visible {
-            outline: 2px solid var(--primary-blue);
-            outline-offset: 1px;
-        }
-
-        .toggle-password svg {
-            width: 20px;
-            height: 20px;
-            fill: none;
-            stroke: currentColor;
-            stroke-width: 2;
-            stroke-linecap: round;
-            stroke-linejoin: round;
-        }
-
-        .form-options {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 24px;
-            font-size: 13.5px;
-        }
-
-        .remember-me {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
-            user-select: none;
-            color: var(--label-slate);
-            font-weight: 400;
-        }
-
-        .remember-me input[type="checkbox"] {
-            width: 17px;
-            height: 17px;
-            accent-color: var(--primary-blue);
-            cursor: pointer;
-            border-radius: 4px;
-        }
-
-        .forgot-link {
-            color: var(--primary-blue);
-            text-decoration: none;
-            font-weight: 500;
-            font-size: 13.5px;
-            transition: color 0.2s ease;
-        }
-
-        .forgot-link:hover {
-            color: var(--primary-hover);
-            text-decoration: underline;
-        }
-
-        .forgot-link:focus-visible {
-            outline: 2px solid var(--primary-blue);
-            border-radius: 4px;
-        }
-
-        .forgot-info {
-            font-size: 12.5px;
-            color: var(--muted-gray);
-            margin-top: -16px;
-            margin-bottom: 20px;
-            text-align: right;
-            display: none;
-            background: #F8FAFC;
-            padding: 8px 12px;
-            border-radius: 6px;
-            border: 1px solid #E2E8F0;
-        }
-
-        .forgot-info.show {
-            display: block;
-        }
-
-        .submit-btn {
-            width: 100%;
-            height: 48px;
-            background: var(--primary-blue);
-            color: #FFFFFF;
-            border: none;
-            border-radius: 10px;
-            font-size: 16px;
-            font-weight: 600;
-            font-family: inherit;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            transition: background-color 0.2s ease, transform 0.1s ease;
-        }
-
-        .submit-btn:hover:not(:disabled) {
-            background: var(--primary-hover);
-        }
-
-        .submit-btn:focus-visible {
-            outline: 2px solid var(--dark-navy);
-            outline-offset: 2px;
-        }
-
-        .submit-btn:disabled {
-            opacity: 0.85;
-            cursor: not-allowed;
-        }
-
-        .spinner {
-            display: none;
-            width: 18px;
-            height: 18px;
-            border: 2.5px solid rgba(255, 255, 255, 0.4);
-            border-top-color: #FFFFFF;
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        .submit-btn.loading .spinner {
-            display: inline-block;
-        }
-
-        .hint {
-            font-size: 12px;
-            color: var(--muted-gray);
-            margin-top: 24px;
-            line-height: 1.5;
-            background: #F8FAFC;
-            border: 1px solid #E2E8F0;
-            border-radius: 8px;
-            padding: 10px 12px;
-            text-align: left;
-        }
-
-        .hint code {
-            font-family: ui-monospace, SFMono-Regular, monospace;
-            font-size: 11.5px;
-            background: #E2E8F0;
-            padding: 2px 4px;
-            border-radius: 4px;
-        }
-
-        .footer {
-            margin-top: 24px;
-            text-align: center;
-            font-size: 13px;
-            color: var(--muted-gray);
-        }
-
-        .footer a {
-            color: var(--primary-blue);
-            text-decoration: none;
-        }
-
-        .footer a:hover {
-            text-decoration: underline;
-        }
-
-        .test-trigger-bar {
-            margin-top: 12px;
-            text-align: center;
-        }
-
-        .test-trigger-btn {
-            background: none;
-            border: none;
-            font-size: 11.5px;
-            color: #94A3B8;
-            cursor: pointer;
-            text-decoration: underline;
-        }
-
-        .test-trigger-btn:hover {
-            color: var(--muted-gray);
-        }
-    </style>
+    <link rel="stylesheet" th:href="@{/css/login.css}">
 </head>
 <body>
 <div class="page-wrapper">
@@ -399,7 +21,7 @@
         </div>
 
         <!-- Banner for login error -->
-        <div id="errorBanner" th:if="${param.error} or ${param.testError}" class="banner error-banner" role="alert">
+        <div id="errorBanner" th:if="${param.error != null or param.testError != null}" class="banner error-banner" role="alert">
             <svg viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
             </svg>
@@ -407,7 +29,7 @@
         </div>
 
         <!-- Banner for logout notice -->
-        <div th:if="${param.logout}" class="banner logout-banner" role="status">
+        <div th:if="${param.logout != null}" class="banner logout-banner" role="status">
             <svg viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
             </svg>
@@ -444,13 +66,6 @@
                     <input type="checkbox" name="remember-me" id="rememberMe">
                     <span>Keep me signed in</span>
                 </label>
-                <div>
-                    <a href="javascript:void(0)" id="forgotPasswordLink" class="forgot-link">Forgot password?</a>
-                </div>
-            </div>
-
-            <div id="forgotPasswordInfo" class="forgot-info">
-                Forgot password? Contact your administrator.
             </div>
 
             <button type="submit" id="submitBtn" class="submit-btn">
@@ -463,13 +78,6 @@
             <strong>Dev accounts:</strong> <code>admin/admin123</code>, <code>optician/optician123</code>, <code>staff/staff123</code>, <code>surgeon/surgeon123</code>, <code>patient/patient123</code>
         </p>
     </div>
-
-    <footer class="footer">
-        <p>© 2026 Neth Opticians · Nethcare v1.0 | <a th:href="@{/contact}">Support &amp; Contact</a></p>
-        <div class="test-trigger-bar">
-            <button type="button" id="testErrorTrigger" class="test-trigger-btn">Toggle error banner preview</button>
-        </div>
-    </footer>
 </div>
 
 <script>
@@ -492,17 +100,6 @@
             });
         }
 
-        // Forgot password notice toggle
-        const forgotPasswordLink = document.getElementById('forgotPasswordLink');
-        const forgotPasswordInfo = document.getElementById('forgotPasswordInfo');
-
-        if (forgotPasswordLink && forgotPasswordInfo) {
-            forgotPasswordLink.addEventListener('click', function (e) {
-                e.preventDefault();
-                forgotPasswordInfo.classList.toggle('show');
-            });
-        }
-
         // Loading state on form submit
         const loginForm = document.getElementById('loginForm');
         const submitBtn = document.getElementById('submitBtn');
@@ -513,27 +110,6 @@
                 submitBtn.disabled = true;
                 submitBtn.classList.add('loading');
                 btnText.textContent = 'Signing in...';
-            });
-        }
-
-        // Test error banner trigger
-        const testErrorTrigger = document.getElementById('testErrorTrigger');
-        let errorBanner = document.getElementById('errorBanner');
-
-        if (testErrorTrigger) {
-            testErrorTrigger.addEventListener('click', function () {
-                if (!errorBanner) {
-                    errorBanner = document.createElement('div');
-                    errorBanner.id = 'errorBanner';
-                    errorBanner.className = 'banner error-banner';
-                    errorBanner.setAttribute('role', 'alert');
-                    errorBanner.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg><span>Incorrect username or password.</span>';
-                    const card = document.querySelector('.card');
-                    const header = document.querySelector('.header-group');
-                    header.insertAdjacentElement('afterend', errorBanner);
-                } else {
-                    errorBanner.style.display = errorBanner.style.display === 'none' ? 'flex' : 'none';
-                }
             });
         }
     });
