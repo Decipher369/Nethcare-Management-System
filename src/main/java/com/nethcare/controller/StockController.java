@@ -1,11 +1,16 @@
 package com.nethcare.controller;
 
+import com.nethcare.exception.BusinessException;
 import com.nethcare.model.StockCategory;
 import com.nethcare.model.StockItem;
 import com.nethcare.service.StockService;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,6 +32,20 @@ public class StockController {
 
     public StockController(StockService stock) {
         this.stock = stock;
+    }
+
+    @InitBinder("item")
+    public void stockFields(WebDataBinder binder) {
+        binder.setDisallowedFields("id", "imageName", "reserved", "isActive", "createdAt", "updatedAt");
+    }
+
+    private String formError(Authentication auth, StockItem item, Model model, BusinessException error) {
+        who(auth, model);
+        model.addAttribute("item", item);
+        model.addAttribute("categories", StockCategory.values());
+        model.addAttribute("active", "stock");
+        model.addAttribute("error", error.getMessage());
+        return "stock/form";
     }
 
     private void who(Authentication auth, Model model) {
@@ -68,10 +87,17 @@ public class StockController {
     }
 
     @PostMapping("/stock")
-    public String save(StockItem item, RedirectAttributes out) {
-        StockItem saved = stock.add(item);
-        out.addFlashAttribute("msg", "Added " + saved.getItemCode());
-        return "redirect:/stock";
+    public String save(@ModelAttribute("item") StockItem item,
+                       @RequestParam(required = false) MultipartFile photo,
+                       Authentication auth, Model model, RedirectAttributes out) {
+        try {
+            StockItem saved = stock.add(item, photo);
+            out.addFlashAttribute("msg", "Added " + saved.getItemCode());
+            return "redirect:/stock";
+        } catch (BusinessException error) {
+            item.setImageName(null);
+            return formError(auth, item, model, error);
+        }
     }
 
     @GetMapping("/stock/{id}/edit")
@@ -84,10 +110,19 @@ public class StockController {
     }
 
     @PostMapping("/stock/{id}")
-    public String update(@PathVariable Long id, StockItem incoming, RedirectAttributes out) {
-        StockItem saved = stock.update(id, incoming);
-        out.addFlashAttribute("msg", "Updated " + saved.getItemCode());
-        return "redirect:/stock";
+    public String update(@PathVariable Long id, @ModelAttribute("item") StockItem incoming,
+                         @RequestParam(required = false) MultipartFile photo,
+                         @RequestParam(defaultValue = "false") boolean removePhoto,
+                         Authentication auth, Model model, RedirectAttributes out) {
+        try {
+            StockItem saved = stock.update(id, incoming, photo, removePhoto);
+            out.addFlashAttribute("msg", "Updated " + saved.getItemCode());
+            return "redirect:/stock";
+        } catch (BusinessException error) {
+            incoming.setId(id);
+            incoming.setImageName(stock.get(id).getImageName());
+            return formError(auth, incoming, model, error);
+        }
     }
 
     /**

@@ -53,7 +53,11 @@
             <tbody>
             <tr th:each="i : ${items}">
                 <td class="mono" th:text="${i.itemCode}">TR-204</td>
-                <td th:text="${i.name}">Titan TR-204</td>
+                <td>
+                    <img th:if="${i.imageUrl != null}" th:src="@{${i.imageUrl}}" th:alt="${i.name}"
+                         loading="lazy" style="width:56px;height:42px;object-fit:contain;vertical-align:middle;margin-right:.5rem;">
+                    <span th:text="${i.name}">Titan TR-204</span>
+                </td>
                 <td th:text="${i.category.label}">Frames</td>
                 <td class="num" th:text="${i.quantity}">2</td>
                 <td class="num" th:text="${i.reserved}">0</td>

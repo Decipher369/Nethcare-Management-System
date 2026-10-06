@@ -55,7 +55,7 @@
             <article class="product-card" th:fragment="product(i)">
                 <div class="product-image">
                     <span class="availability" th:text="${i.available() > 0 ? 'Available' : 'On order'}">Available</span>
-                    <img th:if="${i.imageName != null and !i.imageName.isBlank()}" th:src="@{'/images/frames/' + ${i.imageName}}" th:alt="${i.name}" loading="lazy">
+                    <img th:if="${i.imageName != null and !i.imageName.isBlank()}" th:src="@{${i.imageUrl}}" th:alt="${i.name}" loading="lazy">
                     <div class="product-placeholder" th:if="${i.imageName == null or i.imageName.isBlank()}"><svg viewBox="0 0 100 60" fill="none" aria-hidden="true"><path d="M8 30S25 9 50 9s42 21 42 21-17 21-42 21S8 30 8 30Z"/><circle cx="50" cy="30" r="13"/></svg><span>Photo coming soon</span></div>
                 </div>
                 <div class="product-info"><p class="product-category" th:text="${i.category.label()}">Frames</p><h3 th:text="${i.name}">Frame</h3><p class="product-brand" th:if="${i.brand != null and !i.brand.isBlank()}" th:text="${i.brand}">Brand</p><p class="product-description" th:if="${i.description != null and !i.description.isBlank()}" th:text="${i.description}">Description</p><div class="product-bottom"><span>LKR <strong th:text="${#numbers.formatDecimal(i.unitPrice, 1, 'COMMA', 2, 'POINT')}">0.00</strong></span><span class="product-code" th:text="${i.itemCode}">CODE</span></div></div>

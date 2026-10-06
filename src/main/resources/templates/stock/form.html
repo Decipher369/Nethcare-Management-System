@@ -8,7 +8,8 @@
     <h1 th:text="${item.id == null} ? 'Add a stock item' : 'Edit ' + ${item.itemCode}">Add a stock item</h1>
 
     <div class="panel" style="max-width:720px;">
-        <form method="post"
+        <p class="pad" role="alert" th:if="${error}" th:text="${error}" style="color:#9b1c1c;"></p>
+        <form method="post" enctype="multipart/form-data"
               th:action="${item.id == null} ? @{/stock} : @{/stock/{id}(id=${item.id})}">
             <div class="pad">
                 <div class="grid">
@@ -49,10 +50,19 @@
                         <input id="reorderLevel" name="reorderLevel" type="number" min="0"
                                th:value="${item.reorderLevel}">
                     </div>
-                    <div class="field">
-                        <label for="imageName">Image file name</label>
-                        <input id="imageName" name="imageName" th:value="${item.imageName}"
-                               placeholder="frames/tr-204.jpg">
+                    <div class="field wide">
+                        <label for="photo">Spectacle photo</label>
+                        <input id="photo" name="photo" type="file" accept="image/jpeg,image/png"
+                               aria-describedby="photo-help photo-error">
+                        <p id="photo-help" class="note">Optional. Choose a JPEG or PNG up to 5 MB, at most 4096 × 4096 pixels.
+                            Leave empty to keep the current photo.</p>
+                        <p id="photo-error" role="alert" hidden style="color:#9b1c1c;"></p>
+                        <img id="photo-preview" th:src="${item.imageUrl != null} ? @{${item.imageUrl}} : null"
+                             th:style="${item.imageUrl != null} ? 'max-width:260px;max-height:180px;object-fit:contain;' : 'display:none;max-width:260px;max-height:180px;object-fit:contain;'"
+                             alt="Stock photo preview">
+                        <label th:if="${item.imageUrl != null}" style="display:block;margin-top:.7rem;">
+                            <input id="removePhoto" type="checkbox" name="removePhoto" value="true"> Remove current photo
+                        </label>
                     </div>
                     <div class="field wide">
                         <label for="description">Description</label>
@@ -77,5 +87,6 @@
         </div>
     </div>
 </div>
+<script th:src="@{/js/stock-photo.js}" defer></script>
 </body>
 </html>

@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -31,8 +32,11 @@ public class StockService {
 
     private final StockItemRepository items;
 
-    public StockService(StockItemRepository items) {
+    private final StockImageService images;
+
+    public StockService(StockItemRepository items, StockImageService images) {
         this.items = items;
+        this.images = images;
     }
 
     // ---------------------------------------------------------------- reading
@@ -67,6 +71,22 @@ public class StockService {
     }
 
     // ---------------------------------------------------------------- writing
+
+    @Transactional
+    public StockItem add(StockItem item, MultipartFile photo) {
+        item.setId(null);
+        item.setImageName(images.replace(null, photo, false));
+        return add(item);
+    }
+
+    @Transactional
+    public StockItem update(Long id, StockItem incoming, MultipartFile photo, boolean removePhoto) {
+        StockItem current = get(id);
+        String imageName = images.replace(current.getImageName(), photo, removePhoto);
+        current.setImageName(imageName);
+        incoming.setImageName(null);
+        return update(id, incoming);
+    }
 
     @Transactional
     public StockItem add(StockItem item) {
