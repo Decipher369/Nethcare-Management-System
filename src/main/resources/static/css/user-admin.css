@@ -1,0 +1,851 @@
+/* ==========================================================================
+   User Administration Dedicated Stylesheet
+   Strictly scoped under .user-admin-page & body.user-admin-body
+   ========================================================================== */
+
+/* Body Background Override */
+body.user-admin-body {
+    background-color: #F4F7FA !important;
+}
+
+/* Hide default shared topbar and empty wrap from fragments.html */
+body.user-admin-body .topbar,
+body.user-admin-body .staff-layout > .wrap {
+    display: none !important;
+}
+
+/* Ensure content slot (main.wrap) sits to the right of sidebar without extra margin */
+body.user-admin-body main.wrap {
+    max-width: none !important;
+    margin-left: 238px !important;
+    padding: 0 !important;
+    width: auto !important;
+    margin-top: 0 !important;
+    margin-right: 0 !important;
+    margin-bottom: 0 !important;
+}
+
+/* User Admin Dedicated Sticky Topbar - Flush at y = 0 */
+body.user-admin-body .admin-topbar {
+    position: sticky;
+    top: 0 !important;
+    margin-top: 0 !important;
+    z-index: 100;
+    margin-left: 238px;
+    height: 56px;
+    background: #FFFFFF;
+    border-bottom: 1px solid #E2E8F0;
+    box-shadow: 0 1px 2px rgba(15, 39, 66, 0.04);
+    padding: 0 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    white-space: nowrap;
+    box-sizing: border-box;
+    font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+@media (max-width: 768px) {
+    body.user-admin-body main.wrap {
+        margin-left: 0 !important;
+    }
+    body.user-admin-body .admin-topbar {
+        margin-left: 0 !important;
+        padding: 0 16px;
+    }
+}
+
+/* Topbar Left Group */
+body.user-admin-body .topbar-left-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+body.user-admin-body .topbar-pulse-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #0284C7;
+    display: inline-block;
+    animation: pulseDot 2s infinite ease-in-out;
+}
+
+@keyframes pulseDot {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.9); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    body.user-admin-body .topbar-pulse-dot { animation: none; }
+}
+
+body.user-admin-body .topbar-workspace-label {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #64748B;
+}
+
+body.user-admin-body .topbar-slash-sep {
+    font-size: 12px;
+    color: #CBD5E1;
+}
+
+body.user-admin-body .topbar-workspace-title {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: #15375B;
+}
+
+/* Topbar Right Group */
+body.user-admin-body .topbar-right-group {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+body.user-admin-body .topbar-user-block {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+body.user-admin-body .topbar-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: #F1F5F9;
+    border: 1px solid #E2E8F0;
+    color: #15375B;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+body.user-admin-body .topbar-username {
+    font-size: 12px;
+    font-weight: 700;
+    color: #0E243D;
+    letter-spacing: 0.02em;
+}
+
+body.user-admin-body .topbar-v-divider {
+    width: 1px;
+    height: 16px;
+    background: #E2E8F0;
+}
+
+body.user-admin-body .topbar-signout-btn {
+    background: transparent;
+    border: none;
+    color: #64748B;
+    font-size: 13px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    padding: 6px 10px;
+    border-radius: 8px;
+    transition: all 0.15s ease;
+    font-family: inherit;
+}
+
+body.user-admin-body .topbar-signout-btn:hover {
+    color: #0E243D;
+    background: #F1F5F9;
+}
+
+body.user-admin-body .topbar-signout-btn:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px #E2E8F0;
+}
+
+/* Outer Content Slot Wrapper */
+.user-admin-page {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 28px 32px 48px;
+    box-sizing: border-box;
+    font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+/* Flash Banners */
+.user-admin-page .notice-banner-box {
+    background: #ECFDF5;
+    border: 1px solid #A7F3D0;
+    border-radius: 12px;
+    padding: 14px 18px;
+    color: #047857;
+    font-size: 14px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.user-admin-page .error-banner-box {
+    background: #FFF1F2;
+    border: 1px solid #FECDD3;
+    border-radius: 12px;
+    padding: 14px 18px;
+    color: #BE123C;
+    font-size: 14px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.user-admin-page .credential-alert-box {
+    background: #FFFBEB;
+    border: 1px solid #FDE68A;
+    border-radius: 12px;
+    padding: 16px 20px;
+    color: #78350F;
+    font-size: 13px;
+    line-height: 1.5;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.user-admin-page .credential-alert-box code {
+    background: #FEF3C7;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: ui-monospace, SFMono-Regular, monospace;
+    font-size: 13px;
+    color: #92400E;
+    font-weight: 700;
+}
+
+/* 1. Page Title Block */
+.user-admin-page .page-title-block {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.user-admin-page .page-main-title {
+    font-size: 26px;
+    font-weight: 700;
+    color: #0E243D;
+    margin: 0;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+}
+
+.user-admin-page .page-sub-title {
+    font-size: 13px;
+    color: #64748B;
+    margin: 0;
+    font-weight: 400;
+}
+
+/* Common Card Box */
+.user-admin-page .admin-card-box {
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 16px;
+    box-shadow: 0 1px 3px rgba(15, 39, 66, 0.08);
+    overflow: hidden;
+    width: 100%;
+    display: block;
+    box-sizing: border-box;
+}
+
+/* 2. Create Staff Account Card */
+.user-admin-page .create-card-body {
+    padding: 28px;
+}
+
+.user-admin-page .card-header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #F1F5F9;
+    margin-bottom: 24px;
+    gap: 16px;
+}
+
+.user-admin-page .card-title-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.user-admin-page .card-header-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #15375B;
+    margin: 0;
+}
+
+.user-admin-page .card-header-icon {
+    color: #15375B;
+    flex-shrink: 0;
+}
+
+.user-admin-page .card-header-hint {
+    font-size: 13px;
+    color: #94A3B8;
+    margin: 0;
+}
+
+/* Form Grid */
+.user-admin-page .create-form-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px 16px;
+}
+
+.user-admin-page .form-field-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.user-admin-page .field-label {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #64748B;
+}
+
+.user-admin-page .required-asterisk {
+    color: #E11D48;
+    margin-left: 2px;
+}
+
+.user-admin-page .input-control {
+    height: 44px;
+    width: 100%;
+    background: #F8FAFC;
+    border: 1px solid #CBD5E1;
+    border-radius: 12px;
+    padding: 0 14px;
+    font-size: 14px;
+    color: #0F2742;
+    box-sizing: border-box;
+    outline: none;
+    transition: all 0.15s ease;
+    font-family: inherit;
+}
+
+.user-admin-page .input-control::placeholder {
+    color: #94A3B8;
+}
+
+.user-admin-page .input-control.mono-input {
+    font-family: ui-monospace, SFMono-Regular, monospace;
+}
+
+.user-admin-page .input-control:focus {
+    background: #FFFFFF;
+    border-color: #15375B;
+    box-shadow: 0 0 0 3px rgba(21, 55, 91, 0.1);
+}
+
+/* Password wrapper with eye button */
+.user-admin-page .password-input-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.user-admin-page .password-input-wrap .input-control {
+    padding-right: 44px;
+}
+
+.user-admin-page .btn-toggle-eye {
+    position: absolute;
+    right: 8px;
+    width: 28px;
+    height: 28px;
+    border: none;
+    background: transparent;
+    color: #94A3B8;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: color 0.15s ease;
+    padding: 0;
+}
+
+.user-admin-page .btn-toggle-eye:hover {
+    color: #475569;
+}
+
+/* Custom Select Dropdown */
+.user-admin-page .select-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.user-admin-page .select-control {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    padding-right: 36px;
+    cursor: pointer;
+}
+
+.user-admin-page .select-chevron-icon {
+    position: absolute;
+    right: 14px;
+    color: #64748B;
+    pointer-events: none;
+}
+
+/* Create Account Submit Button */
+.user-admin-page .btn-create-submit {
+    margin-top: 20px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    height: 44px;
+    padding: 0 24px;
+    background: #15375B;
+    color: #FFFFFF;
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 1px 3px rgba(15, 39, 66, 0.1);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    font-family: inherit;
+    width: auto;
+}
+
+.user-admin-page .btn-create-submit:hover {
+    background: #0E243D;
+    box-shadow: 0 4px 12px rgba(21, 55, 91, 0.15);
+}
+
+.user-admin-page .btn-create-submit:active {
+    background: #081729;
+}
+
+.user-admin-page .btn-create-submit:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px #FFFFFF, 0 0 0 4px #0369A1;
+}
+
+/* 3. Accounts Card */
+.user-admin-page .card-toolbar-row {
+    padding: 18px 24px;
+    border-bottom: 1px solid #F1F5F9;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.user-admin-page .toolbar-title-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.user-admin-page .accounts-count-badge {
+    font-size: 12px;
+    font-weight: 600;
+    background: #F1F5F9;
+    color: #475569;
+    border: 1px solid #E2E8F0;
+    border-radius: 6px;
+    padding: 3px 10px;
+}
+
+.user-admin-page .table-search-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 280px;
+}
+
+.user-admin-page .table-search-icon {
+    position: absolute;
+    left: 12px;
+    color: #94A3B8;
+    pointer-events: none;
+}
+
+.user-admin-page .input-table-search {
+    height: 38px;
+    width: 100%;
+    padding: 0 14px 0 36px;
+    background: #F8FAFC;
+    border: 1px solid #E2E8F0;
+    border-radius: 10px;
+    font-size: 13px;
+    color: #0F2742;
+    outline: none;
+    transition: all 0.15s ease;
+    font-family: inherit;
+    box-sizing: border-box;
+}
+
+.user-admin-page .input-table-search::placeholder {
+    color: #94A3B8;
+}
+
+.user-admin-page .input-table-search:focus {
+    background: #FFFFFF;
+    border-color: #15375B;
+    box-shadow: 0 0 0 3px rgba(21, 55, 91, 0.1);
+}
+
+/* Table Area */
+.user-admin-page .table-responsive-box {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.user-admin-page .admin-data-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.user-admin-page .admin-data-table thead tr {
+    background: #F8FAFC;
+    border-bottom: 1px solid #E2E8F0;
+}
+
+.user-admin-page .admin-data-table th {
+    padding: 12px 24px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #64748B;
+}
+
+.user-admin-page .admin-data-table tbody tr {
+    background: #FFFFFF;
+    border-bottom: 1px solid #F1F5F9;
+    transition: background 0.15s ease;
+}
+
+.user-admin-page .admin-data-table tbody tr:hover {
+    background: #F8FAFC;
+}
+
+.user-admin-page .admin-data-table tbody tr.row-failed-bg {
+    background: rgba(255, 241, 242, 0.5);
+}
+
+.user-admin-page .admin-data-table tbody tr.row-failed-bg:hover {
+    background: rgba(255, 241, 242, 0.8);
+}
+
+.user-admin-page .admin-data-table td {
+    padding: 14px 24px;
+    font-size: 13px;
+    color: #334155;
+    vertical-align: middle;
+}
+
+/* Table Cell Components */
+.user-admin-page .mono-username {
+    font-family: ui-monospace, SFMono-Regular, monospace;
+    font-size: 13px;
+    font-weight: 600;
+    color: #15375B;
+}
+
+.user-admin-page .name-text {
+    font-size: 13px;
+    font-weight: 500;
+    color: #0F2742;
+}
+
+.user-admin-page .role-inline-form {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+}
+
+.user-admin-page .role-select-input {
+    height: 34px;
+    padding: 0 10px;
+    border: 1px solid #CBD5E1;
+    border-radius: 8px;
+    font-size: 13px;
+    color: #0F2742;
+    background: #FFFFFF;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.user-admin-page .btn-save-role {
+    height: 34px;
+    padding: 0 12px;
+    background: #FFFFFF;
+    border: 1px solid #CBD5E1;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #334155;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    font-family: inherit;
+}
+
+.user-admin-page .btn-save-role:hover {
+    background: #F8FAFC;
+    color: #15375B;
+}
+
+.user-admin-page .role-badge-plain {
+    font-family: ui-monospace, SFMono-Regular, monospace;
+    font-size: 12px;
+    font-weight: 500;
+    color: #475569;
+    background: #F1F5F9;
+    border-radius: 8px;
+    padding: 4px 10px;
+    display: inline-block;
+}
+
+.user-admin-page .badge-status-rect {
+    display: inline-flex;
+    align-items: center;
+    white-space: nowrap;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.2;
+    background: #F1F5F9;
+    color: #475569;
+    border: 1px solid transparent;
+    box-sizing: border-box;
+}
+
+.user-admin-page .mono-timestamp {
+    font-family: ui-monospace, SFMono-Regular, monospace;
+    font-size: 12px;
+    color: #475569;
+}
+
+.user-admin-page .never-italic {
+    font-style: italic;
+    color: #94A3B8;
+    font-size: 12px;
+}
+
+/* Action Buttons */
+.user-admin-page .actions-cell-wrap {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    white-space: nowrap;
+}
+
+.user-admin-page .btn-action-outline {
+    height: 34px;
+    padding: 0 12px;
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #334155;
+    cursor: pointer;
+    box-shadow: 0 1px 2px rgba(15, 39, 66, 0.04);
+    transition: all 0.15s ease;
+    font-family: inherit;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.user-admin-page .btn-action-outline:hover {
+    background: #F8FAFC;
+    color: #15375B;
+}
+
+.user-admin-page .btn-action-outline.btn-deactivate:hover {
+    background: #FFF1F2;
+    color: #BE123C;
+    border-color: #FECDD3;
+}
+
+.user-admin-page .btn-action-outline.btn-reactivate:hover {
+    background: #ECFDF5;
+    color: #047857;
+    border-color: #A7F3D0;
+}
+
+.user-admin-page .btn-action-outline:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px #FFFFFF, 0 0 0 4px #0369A1;
+}
+
+
+
+.user-admin-page .reason-fail-text {
+    color: #BE123C;
+    font-size: 12px;
+}
+
+.user-admin-page .reason-empty-text {
+    color: #94A3B8;
+}
+
+/* Card Footer Strip */
+.user-admin-page .card-footer-strip {
+    padding: 14px 24px;
+    min-height: 52px;
+    background: #F8FAFC;
+    border-top: 1px solid #E2E8F0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    font-size: 13px;
+    color: #64748B;
+    font-weight: 400;
+    box-sizing: border-box;
+}
+
+.user-admin-page .footer-left-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.user-admin-page .footer-dot-sep {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background-color: #CBD5E1;
+    display: inline-block;
+    flex-shrink: 0;
+}
+
+.user-admin-page .btn-refresh-list {
+    background: transparent;
+    border: none;
+    padding: 4px 8px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #334155;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    font-family: inherit;
+    line-height: 1;
+}
+
+.user-admin-page .btn-refresh-list:hover {
+    background: #F1F5F9;
+    color: #15375B;
+}
+
+.user-admin-page .btn-refresh-list:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(46, 134, 193, 0.2);
+}
+
+.user-admin-page .refresh-icon-svg {
+    color: #64748B;
+    transition: color 0.15s ease;
+    flex-shrink: 0;
+}
+
+.user-admin-page .refresh-icon-svg.spinning {
+    animation: refreshSpin 1s linear infinite;
+}
+
+@keyframes refreshSpin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .user-admin-page .refresh-icon-svg.spinning { animation: none; }
+}
+
+.user-admin-page .footer-records-count strong {
+    font-weight: 600;
+    color: #334155;
+}
+
+/* Responsive Rules */
+@media (max-width: 1024px) {
+    .user-admin-page .create-form-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 640px) {
+    .user-admin-page {
+        padding: 16px;
+    }
+    .user-admin-page .create-card-body {
+        padding: 20px;
+    }
+    .user-admin-page .create-form-grid {
+        grid-template-columns: 1fr;
+    }
+    .user-admin-page .card-header-hint {
+        display: none;
+    }
+    .user-admin-page .btn-create-submit {
+        width: 100%;
+    }
+    .user-admin-page .table-search-wrap {
+        width: 100%;
+    }
+    .user-admin-page .card-footer-strip {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+        padding: 12px 16px;
+    }
+    .user-admin-page .footer-left-group {
+        width: 100%;
+    }
+    .user-admin-page .footer-records-count {
+        width: 100%;
+    }
+}
+
+/* Align the redesigned page with the shared administrator rail. */
+@media (min-width: 901px) {
+    body.user-admin-body .admin-nav { width: 238px; }
+}
+@media (max-width: 900px) {
+    body.user-admin-body main.wrap,
+    body.user-admin-body .admin-topbar { margin-left: 0 !important; }
+}

@@ -25,22 +25,22 @@ public class DataSeeder {
 
     private static final Logger log = LoggerFactory.getLogger(DataSeeder.class);
 
-    @Value("${seed.admin.password}")
+    @Value("${seed.admin.password:admin123}")
     private String adminPassword;
 
-    @Value("${seed.optician.password}")
+    @Value("${seed.optician.password:optician123}")
     private String opticianPassword;
 
-    @Value("${seed.staff.password}")
+    @Value("${seed.staff.password:staff123}")
     private String staffPassword;
 
-    @Value("${seed.surgeon.password}")
+    @Value("${seed.surgeon.password:surgeon123}")
     private String surgeonPassword;
 
-    @Value("${seed.patient.password}")
+    @Value("${seed.patient.password:patient123}")
     private String patientPassword;
 
-    @Value("${seed.auditor.password}")
+    @Value("${seed.auditor.password:auditor123}")
     private String auditorPassword;
 
     @Bean

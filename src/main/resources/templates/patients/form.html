@@ -3,112 +3,478 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title th:text="${editing} ? 'Edit patient — NethCare' : 'Register patient — NethCare'">Patient</title>
+    <title th:text="${editing} ? 'Edit patient — Nethcare' : 'Register patient — Nethcare'">Register patient — Nethcare</title>
     <link rel="icon" type="image/png" th:href="@{/images/nethcare-logo.png}">
     <link rel="stylesheet" th:href="@{/css/staff.css}">
     <link rel="stylesheet" th:href="@{/css/admin.css}">
-    <style>
-        body { font-family: system-ui, sans-serif; background: #f5f6f8; margin: 0; padding: 2rem; }
-        .wrap { max-width: 620px; margin: 0 auto; }
-        .card { background: #fff; border-radius: 8px; padding: 2rem;
-                box-shadow: 0 2px 12px rgba(0,0,0,.08); }
-        h1 { font-size: 1.4rem; margin: 0 0 1.5rem; color: #1a3a5c; }
-        label { display: block; font-size: .78rem; color: #666;
-                margin-bottom: .3rem; letter-spacing: .03em; }
-        .field { margin-bottom: 1rem; }
-        input[type=text], input[type=date], input[type=email] {
-                width: 100%; padding: .55rem .7rem; font-size: .9rem;
-                border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
-        textarea { width:100%; min-height:80px; box-sizing:border-box; padding:.55rem .7rem; border:1px solid #ddd; border-radius:4px; }
-        .two { display: flex; gap: 1rem; }
-        .two > .field { flex: 1; }
-        .tick { display: flex; align-items: center; gap: .5rem; font-size: .88rem;
-                color: #333; margin-bottom: 1.25rem; }
-        .actions { display: flex; gap: .6rem; margin-top: 1.5rem; }
-        .actions button, .actions a { padding: .6rem 1.2rem; font-size: .9rem;
-                border-radius: 4px; cursor: pointer; text-decoration: none; }
-        .actions button { background: #1a3a5c; color: #fff; border: none; }
-        .actions a { background: #f0f0f0; color: #333; }
-        .err { background: #fdeaea; color: #a33; padding: .7rem .9rem;
-               border-radius: 4px; font-size: .87rem; margin-bottom: 1.2rem; }
-    </style>
+    <link rel="stylesheet" th:href="@{/css/patient-form.css}">
 </head>
-<body>
+<body class="patient-form-body">
 <div th:replace="~{staff/fragments :: bar('patients', ${currentUser})}"></div>
-<div class="wrap">
-    <div class="card">
-        <h1 th:text="${editing} ? 'Edit patient' : 'Register a patient'">Register a patient</h1>
 
-        <p class="err" th:if="${error}" th:text="${error}">Something went wrong.</p>
+<!-- Register Page Dedicated Topbar (Matching Patients Page design) -->
+<header class="patients-topbar">
+    <div class="topbar-left-group">
+        <span class="topbar-pulse-dot"></span>
+        <span class="topbar-workspace-label">WORKSPACE</span>
+        <span class="topbar-slash-sep">/</span>
+        <span class="topbar-workspace-title">Management workspace</span>
+    </div>
 
-        <form method="post" th:action="${editing} ? @{/patients/{id}(id=${patient.id})} : @{/patients}">
-            <div class="field">
-                <label for="fullName">Full name</label>
-                <input type="text" id="fullName" name="fullName" th:value="${form.fullName}">
-            </div>
+    <div class="topbar-right-group">
+        <div class="topbar-user-block">
+            <div class="topbar-avatar" th:text="${currentUser != null and #strings.length(currentUser) >= 2 ? #strings.toUpperCase(#strings.substring(currentUser, 0, 2)) : 'AD'}">AD</div>
+            <span class="topbar-username" th:text="${currentUser != null ? currentUser : 'admin'}">admin</span>
+        </div>
+        
+        <div class="topbar-v-divider"></div>
 
-            <div class="field">
-                <label for="nic">NIC (required for adults)</label>
-                <input type="text" id="nic" name="nic" th:value="${form.nic}">
-            </div>
-
-            <div class="two">
-                <div class="field">
-                    <label for="dob">Date of birth</label>
-                    <input type="date" id="dob" name="dob" th:value="${form.dob}">
-                </div>
-                <div class="field">
-                    <label for="gender">Gender</label>
-                    <input type="text" id="gender" name="gender" th:value="${form.gender}"
-                           placeholder="F / M / other">
-                </div>
-            </div>
-
-            <div class="two">
-                <div class="field">
-                    <label for="phone">Phone</label>
-                    <input type="text" id="phone" name="phone" th:value="${form.phone}">
-                </div>
-                <div class="field">
-                    <label for="bloodGroup">Blood group</label>
-                    <input type="text" id="bloodGroup" name="bloodGroup" th:value="${form.bloodGroup}"
-                           placeholder="O+">
-                </div>
-            </div>
-
-            <div class="field">
-                <label for="email">Email</label>
-                <input type="email" id="email" name="email" th:value="${form.email}">
-            </div>
-
-            <div class="field">
-                <label for="address">Address</label>
-                <input type="text" id="address" name="address" th:value="${form.address}">
-            </div>
-
-            <div class="two">
-                <div class="field"><label for="guardianName">Guardian name (required under 18)</label><input type="text" id="guardianName" name="guardianName" th:value="${form.guardianName}"></div>
-                <div class="field"><label for="guardianPhone">Guardian phone</label><input type="text" id="guardianPhone" name="guardianPhone" th:value="${form.guardianPhone}"></div>
-            </div>
-
-            <div class="field"><label for="registrationNotes">Registration notes</label><textarea id="registrationNotes" name="registrationNotes" th:text="${form.registrationNotes}"></textarea></div>
-
-            <label class="tick" th:unless="${editing}">
-                <input type="checkbox" name="createLogin" value="true" th:checked="${form.createLogin}">
-                Also create a login for the patient portal
-            </label>
-
-            <label class="tick" th:unless="${editing}">
-                <input type="checkbox" name="consentGiven" value="true" required th:checked="${form.consentGiven}">
-                Patient or guardian has consented to storing these records
-            </label>
-
-            <div class="actions">
-                <button type="submit" th:text="${editing} ? 'Save changes' : 'Register'">Register</button>
-                <a th:href="${editing} ? @{/patients/{id}(id=${patient.id})} : @{/patients}">Cancel</a>
-            </div>
+        <form th:action="@{/logout}" method="post" style="margin: 0; display: inline-flex;">
+            <button type="submit" class="topbar-signout-btn">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                <span>Sign out</span>
+            </button>
         </form>
     </div>
-</div>
+</header>
+
+<main class="wrap">
+    <div class="patient-register-page">
+        <!-- Back Navigation Link -->
+        <a th:href="${editing} ? @{/patients/{id}(id=${patient.id})} : @{/patients}" class="back-link-nav">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+            <span>Back to patient register</span>
+        </a>
+
+        <!-- Form Card Container -->
+        <div class="patient-form-card">
+            
+            <!-- Card Header -->
+            <div class="form-header-area">
+                <div class="header-title-row">
+                    <h1 class="page-title" th:text="${editing} ? 'Edit patient' : 'Register a patient'">Register a patient</h1>
+                    <span class="pill-badge" th:text="${editing} ? 'Edit Record' : 'New Record'">New Record</span>
+                </div>
+                <p class="header-subtitle" th:text="${editing} ? 'Update existing patient details in the clinic directory.' : 'Add a new patient record to the clinic directory.'">Add a new patient record to the clinic directory.</p>
+                <p class="required-note-text">Fields marked with <span class="required-asterisk" aria-hidden="true">*</span> are required.</p>
+
+                <!-- Info Banner -->
+                <div class="info-banner-box">
+                    <div class="info-icon-square">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                    </div>
+                    <div class="info-content-group">
+                        <p class="info-banner-title">Patient verification requirements</p>
+                        <p class="info-banner-desc">NIC is required for adult patients. Guardian details are required for patients under 18.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Server Error Banner -->
+            <div class="server-error-banner" th:if="${error}" th:text="${error}">
+                Something went wrong.
+            </div>
+
+            <!-- Form Content -->
+            <form id="patientForm" class="form-body-content" method="post" th:action="${editing} ? @{/patients/{id}(id=${patient.id})} : @{/patients}">
+                
+                <!-- Section 1: Demographic & Contact Details -->
+                <div class="form-section-block">
+                    <h2 class="section-heading">
+                        <span class="dot-navy"></span>
+                        <span>Demographic &amp; Contact Details</span>
+                    </h2>
+
+                    <!-- Full Name -->
+                    <div class="form-field-group">
+                        <label for="fullName" class="field-label">Full name <span class="required-asterisk" aria-hidden="true">*</span></label>
+                        <div class="input-icon-wrapper">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                            <input type="text" id="fullName" name="fullName" th:value="${form.fullName}" class="form-control-input" placeholder="e.g. Saman Kumara" required aria-required="true">
+                        </div>
+                        <span class="field-error-msg" id="fullNameError"></span>
+                    </div>
+
+                    <!-- NIC -->
+                    <div class="form-field-group">
+                        <label for="nic" class="field-label">
+                            <span>NIC (required for adults)</span>
+                            <span class="required-asterisk age-asterisk adult-asterisk" id="nicAsterisk" aria-hidden="true" style="display: none;">*</span>
+                        </label>
+                        <div class="input-icon-wrapper">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
+                            <input type="text" id="nic" name="nic" th:value="${form.nic}" class="form-control-input mono-input" placeholder="e.g. 199012345678 or 901234567V">
+                        </div>
+                        <span class="field-error-msg" id="nicError"></span>
+                    </div>
+
+                    <!-- DOB & Gender -->
+                    <div class="form-grid-2col">
+                        <div class="form-field-group">
+                            <label for="dob" class="field-label">Date of birth <span class="required-asterisk" aria-hidden="true">*</span></label>
+                            <input type="date" id="dob" name="dob" th:value="${form.dob}" class="form-control-input" required aria-required="true">
+                            <span class="field-error-msg" id="dobError"></span>
+                        </div>
+                        <div class="form-field-group">
+                            <label for="gender" class="field-label">Gender</label>
+                            <input type="text" id="gender" name="gender" th:value="${form.gender}" class="form-control-input" placeholder="F / M / other">
+                        </div>
+                    </div>
+
+                    <!-- Phone & Blood Group -->
+                    <div class="form-grid-2col">
+                        <div class="form-field-group">
+                            <label for="phone" class="field-label">
+                                <span>Phone</span>
+                                <span class="required-asterisk age-asterisk adult-asterisk" id="phoneAsterisk" aria-hidden="true" style="display: none;">*</span>
+                            </label>
+                            <input type="text" id="phone" name="phone" th:value="${form.phone}" class="form-control-input mono-input" placeholder="e.g. 0771234567">
+                            <span class="field-error-msg" id="phoneError"></span>
+                        </div>
+                        <div class="form-field-group">
+                            <label for="bloodGroup" class="field-label">Blood group</label>
+                            <input type="text" id="bloodGroup" name="bloodGroup" th:value="${form.bloodGroup}" class="form-control-input" placeholder="O+">
+                        </div>
+                    </div>
+
+                    <!-- Email -->
+                    <div class="form-field-group">
+                        <label for="email" class="field-label">Email</label>
+                        <div class="input-icon-wrapper">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                            <input type="email" id="email" name="email" th:value="${form.email}" class="form-control-input" placeholder="e.g. patient@example.com">
+                        </div>
+                    </div>
+
+                    <!-- Address -->
+                    <div class="form-field-group">
+                        <label for="address" class="field-label">Address</label>
+                        <div class="input-icon-wrapper">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                            <input type="text" id="address" name="address" th:value="${form.address}" class="form-control-input" placeholder="Residential address">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 2: Guardian Details -->
+                <div class="form-section-block bordered">
+                    <h2 class="section-heading">
+                        <span class="dot-gray"></span>
+                        <span>Guardian Details</span>
+                    </h2>
+
+                    <div class="form-grid-2col">
+                        <div class="form-field-group">
+                            <label for="guardianName" class="field-label">
+                                <span>Guardian name (required under 18)</span>
+                                <span class="required-asterisk age-asterisk child-asterisk" id="guardianNameAsterisk" aria-hidden="true" style="display: none;">*</span>
+                            </label>
+                            <input type="text" id="guardianName" name="guardianName" th:value="${form.guardianName}" class="form-control-input">
+                            <span class="field-error-msg" id="guardianNameError"></span>
+                        </div>
+                        <div class="form-field-group">
+                            <label for="guardianPhone" class="field-label">
+                                <span>Guardian phone</span>
+                                <span class="required-asterisk age-asterisk child-asterisk" id="guardianPhoneAsterisk" aria-hidden="true" style="display: none;">*</span>
+                            </label>
+                            <input type="text" id="guardianPhone" name="guardianPhone" th:value="${form.guardianPhone}" class="form-control-input mono-input">
+                            <span class="field-error-msg" id="guardianPhoneError"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 3: Registration Notes -->
+                <div class="form-section-block bordered">
+                    <h2 class="section-heading">
+                        <span class="dot-gray"></span>
+                        <span>Registration Notes</span>
+                    </h2>
+
+                    <div class="form-field-group">
+                        <label for="registrationNotes" class="field-label">Registration notes</label>
+                        <textarea id="registrationNotes" name="registrationNotes" th:text="${form.registrationNotes}" class="form-control-textarea" rows="3" placeholder="Add any special clinical or administrative notes..."></textarea>
+                    </div>
+                </div>
+
+                <!-- Section 4: Checkboxes -->
+                <div class="checkbox-group-block" th:unless="${editing}">
+                    <label class="checkbox-label-row">
+                        <input type="checkbox" name="createLogin" value="true" th:checked="${form.createLogin}" class="checkbox-custom-input">
+                        <span class="checkbox-text-label">Also create a login for the patient portal</span>
+                    </label>
+
+                    <label class="checkbox-label-row">
+                        <input type="checkbox" id="consentGiven" name="consentGiven" value="true" required aria-required="true" th:checked="${form.consentGiven}" class="checkbox-custom-input">
+                        <span class="checkbox-text-label">Patient or guardian has consented to storing these records <span class="required-asterisk" aria-hidden="true">*</span></span>
+                    </label>
+                    <span class="field-error-msg" id="consentGivenError"></span>
+                </div>
+
+                <!-- Actions Row -->
+                <div class="form-actions-row">
+                    <a th:href="${editing} ? @{/patients/{id}(id=${patient.id})} : @{/patients}" class="btn-cancel-action">Cancel</a>
+                    <button type="submit" class="btn-submit-action">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                        <span th:text="${editing} ? 'Save changes' : 'Register'">Register</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</main>
+
+<!-- Patient Registration Form Client Script for Dynamic Asterisks & Validation -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const dobInput = document.getElementById('dob');
+    const fullNameInput = document.getElementById('fullName');
+    const nicInput = document.getElementById('nic');
+    const phoneInput = document.getElementById('phone');
+    const guardianNameInput = document.getElementById('guardianName');
+    const guardianPhoneInput = document.getElementById('guardianPhone');
+    const consentInput = document.getElementById('consentGiven');
+    const patientForm = document.getElementById('patientForm');
+
+    const nicAsterisk = document.getElementById('nicAsterisk');
+    const phoneAsterisk = document.getElementById('phoneAsterisk');
+    const guardianNameAsterisk = document.getElementById('guardianNameAsterisk');
+    const guardianPhoneAsterisk = document.getElementById('guardianPhoneAsterisk');
+
+    function calculateAge(dobValue) {
+        if (!dobValue) return null;
+        const parts = dobValue.split('-');
+        if (parts.length !== 3) return null;
+        const year = parseInt(parts[0], 10);
+        const month = parseInt(parts[1], 10) - 1;
+        const day = parseInt(parts[2], 10);
+        const dob = new Date(year, month, day);
+        if (isNaN(dob.getTime())) return null;
+
+        const today = new Date();
+        let age = today.getFullYear() - dob.getFullYear();
+        const m = today.getMonth() - dob.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) {
+            age--;
+        }
+        return age;
+    }
+
+    function updateAgeRules() {
+        const age = calculateAge(dobInput ? dobInput.value : '');
+        
+        if (age === null) {
+            // Empty or invalid Date of birth: hide all age-dependent asterisks
+            if (nicAsterisk) nicAsterisk.style.display = 'none';
+            if (phoneAsterisk) phoneAsterisk.style.display = 'none';
+            if (guardianNameAsterisk) guardianNameAsterisk.style.display = 'none';
+            if (guardianPhoneAsterisk) guardianPhoneAsterisk.style.display = 'none';
+
+            if (nicInput) { nicInput.removeAttribute('required'); nicInput.removeAttribute('aria-required'); }
+            if (phoneInput) { phoneInput.removeAttribute('required'); phoneInput.removeAttribute('aria-required'); }
+            if (guardianNameInput) { guardianNameInput.removeAttribute('required'); guardianNameInput.removeAttribute('aria-required'); }
+            if (guardianPhoneInput) { guardianPhoneInput.removeAttribute('required'); guardianPhoneInput.removeAttribute('aria-required'); }
+            return;
+        }
+
+        const isAdult = age >= 18;
+
+        if (isAdult) {
+            // 18 and older: Adult required fields get asterisks & required attributes
+            if (nicAsterisk) nicAsterisk.style.display = 'inline';
+            if (phoneAsterisk) phoneAsterisk.style.display = 'inline';
+            if (guardianNameAsterisk) guardianNameAsterisk.style.display = 'none';
+            if (guardianPhoneAsterisk) guardianPhoneAsterisk.style.display = 'none';
+
+            if (nicInput) { nicInput.setAttribute('required', 'required'); nicInput.setAttribute('aria-required', 'true'); }
+            if (phoneInput) { phoneInput.setAttribute('required', 'required'); phoneInput.setAttribute('aria-required', 'true'); }
+            if (guardianNameInput) { guardianNameInput.removeAttribute('required'); guardianNameInput.removeAttribute('aria-required'); }
+            if (guardianPhoneInput) { guardianPhoneInput.removeAttribute('required'); guardianPhoneInput.removeAttribute('aria-required'); }
+        } else {
+            // Under 18: Child required fields get asterisks & required attributes
+            if (nicAsterisk) nicAsterisk.style.display = 'none';
+            if (phoneAsterisk) phoneAsterisk.style.display = 'none';
+            if (guardianNameAsterisk) guardianNameAsterisk.style.display = 'inline';
+            if (guardianPhoneAsterisk) guardianPhoneAsterisk.style.display = 'inline';
+
+            if (nicInput) { nicInput.removeAttribute('required'); nicInput.removeAttribute('aria-required'); }
+            if (phoneInput) { phoneInput.removeAttribute('required'); phoneInput.removeAttribute('aria-required'); }
+            if (guardianNameInput) { guardianNameInput.setAttribute('required', 'required'); guardianNameInput.setAttribute('aria-required', 'true'); }
+            if (guardianPhoneInput) { guardianPhoneInput.setAttribute('required', 'required'); guardianPhoneInput.setAttribute('aria-required', 'true'); }
+        }
+    }
+
+    function showFieldError(input, errorSpanId, message) {
+        const errorSpan = document.getElementById(errorSpanId);
+        if (input) input.classList.add('has-error');
+        if (errorSpan) {
+            errorSpan.textContent = message;
+            errorSpan.style.display = 'block';
+        }
+    }
+
+    function clearFieldError(input, errorSpanId) {
+        const errorSpan = document.getElementById(errorSpanId);
+        if (input) input.classList.remove('has-error');
+        if (errorSpan) {
+            errorSpan.textContent = '';
+            errorSpan.style.display = 'none';
+        }
+    }
+
+    function validateField(id) {
+        const age = calculateAge(dobInput ? dobInput.value : '');
+        const isAdult = age !== null && age >= 18;
+        const isMinor = age !== null && age < 18;
+
+        if (id === 'fullName' || !id) {
+            if (!fullNameInput.value.trim()) {
+                showFieldError(fullNameInput, 'fullNameError', 'Full name is required');
+                if (id === 'fullName') return false;
+            } else {
+                clearFieldError(fullNameInput, 'fullNameError');
+            }
+        }
+
+        if (id === 'dob' || !id) {
+            if (!dobInput.value) {
+                showFieldError(dobInput, 'dobError', 'Date of birth is required');
+                if (id === 'dob') return false;
+            } else {
+                const parts = dobInput.value.split('-');
+                const dob = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+                if (dob > new Date()) {
+                    showFieldError(dobInput, 'dobError', 'Date of birth cannot be in the future');
+                    if (id === 'dob') return false;
+                } else {
+                    clearFieldError(dobInput, 'dobError');
+                }
+            }
+        }
+
+        if (id === 'nic' || !id) {
+            if (isAdult && (!nicInput || !nicInput.value.trim())) {
+                showFieldError(nicInput, 'nicError', 'NIC is required for adults');
+                if (id === 'nic') return false;
+            } else {
+                clearFieldError(nicInput, 'nicError');
+            }
+        }
+
+        if (id === 'phone' || !id) {
+            if (isAdult && (!phoneInput || !phoneInput.value.trim())) {
+                showFieldError(phoneInput, 'phoneError', 'Phone is required for adults');
+                if (id === 'phone') return false;
+            } else {
+                clearFieldError(phoneInput, 'phoneError');
+            }
+        }
+
+        if (id === 'guardianName' || !id) {
+            if (isMinor && (!guardianNameInput || !guardianNameInput.value.trim())) {
+                showFieldError(guardianNameInput, 'guardianNameError', 'Guardian name is required for patients under 18');
+                if (id === 'guardianName') return false;
+            } else {
+                clearFieldError(guardianNameInput, 'guardianNameError');
+            }
+        }
+
+        if (id === 'guardianPhone' || !id) {
+            if (isMinor && (!guardianPhoneInput || !guardianPhoneInput.value.trim())) {
+                showFieldError(guardianPhoneInput, 'guardianPhoneError', 'Guardian phone is required for patients under 18');
+                if (id === 'guardianPhone') return false;
+            } else {
+                clearFieldError(guardianPhoneInput, 'guardianPhoneError');
+            }
+        }
+
+        if (id === 'consentGiven' || !id) {
+            if (consentInput && !consentInput.checked) {
+                showFieldError(consentInput, 'consentGivenError', 'Patient or guardian consent must be confirmed');
+                if (id === 'consentGiven') return false;
+            } else {
+                clearFieldError(consentInput, 'consentGivenError');
+            }
+        }
+    }
+
+    if (dobInput) {
+        dobInput.addEventListener('input', function() {
+            updateAgeRules();
+            validateField('dob');
+        });
+        dobInput.addEventListener('change', function() {
+            updateAgeRules();
+            validateField('dob');
+        });
+        updateAgeRules();
+    }
+
+    [fullNameInput, nicInput, phoneInput, guardianNameInput, guardianPhoneInput].forEach(function(input) {
+        if (input) {
+            input.addEventListener('blur', function() {
+                validateField(input.id);
+            });
+            input.addEventListener('input', function() {
+                clearFieldError(input, input.id + 'Error');
+            });
+        }
+    });
+
+    if (consentInput) {
+        consentInput.addEventListener('change', function() {
+            validateField('consentGiven');
+        });
+    }
+
+    if (patientForm) {
+        patientForm.addEventListener('submit', function(e) {
+            updateAgeRules();
+            const age = calculateAge(dobInput ? dobInput.value : '');
+            let hasError = false;
+
+            if (!fullNameInput.value.trim()) {
+                showFieldError(fullNameInput, 'fullNameError', 'Full name is required');
+                hasError = true;
+            }
+
+            if (!dobInput.value) {
+                showFieldError(dobInput, 'dobError', 'Date of birth is required');
+                hasError = true;
+            }
+
+            if (age !== null && age >= 18) {
+                if (nicInput && !nicInput.value.trim()) {
+                    showFieldError(nicInput, 'nicError', 'NIC is required for adults');
+                    hasError = true;
+                }
+                if (phoneInput && !phoneInput.value.trim()) {
+                    showFieldError(phoneInput, 'phoneError', 'Phone is required for adults');
+                    hasError = true;
+                }
+            }
+
+            if (age !== null && age < 18) {
+                if (guardianNameInput && !guardianNameInput.value.trim()) {
+                    showFieldError(guardianNameInput, 'guardianNameError', 'Guardian name is required for patients under 18');
+                    hasError = true;
+                }
+                if (guardianPhoneInput && !guardianPhoneInput.value.trim()) {
+                    showFieldError(guardianPhoneInput, 'guardianPhoneError', 'Guardian phone is required for patients under 18');
+                    hasError = true;
+                }
+            }
+
+            if (consentInput && !consentInput.checked) {
+                showFieldError(consentInput, 'consentGivenError', 'Patient or guardian consent must be confirmed');
+                hasError = true;
+            }
+
+            if (hasError) {
+                e.preventDefault();
+            }
+        });
+    }
+});
+</script>
 </body>
 </html>

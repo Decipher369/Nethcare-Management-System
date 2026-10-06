@@ -284,25 +284,7 @@ input[type="password"]:focus {
     display: inline-block;
 }
 
-.hint {
-    font-size: 12px;
-    color: var(--muted-gray);
-    margin-top: 24px;
-    line-height: 1.5;
-    background: #F8FAFC;
-    border: 1px solid #E2E8F0;
-    border-radius: 8px;
-    padding: 10px 12px;
-    text-align: left;
-}
 
-.hint code {
-    font-family: ui-monospace, SFMono-Regular, monospace;
-    font-size: 11.5px;
-    background: #E2E8F0;
-    padding: 2px 4px;
-    border-radius: 4px;
-}
 
 .footer {
     margin-top: 24px;
