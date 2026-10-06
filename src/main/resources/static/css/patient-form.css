@@ -1,0 +1,419 @@
+/* ==========================================================================
+   Patient Registration & Edit Form Dedicated Stylesheet
+   Strictly scoped under .patient-register-page & body.patient-form-body
+   ========================================================================== */
+
+/* Body Background Override for Patient Form Page */
+body.patient-form-body {
+    background-color: #F3F6F9 !important;
+}
+
+/* Hide default shared topbar empty wrap from fragments.html if any */
+body.patient-form-body .staff-layout > .wrap {
+    display: none !important;
+}
+
+/* Outer Content Slot Wrapper */
+.patient-register-page {
+    width: 100%;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 28px 32px;
+    box-sizing: border-box;
+    font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+/* Back Link Above Card */
+.patient-register-page .back-link-nav {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #64748B;
+    text-decoration: none !important;
+    margin-bottom: 20px;
+    transition: color 0.15s ease;
+}
+
+.patient-register-page .back-link-nav svg {
+    color: #94A3B8;
+    transition: transform 0.15s ease, color 0.15s ease;
+}
+
+.patient-register-page .back-link-nav:hover {
+    color: #15375B;
+}
+
+.patient-register-page .back-link-nav:hover svg {
+    color: #15375B;
+    transform: translateX(-4px);
+}
+
+/* Main Form Card Box */
+.patient-register-page .patient-form-card {
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 16px;
+    box-shadow: 0 1px 3px rgba(15, 39, 66, 0.08);
+    overflow: hidden;
+}
+
+/* Card Header Section */
+.patient-register-page .form-header-area {
+    padding: 28px;
+    border-bottom: 1px solid #F1F5F9;
+}
+
+.patient-register-page .header-title-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.patient-register-page .page-title {
+    font-size: 26px;
+    font-weight: 700;
+    color: #102A45;
+    margin: 0;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+}
+
+.patient-register-page .pill-badge {
+    display: inline-flex;
+    align-items: center;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 2px 10px;
+    border-radius: 999px;
+    background: #F0F7FF;
+    color: #15375B;
+    border: 1px solid #BAE0FD;
+}
+
+.patient-register-page .header-subtitle {
+    font-size: 13px;
+    color: #64748B;
+    margin: 6px 0 0 0;
+}
+
+/* Info Banner */
+.patient-register-page .info-banner-box {
+    margin-top: 20px;
+    background: #F0F7FF;
+    border: 1px solid #BAE0FD;
+    border-radius: 12px;
+    padding: 14px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.patient-register-page .info-icon-square {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: #E0F0FE;
+    color: #0284C7;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.patient-register-page .info-content-group {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.patient-register-page .info-banner-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #0E243D;
+    margin: 0;
+}
+
+.patient-register-page .info-banner-desc {
+    font-size: 13px;
+    color: #475569;
+    margin: 0;
+    line-height: 1.4;
+}
+
+/* Server Error Banner */
+.patient-register-page .server-error-banner {
+    margin: 20px 28px 0 28px;
+    background: #FDF2F2;
+    border: 1px solid #FDE8E8;
+    border-radius: 12px;
+    padding: 14px;
+    color: #9B1C1C;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+/* Form Body */
+.patient-register-page .form-body-content {
+    padding: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+}
+
+/* Form Section */
+.patient-register-page .form-section-block {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.patient-register-page .form-section-block.bordered {
+    border-top: 1px solid #F1F5F9;
+    padding-top: 20px;
+}
+
+.patient-register-page .section-heading {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #475569;
+    margin: 0 0 4px 0;
+}
+
+.patient-register-page .section-heading .dot-navy {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #15375B;
+    display: inline-block;
+}
+
+.patient-register-page .section-heading .dot-gray {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #94A3B8;
+    display: inline-block;
+}
+
+/* Form Layout Grid */
+.patient-register-page .form-grid-2col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+/* Input Fields */
+.patient-register-page .form-field-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    width: 100%;
+}
+
+.patient-register-page .field-label {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #475569;
+}
+
+.patient-register-page .input-icon-wrapper {
+    position: relative;
+    width: 100%;
+    display: flex;
+    align-items: center;
+}
+
+.patient-register-page .input-icon-wrapper svg {
+    position: absolute;
+    left: 14px;
+    color: #94A3B8;
+    pointer-events: none;
+    flex-shrink: 0;
+}
+
+.patient-register-page .form-control-input {
+    width: 100%;
+    height: 44px;
+    background: #FFFFFF;
+    border: 1px solid #CBD5E1;
+    border-radius: 12px;
+    padding: 0 16px;
+    font-size: 14px;
+    color: #0F2742;
+    box-shadow: 0 1px 2px rgba(15, 39, 66, 0.04);
+    box-sizing: border-box;
+    transition: all 0.15s ease;
+    font-family: inherit;
+}
+
+.patient-register-page .input-icon-wrapper .form-control-input {
+    padding-left: 40px;
+}
+
+.patient-register-page .form-control-input.mono-input {
+    font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+.patient-register-page .form-control-input[type="date"] {
+    accent-color: #15375B;
+}
+
+.patient-register-page .form-control-input::placeholder {
+    color: #94A3B8;
+}
+
+.patient-register-page .form-control-input:focus {
+    outline: none;
+    border-color: #15375B;
+    box-shadow: 0 0 0 3px rgba(21, 55, 91, 0.1);
+}
+
+.patient-register-page .form-control-textarea {
+    width: 100%;
+    min-height: 90px;
+    background: #FFFFFF;
+    border: 1px solid #CBD5E1;
+    border-radius: 12px;
+    padding: 14px;
+    font-size: 14px;
+    color: #0F2742;
+    box-shadow: 0 1px 2px rgba(15, 39, 66, 0.04);
+    box-sizing: border-box;
+    transition: all 0.15s ease;
+    font-family: inherit;
+    resize: vertical;
+}
+
+.patient-register-page .form-control-textarea:focus {
+    outline: none;
+    border-color: #15375B;
+    box-shadow: 0 0 0 3px rgba(21, 55, 91, 0.1);
+}
+
+/* Checkbox Rows */
+.patient-register-page .checkbox-group-block {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    border-top: 1px solid #F1F5F9;
+    padding-top: 20px;
+}
+
+.patient-register-page .checkbox-label-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.patient-register-page .checkbox-custom-input {
+    width: 18px;
+    height: 18px;
+    accent-color: #15375B;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.patient-register-page .checkbox-text-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #0E243D;
+    transition: color 0.15s ease;
+}
+
+.patient-register-page .checkbox-label-row:hover .checkbox-text-label {
+    color: #0369A1;
+}
+
+/* Action Row Buttons */
+.patient-register-page .form-actions-row {
+    border-top: 1px solid #E2E8F0;
+    padding-top: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+.patient-register-page .btn-cancel-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 24px;
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    color: #475569 !important;
+    font-size: 13px;
+    font-weight: 600;
+    border-radius: 12px;
+    text-decoration: none !important;
+    transition: all 0.15s ease;
+    cursor: pointer;
+}
+
+.patient-register-page .btn-cancel-action:hover {
+    background: #F1F5F9;
+    color: #1E293B !important;
+}
+
+.patient-register-page .btn-submit-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 28px;
+    background: #15375B;
+    color: #FFFFFF !important;
+    font-size: 13px;
+    font-weight: 600;
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 1px 3px rgba(15, 39, 66, 0.1);
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.patient-register-page .btn-submit-action:hover {
+    background: #0E243D;
+    box-shadow: 0 4px 12px rgba(21, 55, 91, 0.15);
+}
+
+.patient-register-page .btn-submit-action:active {
+    background: #081729;
+}
+
+.patient-register-page .btn-submit-action:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px #FFFFFF, 0 0 0 4px #0369A1;
+}
+
+/* Responsive Layout below 640px */
+@media (max-width: 640px) {
+    .patient-register-page {
+        padding: 16px;
+    }
+
+    .patient-register-page .form-grid-2col {
+        grid-template-columns: 1fr;
+    }
+
+    .patient-register-page .form-actions-row {
+        flex-direction: column-reverse;
+        align-items: stretch;
+    }
+
+    .patient-register-page .btn-cancel-action,
+    .patient-register-page .btn-submit-action {
+        width: 100%;
+    }
+}
