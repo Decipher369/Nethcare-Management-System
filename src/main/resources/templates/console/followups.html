@@ -23,6 +23,72 @@
         </div>
     </div>
 
+    <!-- Flash Messages -->
+    <div class="panel" th:if="${caseMessage != null}" style="border-left: 4px solid var(--good); background: #f0fdf4; margin-bottom: 1rem;">
+        <p class="pad" style="margin:0; color:#166534; font-size:13px; font-weight:500;" th:text="${caseMessage}">Follow-up updated successfully.</p>
+    </div>
+    <div class="panel" th:if="${caseError != null}" style="border-left: 4px solid var(--bad); background: #fef2f2; margin-bottom: 1rem;">
+        <p class="pad" style="margin:0; color:#991b1b; font-size:13px; font-weight:500;" th:text="${caseError}">Error occurred.</p>
+    </div>
+
+    <!-- Quick Schedule Follow-up Case Web Form -->
+    <div class="panel" style="margin-bottom: 1.2rem;">
+        <details>
+            <summary style="padding: 0.8rem 1.2rem; cursor: pointer; font-size: 13px; font-weight: 600; color: var(--brand-deep); display: flex; align-items: center; justify-content: space-between;">
+                <span>+ Schedule New Patient Follow-up Review</span>
+                <span style="font-size: 11px; font-weight: normal; color: var(--ink-soft);">Click to open scheduler ▾</span>
+            </summary>
+            <form method="post" th:action="@{/followups/schedule}" style="padding: 1rem 1.2rem; border-top: 1px solid var(--line); display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px;">
+                <div class="field" style="margin: 0;">
+                    <label for="schedPatient">Select Patient</label>
+                    <select id="schedPatient" name="patientId" required>
+                        <option value="">-- Choose Patient --</option>
+                        <option th:each="p : ${patients}" th:value="${p.id}" th:text="${p.fullName} + ' (' + ${p.patientNo} + ')'"></option>
+                    </select>
+                </div>
+                <div class="field" style="margin: 0;">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <label for="schedDate">Target Review Date</label>
+                        <div style="display:flex; gap:4px; font-size:10px;">
+                            <button type="button" class="btn sm" onclick="setFollowupPreset(6)" style="padding:1px 5px; font-size:10px; cursor:pointer;">+6m</button>
+                            <button type="button" class="btn sm" onclick="setFollowupPreset(12)" style="padding:1px 5px; font-size:10px; cursor:pointer;">+12m</button>
+                        </div>
+                    </div>
+                    <input id="schedDate" name="targetReviewDate" type="date" required th:value="${#temporals.format(T(java.time.LocalDate).now().plusMonths(6), 'yyyy-MM-dd')}">
+                </div>
+                <div class="field" style="margin: 0;">
+                    <label for="schedCategory">Review Category</label>
+                    <select id="schedCategory" name="category" required>
+                        <option value="ROUTINE_REVIEW" selected>Routine review</option>
+                        <option value="REASSESSMENT">Reassessment</option>
+                        <option value="POST_OPERATIVE">Post-operative</option>
+                        <option value="CORNEAL_ULCER">Corneal ulcer</option>
+                        <option value="PEDIATRIC_AMBLYOPIA">Pediatric amblyopia</option>
+                    </select>
+                </div>
+                <div class="field" style="margin: 0;" th:if="${opticians != null and !opticians.isEmpty()}">
+                    <label for="schedOptician">Assigned Optician</label>
+                    <select id="schedOptician" name="assignedOpticianId">
+                        <option th:each="opt : ${opticians}" th:value="${opt.id}" th:text="${opt.fullName}"></option>
+                    </select>
+                </div>
+                <div class="field" style="grid-column: 1 / -1; display:flex; align-items:center; gap:8px; margin:0;">
+                    <input type="checkbox" id="schedRisk" name="highRisk" value="true">
+                    <label for="schedRisk" style="font-size: 12px; color: var(--bad); font-weight: 600; cursor: pointer; margin:0;">
+                        Flag as High Risk Surveillance Case
+                    </label>
+                </div>
+                <div class="field" style="grid-column: 1 / -1; margin: 0;">
+                    <label for="schedNotes">Clinical Notes &amp; Instructions</label>
+                    <textarea id="schedNotes" name="clinicalNotes" rows="2" style="width: 100%; box-sizing: border-box; padding: 0.5rem; font-family: inherit; font-size: 12px; border: 1px solid var(--line); border-radius: 4px;" placeholder="Reason for review, instructions, or specific recall criteria…"></textarea>
+                </div>
+                <div style="grid-column: 1 / -1;">
+                    <button class="btn sm" type="submit" style="background: var(--brand-deep); color: #fff; cursor: pointer;">Schedule Review Case</button>
+                </div>
+            </form>
+        </details>
+    </div>
+
     <!-- KPI cards -->
     <div class="kpis">
         <div class="kpi">
@@ -56,8 +122,51 @@
             </div>
         </div>
 
+        <!-- Smart Filter Pills -->
+        <div class="filter-pills-bar">
+            <div class="filter-pills-timeframe">
+                <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--ink-soft); margin-right: 4px;">Timeframe:</span>
+
+                <a th:href="@{/followups(preset='today', highRisk=${highRisk})}"
+                   class="filter-pill" th:classappend="${preset == 'today'} ? ' active' : ''">
+                    Today
+                </a>
+                <a th:href="@{/followups(preset='this_week', highRisk=${highRisk})}"
+                   class="filter-pill" th:classappend="${preset == 'this_week'} ? ' active' : ''">
+                    This Week (7d)
+                </a>
+                <a th:href="@{/followups(preset='next_14', highRisk=${highRisk})}"
+                   class="filter-pill" th:classappend="${preset == 'next_14'} ? ' active' : ''">
+                    Next 14 Days
+                </a>
+                <a th:href="@{/followups(preset='this_month', highRisk=${highRisk})}"
+                   class="filter-pill" th:classappend="${preset == 'this_month'} ? ' active' : ''">
+                    This Month
+                </a>
+                <a th:href="@{/followups(preset='overdue', highRisk=${highRisk})}"
+                   class="filter-pill" th:classappend="${preset == 'overdue'} ? ' active' : ''">
+                    Overdue
+                </a>
+            </div>
+
+            <div class="filter-pills-actions">
+                <a th:href="@{/followups(from=${from}, to=${to}, preset=${preset}, highRisk=${highRisk ? 'false' : 'true'})}"
+                   class="filter-pill" th:classappend="${highRisk} ? ' active-risk' : ''"
+                   style="border-color: #fca5a5;">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right:2px;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                    <span>High Risk Only</span>
+                    <span th:if="${highRisk}" style="margin-left: 3px; font-weight: 700;">✓</span>
+                </a>
+                <a th:if="${preset != 'this_week' or highRisk or selectedCategory != null}" th:href="@{/followups}"
+                   style="font-size: 11px; color: var(--ink-soft); text-decoration: underline; margin-left: 4px;">
+                    Reset
+                </a>
+            </div>
+        </div>
+
         <!-- Filter bar -->
         <form class="filters" method="get" th:action="@{/followups}">
+            <input type="hidden" name="highRisk" th:value="${highRisk}">
             <div class="field">
                 <label for="from">From</label>
                 <input id="from" name="from" type="date" th:value="${from}">
@@ -69,15 +178,16 @@
             <div class="field">
                 <label for="cat">Category</label>
                 <select id="cat" name="category">
-                    <option value="">All Categories</option>
-                    <option value="ROUTINE_REVIEW">Routine review</option>
-                    <option value="REASSESSMENT">Reassessment</option>
-                    <option value="POST_OPERATIVE">Post-operative</option>
-                    <option value="CORNEAL_ULCER">Corneal ulcer</option>
-                    <option value="PEDIATRIC_AMBLYOPIA">Pediatric amblyopia</option>
+                    <option value="" th:selected="${selectedCategory == null}">All Categories</option>
+                    <option value="ROUTINE_REVIEW" th:selected="${selectedCategory != null and selectedCategory.name() == 'ROUTINE_REVIEW'}">Routine review</option>
+                    <option value="REASSESSMENT" th:selected="${selectedCategory != null and selectedCategory.name() == 'REASSESSMENT'}">Reassessment</option>
+                    <option value="POST_OPERATIVE" th:selected="${selectedCategory != null and selectedCategory.name() == 'POST_OPERATIVE'}">Post-operative</option>
+                    <option value="CORNEAL_ULCER" th:selected="${selectedCategory != null and selectedCategory.name() == 'CORNEAL_ULCER'}">Corneal ulcer</option>
+                    <option value="PEDIATRIC_AMBLYOPIA" th:selected="${selectedCategory != null and selectedCategory.name() == 'PEDIATRIC_AMBLYOPIA'}">Pediatric amblyopia</option>
                 </select>
             </div>
             <button class="btn" type="submit">Filter cases</button>
+            <a class="btn ghost" th:href="@{/followups}">Clear</a>
         </form>
 
         <!-- Collection Cards Grid -->
@@ -114,11 +224,27 @@
                             </div>
                         </div>
                     </div>
-                    <div class="collection-card-footer">
-                        <span class="note" style="font-size:11px;" th:text="${r.responseNote ?: 'Scheduled follow-up'}">Clinical review</span>
-                        <form method="post" th:action="@{/followups/{id}/queue(id=${r.id})}" style="margin:0;">
-                            <button class="btn sm" type="submit" th:disabled="${!r.open}">Queue SMS</button>
-                        </form>
+                    <div class="collection-card-footer" style="flex-direction: column; align-items: stretch; gap: 8px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 11px;">
+                            <span class="note" th:text="${r.responseNote ?: 'Scheduled follow-up'}">Clinical review</span>
+                            <span th:if="${r.outcome != null}" class="tag"
+                                  th:classappend="${r.outcome.name() == 'BOOKED'} ? 'info' : (${r.outcome.name() == 'ATTENDED'} ? 'good' : 'bad')"
+                                  th:text="${r.outcome.name()}">BOOKED</span>
+                        </div>
+                        <div style="display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; align-items: center; border-top: 1px solid var(--line); padding-top: 8px;">
+                            <form method="post" th:action="@{/followups/{id}/queue(id=${r.id})}" style="margin:0;" th:if="${r.open}">
+                                <button class="btn sm" type="submit" style="padding: 3px 8px; font-size: 11px; background: var(--brand-deep); color: #fff;">Queue Reminder</button>
+                            </form>
+                            <form method="post" th:action="@{/followups/{id}/booked(id=${r.id})}" style="margin:0;" th:if="${r.status.name() != 'ATTENDED'}">
+                                <button class="btn sm ghost" type="submit" style="padding: 3px 8px; font-size: 11px; color: #0284c7; border-color: #0284c7;" title="Patient agreed to an appointment">Mark Booked</button>
+                            </form>
+                            <form method="post" th:action="@{/followups/{id}/declined(id=${r.id})}" style="margin:0;" th:if="${r.status.name() != 'ATTENDED' and r.status.name() != 'DEFAULTED'}">
+                                <button class="btn sm ghost" type="submit" style="padding: 3px 8px; font-size: 11px; color: #dc2626; border-color: #fca5a5;" title="Patient declined follow-up">Mark Declined</button>
+                            </form>
+                            <form method="post" th:action="@{/followups/{id}/attended(id=${r.id})}" style="margin:0;" th:if="${r.status.name() != 'ATTENDED'}">
+                                <button class="btn sm ghost" type="submit" style="padding: 3px 8px; font-size: 11px; color: #166534; border-color: #86efac;" title="Patient completed their visit">Mark Attended</button>
+                            </form>
+                        </div>
                     </div>
                 </article>
             </div>
@@ -169,9 +295,20 @@
                             <td><span class="tag" th:classappend="${r.status.name() == 'ACTIVE'} ? 'info' : (${r.status.name() == 'ATTENDED'} ? 'good' : (${r.status.name() == 'DEFAULTED'} ? 'bad' : 'warn'))"
                                       th:text="${r.status.label()}">Active</span></td>
                             <td class="num">
-                                <form method="post" th:action="@{/followups/{id}/queue(id=${r.id})}">
-                                    <button class="btn sm ghost" type="submit" th:disabled="${!r.open}">Queue</button>
-                                </form>
+                                <div style="display:inline-flex; gap:4px; align-items:center;">
+                                    <form method="post" th:action="@{/followups/{id}/queue(id=${r.id})}" th:if="${r.open}" style="margin:0;">
+                                        <button class="btn sm" type="submit" style="padding:2px 6px; font-size:10px; background:var(--brand-deep); color:#fff;">Queue</button>
+                                    </form>
+                                    <form method="post" th:action="@{/followups/{id}/booked(id=${r.id})}" th:if="${r.status.name() != 'ATTENDED'}" style="margin:0;">
+                                        <button class="btn sm ghost" type="submit" style="padding:2px 6px; font-size:10px; color:#0284c7;" title="Mark Booked">Booked</button>
+                                    </form>
+                                    <form method="post" th:action="@{/followups/{id}/declined(id=${r.id})}" th:if="${r.status.name() != 'ATTENDED' and r.status.name() != 'DEFAULTED'}" style="margin:0;">
+                                        <button class="btn sm ghost" type="submit" style="padding:2px 6px; font-size:10px; color:#dc2626;" title="Mark Declined">Declined</button>
+                                    </form>
+                                    <form method="post" th:action="@{/followups/{id}/attended(id=${r.id})}" th:if="${r.status.name() != 'ATTENDED'}" style="margin:0;">
+                                        <button class="btn sm ghost" type="submit" style="padding:2px 6px; font-size:10px; color:#166534;" title="Mark Attended">Attended</button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                         </tbody>
@@ -223,7 +360,7 @@
             </div>
             <div class="field" style="flex:1 1 100%;">
                 <label for="notes">Clinical notes</label>
-                <input id="notes" name="clinicalNotes" type="text" placeholder="Optional clinical notes" style="width:100%;min-width:300px;">
+                <input id="notes" name="clinicalNotes" type="text" placeholder="Optional clinical notes" style="width:100%;box-sizing:border-box;">
             </div>
             <div style="display:flex;align-items:flex-end;">
                 <button class="btn-editorial" type="submit">Schedule case <span aria-hidden="true">↗</span></button>
@@ -234,5 +371,18 @@
 </div>
 </div>
 </div>
+<script>
+function setFollowupPreset(months) {
+    const d = new Date();
+    d.setMonth(d.getMonth() + months);
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    const input = document.getElementById('schedDate');
+    if (input) input.value = `${yyyy}-${mm}-${dd}`;
+    const reviewDateInput = document.getElementById('reviewDate');
+    if (reviewDateInput) reviewDateInput.value = `${yyyy}-${mm}-${dd}`;
+}
+</script>
 </body>
 </html>
