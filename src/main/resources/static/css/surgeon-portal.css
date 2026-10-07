@@ -1,0 +1,392 @@
+/* ==========================================================================
+   Surgeon Portal & Referral Management Dedicated Stylesheet
+   Strictly adheres to Nethcare Design System (patients.css & patient-detail.css)
+   ========================================================================== */
+
+/* Body Background Override for Surgeon Portal */
+body.surgeon-portal-body {
+    background-color: #F3F6F9 !important;
+    margin: 0;
+    font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+/* Hide default shared topbars and wraps from fragments.html */
+body.surgeon-portal-body .topbar,
+body.surgeon-portal-body .staff-layout > .wrap,
+body.surgeon-portal-body .admin-topbar,
+body.surgeon-portal-body .admin-flash {
+    display: none !important;
+}
+
+/* Ensure content slot (main.wrap) sits to the right of sidebar without extra margin or padding */
+body.surgeon-portal-body main.wrap {
+    max-width: none !important;
+    margin-left: 238px !important;
+    padding: 0 !important;
+    width: auto !important;
+    margin-top: 0 !important;
+    margin-right: 0 !important;
+    margin-bottom: 0 !important;
+}
+
+body.surgeon-portal-body:has(.admin-shell) main.wrap {
+    margin-left: 250px !important;
+}
+
+/* Surgeon Portal Dedicated Sticky Topbar - Flush at y = 0 */
+body.surgeon-portal-body .patients-topbar {
+    position: sticky;
+    top: 0 !important;
+    margin-top: 0 !important;
+    z-index: 100;
+    margin-left: 238px !important;
+    height: 56px;
+    background: #FFFFFF;
+    border-bottom: 1px solid #E2E8F0;
+    box-shadow: 0 1px 2px rgba(15, 39, 66, 0.04);
+    padding: 0 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    white-space: nowrap;
+    box-sizing: border-box;
+    font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+body.surgeon-portal-body:has(.admin-shell) .patients-topbar {
+    margin-left: 250px !important;
+}
+
+@media (max-width: 900px) {
+    body.surgeon-portal-body main.wrap,
+    body.surgeon-portal-body:has(.admin-shell) main.wrap,
+    body.surgeon-portal-body .patients-topbar,
+    body.surgeon-portal-body:has(.admin-shell) .patients-topbar {
+        margin-left: 0 !important;
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+}
+
+/* Topbar Left Group */
+body.surgeon-portal-body .topbar-left-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+body.surgeon-portal-body .topbar-pulse-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #0284C7;
+    display: inline-block;
+    animation: pulseDotPortal 2s infinite ease-in-out;
+}
+
+@keyframes pulseDotPortal {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.9); }
+}
+
+body.surgeon-portal-body .topbar-workspace-label {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #64748B;
+}
+
+body.surgeon-portal-body .topbar-slash-sep {
+    font-size: 12px;
+    color: #CBD5E1;
+}
+
+body.surgeon-portal-body .topbar-link-text {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: #64748B;
+    text-decoration: none !important;
+}
+
+body.surgeon-portal-body .topbar-link-text:hover {
+    color: #15375B;
+}
+
+body.surgeon-portal-body .topbar-workspace-title {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: #15375B;
+}
+
+/* Topbar Right Group */
+body.surgeon-portal-body .topbar-right-group {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+body.surgeon-portal-body .topbar-user-block {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+body.surgeon-portal-body .topbar-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: #F1F5F9;
+    border: 1px solid #E2E8F0;
+    color: #15375B;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+body.surgeon-portal-body .topbar-username {
+    font-size: 12px;
+    font-weight: 700;
+    color: #0E243D;
+    letter-spacing: 0.02em;
+}
+
+body.surgeon-portal-body .topbar-v-divider {
+    width: 1px;
+    height: 16px;
+    background: #E2E8F0;
+}
+
+body.surgeon-portal-body .topbar-signout-btn {
+    background: transparent;
+    border: none;
+    color: #64748B;
+    font-size: 13px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    padding: 6px 10px;
+    border-radius: 8px;
+    transition: all 0.15s ease;
+    font-family: inherit;
+}
+
+body.surgeon-portal-body .topbar-signout-btn:hover {
+    color: #0E243D;
+    background: #F1F5F9;
+}
+
+/* ── Badges for Urgency & Status ───────────────────────────── */
+.badge-urgent-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    background: #FEF2F2;
+    color: #B91C1C;
+    border: 1px solid #FECACA;
+}
+
+.badge-routine-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    background: #F0F9FF;
+    color: #0369A1;
+    border: 1px solid #BAE6FD;
+}
+
+.badge-pending-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    background: #FEF3C7;
+    color: #B45309;
+    border: 1px solid #FDE68A;
+}
+
+.badge-completed-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    background: #ECFDF5;
+    color: #047857;
+    border: 1px solid #A7F3D0;
+}
+
+/* ── Table Action Button ───────────────────────────────────── */
+.btn-table-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    background: #15375B;
+    color: #FFFFFF !important;
+    text-decoration: none !important;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-table-action:hover {
+    background: #0E243D;
+    box-shadow: 0 2px 6px rgba(21, 55, 91, 0.15);
+}
+
+/* ── Preformatted History Box ──────────────────────────────── */
+.pre-history-box {
+    background: #F8FAFC;
+    border: 1px solid #E2E8F0;
+    border-radius: 10px;
+    padding: 16px 20px;
+    font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 13px;
+    line-height: 1.6;
+    color: #334155;
+    white-space: pre-wrap;
+    max-height: 360px;
+    overflow-y: auto;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+/* ── Surgeon Consultation Form & Inputs ────────────────────── */
+.surgeon-entry-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.surgeon-form-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 18px;
+}
+
+.surgeon-form-grid.two-col {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+@media (max-width: 768px) {
+    .surgeon-form-grid.two-col {
+        grid-template-columns: 1fr;
+    }
+}
+
+.surgeon-field-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.surgeon-field-group label {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #475569;
+}
+
+.surgeon-field-group label .req-star {
+    color: #DC2626;
+    margin-left: 2px;
+}
+
+.surgeon-field-group textarea,
+.surgeon-field-group input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 12px 14px;
+    border: 1px solid #CBD5E1;
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 14px;
+    color: #1E293B;
+    background: #FFFFFF;
+    transition: all 0.15s ease;
+    resize: vertical;
+}
+
+.surgeon-field-group textarea:focus,
+.surgeon-field-group input:focus {
+    outline: none;
+    border-color: #15375B;
+    box-shadow: 0 0 0 4px rgba(21, 55, 91, 0.1);
+}
+
+.surgeon-field-group textarea::placeholder,
+.surgeon-field-group input::placeholder {
+    color: #94A3B8;
+}
+
+.btn-complete-submit {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    background: #15375B;
+    color: #FFFFFF !important;
+    font-size: 13px;
+    font-weight: 600;
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 1px 3px rgba(15, 39, 66, 0.1);
+    transition: all 0.15s ease;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.btn-complete-submit:hover {
+    background: #0E243D;
+    box-shadow: 0 4px 12px rgba(21, 55, 91, 0.15);
+}
+
+/* Info tile spanning utility for 3-column grid */
+.patient-summary-page .info-tile-box.span-3col {
+    grid-column: span 3;
+}
+
+@media (max-width: 900px) {
+    .patient-summary-page .info-tiles-grid {
+        grid-template-columns: 1fr !important;
+    }
+    .patient-summary-page .info-tile-box.span-2col,
+    .patient-summary-page .info-tile-box.span-3col {
+        grid-column: span 1 !important;
+    }
+}
