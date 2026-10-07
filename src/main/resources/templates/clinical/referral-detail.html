@@ -1,46 +1,177 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{clinical/fragments :: head('Referral')}"></head>
-<body>
-<div th:replace="~{clinical/fragments :: bar('referrals', ${user})}"></div>
-<main class="wrap">
-    <p><a th:href="@{/referrals}">← Referral worklist</a></p>
-    <h1 th:text="${referral.refNo} + ' · ' + ${patient.fullName}">Referral</h1>
-    <div class="flash" th:if="${msg}" th:text="${msg}">Saved</div>
-    <div class="flash bad" th:if="${error}" th:text="${error}">Error</div>
-    <div class="grid">
-        <section class="panel"><h2>Referral</h2><div class="pad"><dl class="detail-list">
-            <dt>Referred</dt><dd th:text="${referral.referredOn}">date</dd>
-            <dt>By</dt><dd th:text="${referral.referredBy}">optician</dd>
-            <dt>Surgeon</dt><dd th:text="${referral.surgeonName}">surgeon</dd>
-            <dt>Urgency</dt><dd th:text="${referral.urgency}">urgency</dd>
-            <dt>Status</dt><dd th:text="${referral.status}">status</dd>
-            <dt>Reason</dt><dd th:text="${referral.reason}">reason</dd>
-        </dl></div></section>
-        <section class="panel"><h2>Attached prescription history</h2><div class="pad">
-            <pre class="clinical-history" th:text="${referral.attachedHistory}">History</pre>
-        </div></section>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="'Referral ' + ${referral.refNo} + ' · ' + ${patient.fullName} + ' — Nethcare'">Referral — Nethcare</title>
+    <link rel="icon" type="image/png" th:href="@{/images/nethcare-logo.png}">
+    <link rel="stylesheet" th:href="@{/css/staff.css}">
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+    <link rel="stylesheet" th:href="@{/css/patient-detail.css}">
+    <link rel="stylesheet" th:href="@{/css/surgeon-portal.css}">
+</head>
+<body class="patient-detail-body surgeon-portal-body">
+
+<!-- Shared Staff Navigation Sidebar -->
+<div th:replace="~{staff/fragments :: bar('referrals', ${currentUser})}"></div>
+
+<!-- Dedicated Sticky Topbar -->
+<header class="patients-topbar">
+    <div class="topbar-left-group">
+        <span class="topbar-pulse-dot"></span>
+        <span class="topbar-workspace-label">CLINICAL</span>
+        <span class="topbar-slash-sep">/</span>
+        <a th:href="@{/referrals}" class="topbar-link-text">Referrals</a>
+        <span class="topbar-slash-sep">/</span>
+        <span class="topbar-workspace-title" th:text="${referral.refNo} + ' · ' + ${patient.fullName}">REF-0001 · Patient</span>
     </div>
 
-    <section class="panel" th:if="${referral.status == 'COMPLETED'}"><h2>Surgeon consultation</h2><div class="pad"><dl class="detail-list">
-        <dt>Tests</dt><dd th:text="${referral.tests} ?: '—'">tests</dd>
-        <dt>Diagnosis</dt><dd th:text="${referral.diagnosis}">diagnosis</dd>
-        <dt>Treatment</dt><dd th:text="${referral.treatment}">treatment</dd>
-        <dt>Follow-up</dt><dd th:text="${referral.followUpInstructions} ?: '—'">followup</dd>
-        <dt>Notes</dt><dd th:text="${referral.feedback} ?: '—'">notes</dd>
-        <dt>Completed</dt><dd th:text="${referral.feedbackOn}">date</dd>
-    </dl></div></section>
+    <div class="topbar-right-group">
+        <div class="topbar-user-block">
+            <div class="topbar-avatar" th:text="${currentUser != null and #strings.length(currentUser) >= 2 ? #strings.toUpperCase(#strings.substring(currentUser, 0, 2)) : 'DR'}">DR</div>
+            <span class="topbar-username" th:text="${currentUser != null ? currentUser : 'Surgeon'}">Specialist</span>
+        </div>
 
-    <section class="panel" th:if="${canComplete and referral.status != 'COMPLETED'}"><h2>Complete consultation</h2><div class="pad">
-        <form method="post" th:action="@{/referrals/{id}/consultation(id=${referral.id})}">
-            <label class="field">Tests performed<textarea name="tests"></textarea></label>
-            <label class="field">Diagnosis<textarea name="diagnosis" required></textarea></label>
-            <label class="field">Treatment<textarea name="treatment" required></textarea></label>
-            <label class="field">Follow-up instructions<textarea name="followUpInstructions"></textarea></label>
-            <label class="field">Additional notes<textarea name="notes"></textarea></label>
-            <button class="btn" type="submit">Complete consultation</button>
+        <div class="topbar-v-divider"></div>
+
+        <form th:action="@{/logout}" method="post" style="margin: 0; display: inline-flex;">
+            <button type="submit" class="topbar-signout-btn">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                <span>Sign out</span>
+            </button>
         </form>
-    </div></section>
+    </div>
+</header>
+
+<!-- Main Detail Content -->
+<main class="wrap">
+    <div class="patient-summary-page">
+
+        <!-- Flash Notifications -->
+        <div class="notice-banner-box" th:if="${msg}">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            <span th:text="${msg}">Saved</span>
+        </div>
+
+        <div class="notice-banner-box" role="alert" th:if="${error}" style="background: #FEF2F2; color: #991B1B; border-color: #FECACA;">
+            <span th:text="${error}">Error</span>
+        </div>
+
+        <!-- Block 1: Top Navigation Bar Card -->
+        <div class="nav-bar-card">
+            <a th:href="@{/referrals}" class="nav-back-link">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                <span>Back to referral worklist</span>
+            </a>
+            <div style="display: flex; gap: 8px; align-items: center;">
+                <span th:if="${referral.urgency == 'URGENT'}" class="badge-urgent-pill">URGENT</span>
+                <span th:unless="${referral.urgency == 'URGENT'}" class="badge-routine-pill">ROUTINE</span>
+
+                <span th:if="${referral.status == 'COMPLETED'}" class="badge-completed-pill">COMPLETED</span>
+                <span th:unless="${referral.status == 'COMPLETED'}" class="badge-pending-pill">PENDING</span>
+            </div>
+        </div>
+
+        <!-- Block 2: Patient Identity Card -->
+        <div class="summary-card-box identity-card">
+            <div class="identity-gradient-strip"></div>
+            <div class="identity-main-row">
+                <div class="identity-left-group">
+                    <div class="patient-avatar-large" th:text="${patient != null and #strings.length(patient.fullName) >= 1 ? #strings.toUpperCase(#strings.substring(patient.fullName, 0, 1)) : 'P'}">P</div>
+                    <div class="identity-text-details">
+                        <div class="name-badges-row">
+                            <h1 class="patient-name-title" th:text="${patient.fullName}">Patient Name</h1>
+                            <span class="no-badge-pill" th:text="${referral.refNo}">REF-0001</span>
+                            <span class="no-badge-pill" style="background: #F8FAFC; color: #64748B; border-color: #E2E8F0;" th:text="${patient.patientNo}">P-0001</span>
+                        </div>
+                        <div class="identity-meta-line">
+                            <span>DOB: <strong th:text="${patient.dob}">1990-01-01</strong></span>
+                            <span class="meta-dot-sep">·</span>
+                            <span>Phone: <strong th:text="${patient.phone} ?: '—'">—</strong></span>
+                            <span class="meta-dot-sep">·</span>
+                            <span>Referred on <strong th:text="${referral.referredOn}">2026-10-06</strong> by <strong th:text="${referral.referredBy}">Optician</strong></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="identity-actions-group">
+                    <a th:href="@{/patients/{id}(id=${patient.id})}" class="btn-identity-edit" target="_blank" rel="noopener">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                        <span>Patient record</span>
+                    </a>
+                    <a th:if="${exam != null}" th:href="@{/examinations/{id}(id=${exam.id})}" class="btn-identity-edit" target="_blank" rel="noopener">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                        <span>Source examination</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Block 3: Referral Hand-off Information Card -->
+        <div class="summary-card-box registration-card">
+            <div class="card-header-row">
+                <h2 class="card-heading-title">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
+                    <span>Referral Hand-off &amp; Indication</span>
+                </h2>
+                <span class="card-header-subtext">Clinical rationale submitted by referring optometrist</span>
+            </div>
+
+            <div class="info-tiles-grid">
+                <div class="info-tile-box">
+                    <span class="tile-label-text">Assigned Surgeon</span>
+                    <div class="tile-value-row">
+                        <span class="tile-val-text" style="color: #15375B; font-weight: 700;" th:text="${referral.surgeonName}">Dr. Specialist</span>
+                    </div>
+                </div>
+
+                <div class="info-tile-box">
+                    <span class="tile-label-text">Urgency Level</span>
+                    <div class="tile-value-row">
+                        <span th:if="${referral.urgency == 'URGENT'}" class="badge-urgent-pill">URGENT</span>
+                        <span th:unless="${referral.urgency == 'URGENT'}" class="badge-routine-pill">ROUTINE</span>
+                    </div>
+                </div>
+
+                <div class="info-tile-box">
+                    <span class="tile-label-text">Consultation Status</span>
+                    <div class="tile-value-row">
+                        <span th:if="${referral.status == 'COMPLETED'}" class="badge-completed-pill">COMPLETED</span>
+                        <span th:unless="${referral.status == 'COMPLETED'}" class="badge-pending-pill">PENDING</span>
+                    </div>
+                </div>
+
+                <div class="info-tile-box span-3col">
+                    <span class="tile-label-text">Clinical Referral Reason</span>
+                    <div class="tile-value-row" style="margin-top: 4px;">
+                        <span class="tile-val-text" style="line-height: 1.5; white-space: pre-wrap;" th:text="${referral.reason}">Reason</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="reg-card-sub-section">
+                <h3 class="card-heading-title" style="margin-bottom: 12px; font-size: 12px; color: #64748B;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+                    <span>Attached Prescription &amp; Clinical History</span>
+                </h3>
+                <pre class="pre-history-box" th:text="${referral.attachedHistory} ?: 'No historical records attached.'">History records...</pre>
+            </div>
+        </div>
+
+        <!-- Block 6: Bottom Navigation Bar -->
+        <div class="nav-bar-card">
+            <div>
+                <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #94A3B8; display: block;">Clinical Protocol</span>
+                <strong style="font-size: 13px; color: #0E243D;">Case record verified under Nethcare medical protocols</strong>
+            </div>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <a th:href="@{/referrals}" class="btn-identity-edit">
+                    <span>Return to worklist</span>
+                </a>
+            </div>
+        </div>
+
+    </div>
 </main>
 </body>
 </html>
