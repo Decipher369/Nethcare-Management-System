@@ -21,15 +21,18 @@ public class NotificationDispatchService {
     private final NotificationRepository notifications;
     private final FollowUpService followUps;
     private final SmsGateway smsGateway;
+    private final EmailGateway emailGateway;
     private final int maxRetries;
 
     public NotificationDispatchService(NotificationRepository notifications,
                                      FollowUpService followUps,
                                      SmsGateway smsGateway,
+                                     EmailGateway emailGateway,
                                      @Value("${nethcare.sms.max-retries:3}") int maxRetries) {
         this.notifications = notifications;
         this.followUps = followUps;
         this.smsGateway = smsGateway;
+        this.emailGateway = emailGateway;
         this.maxRetries = maxRetries;
     }
 
@@ -71,7 +74,12 @@ public class NotificationDispatchService {
         }
 
         try {
-            String receipt = smsGateway.send(row.getDestination(), row.getMessage());
+            String receipt;
+            if (row.getChannel() == com.nethcare.model.NotificationChannel.EMAIL) {
+                receipt = emailGateway.send(row.getDestination(), row.getMessage());
+            } else {
+                receipt = smsGateway.send(row.getDestination(), row.getMessage());
+            }
             followUps.markSent(row.getId(), receipt, actor);
             return true;
         } catch (Exception failure) {
@@ -95,5 +103,9 @@ public class NotificationDispatchService {
 
     public SmsGateway getGateway() {
         return smsGateway;
+    }
+
+    public EmailGateway getEmailGateway() {
+        return emailGateway;
     }
 }
