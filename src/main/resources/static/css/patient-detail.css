@@ -16,9 +16,10 @@ body.patient-detail-body .staff-layout > .wrap {
 }
 
 /* Ensure content slot (main.wrap) sits to the right of sidebar without extra margin or padding */
-body.patient-detail-body main.wrap {
+body.patient-detail-body main.wrap,
+body.patient-detail-body:has(.admin-nav) main.wrap {
     max-width: none !important;
-    margin-left: 238px !important;
+    margin-left: 250px !important;
     padding: 0 !important;
     width: auto !important;
     margin-top: 0 !important;
@@ -27,12 +28,13 @@ body.patient-detail-body main.wrap {
 }
 
 /* Detail Page Dedicated Sticky Topbar - Flush at y = 0 */
-body.patient-detail-body .patients-topbar {
+body.patient-detail-body .patients-topbar,
+body.patient-detail-body:has(.admin-nav) .patients-topbar {
     position: sticky;
     top: 0 !important;
     margin-top: 0 !important;
-    z-index: 100;
-    margin-left: 238px;
+    z-index: 10;
+    margin-left: 250px !important;
     height: 56px;
     background: #FFFFFF;
     border-bottom: 1px solid #E2E8F0;
@@ -45,11 +47,6 @@ body.patient-detail-body .patients-topbar {
     white-space: nowrap;
     box-sizing: border-box;
     font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-}
-
-body.patient-detail-body:has(.admin-nav) .patients-topbar,
-body.patient-detail-body:has(.admin-nav) main.wrap {
-    margin-left: 250px !important;
 }
 
 @media (max-width: 900px) {

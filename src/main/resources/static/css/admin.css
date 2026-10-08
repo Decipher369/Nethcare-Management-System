@@ -143,31 +143,33 @@ body:has(.admin-shell) button { cursor: pointer; }
     .admin-nav nav {
         display: flex;
         flex-direction: row;
-        flex-wrap: nowrap;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-        scrollbar-width: none;
-        gap: 0.35rem;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.4rem;
         padding: 0.45rem 0 0.15rem;
         margin: 0;
     }
-    .admin-nav nav::-webkit-scrollbar {
-        display: none;
+    .admin-nav nav > div,
+    .admin-nav nav div {
+        display: contents;
     }
     .admin-nav-group {
         display: none;
     }
     .admin-nav nav a {
-        flex-shrink: 0;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        width: auto !important;
+        flex: 0 0 auto;
         white-space: nowrap;
-        padding: 0.32rem 0.75rem;
+        padding: 0.35rem 0.75rem;
         font-size: 0.8rem;
         font-weight: 500;
-        border-left: none;
+        border: none;
         border-radius: 9999px;
         background: rgba(255, 255, 255, 0.08);
         color: #cde0ef;
-        gap: 0.35rem;
         transition: all 0.15s ease;
     }
     .admin-nav nav a span {

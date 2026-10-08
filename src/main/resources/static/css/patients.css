@@ -16,12 +16,13 @@ body.patients-page-body .staff-layout > .wrap {
 }
 
 /* Patients Dedicated Sticky Topbar - Flush at y = 0 */
-body.patients-page-body .patients-topbar {
+body.patients-page-body .patients-topbar,
+body.patients-page-body:has(.admin-nav) .patients-topbar {
     position: sticky;
     top: 0 !important;
     margin-top: 0 !important;
-    z-index: 100;
-    margin-left: 238px;
+    z-index: 10;
+    margin-left: 250px !important;
     height: 56px;
     background: #FFFFFF;
     border-bottom: 1px solid #E2E8F0;
@@ -36,7 +37,7 @@ body.patients-page-body .patients-topbar {
     font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 }
 
-body.patients-page-body:has(.admin-nav) .patients-topbar,
+body.patients-page-body main.wrap,
 body.patients-page-body:has(.admin-nav) main.wrap {
     margin-left: 250px !important;
 }
