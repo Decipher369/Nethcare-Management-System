@@ -481,25 +481,44 @@ class WholeWebsiteHealthTest {
 
     @Test
     @WithMockUser(roles = "OPTICIAN", username = "optician")
-    @DisplayName("Optician: Lands on /patients and cannot access /admin/users (403 Forbidden)")
+    @DisplayName("Optician: Lands on /patients, views console dashboard with vertical nav, cannot access /admin/users (403 Forbidden)")
     void opticianRoleAccess() throws Exception {
         mvc.perform(get("/dashboard"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/patients"));
 
-        mvc.perform(get("/patients")).andExpect(status().isOk());
+        mvc.perform(get("/patients"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("href=\"/notifications\"")));
         mvc.perform(get("/followups")).andExpect(status().isOk());
+        mvc.perform(get("/dashboard/console"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("console/dashboard"))
+                .andExpect(content().string(containsString("Patient care")))
+                .andExpect(content().string(containsString("Patients")))
+                .andExpect(content().string(containsString("Referrals")))
+                .andExpect(content().string(containsString("Follow-ups")))
+                .andExpect(content().string(containsString("Notifications")))
+                .andExpect(content().string(not(containsString("Store operations"))));
         mvc.perform(get("/admin/users")).andExpect(status().isForbidden());
     }
 
     @Test
     @WithMockUser(roles = "STAFF_NURSE", username = "staff")
-    @DisplayName("Staff Nurse: Lands on /dashboard/console, accesses stock/orders, cannot access /audit")
+    @DisplayName("Staff Nurse: Lands on /dashboard/console, accesses stock/orders with scoped nav, cannot access /audit")
     void staffNurseRoleAccess() throws Exception {
         mvc.perform(get("/dashboard"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/dashboard/console"));
 
+        mvc.perform(get("/dashboard/console"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("console/dashboard"))
+                .andExpect(content().string(containsString("Store operations")))
+                .andExpect(content().string(containsString("Stock")))
+                .andExpect(content().string(containsString("Orders")))
+                .andExpect(content().string(containsString("Bills")))
+                .andExpect(content().string(not(containsString("Patient care"))));
         mvc.perform(get("/stock")).andExpect(status().isOk());
         mvc.perform(get("/orders")).andExpect(status().isOk());
         mvc.perform(get("/bills")).andExpect(status().isOk());
@@ -508,12 +527,21 @@ class WholeWebsiteHealthTest {
 
     @Test
     @WithMockUser(roles = "AUDITOR", username = "auditor")
-    @DisplayName("Auditor: Lands on /reports/sales, accesses audit, cannot access /patients")
+    @DisplayName("Auditor: Lands on /reports/sales, accesses audit, views console with report nav, cannot access /patients")
     void auditorRoleAccess() throws Exception {
         mvc.perform(get("/dashboard"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/reports/sales"));
 
+        mvc.perform(get("/dashboard/console"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("console/dashboard"))
+                .andExpect(content().string(containsString("Reports")))
+                .andExpect(content().string(containsString("Sales report")))
+                .andExpect(content().string(containsString("Accountability")))
+                .andExpect(content().string(containsString("Audit trail")))
+                .andExpect(content().string(not(containsString("Store operations"))))
+                .andExpect(content().string(not(containsString("Patient care"))));
         mvc.perform(get("/reports/sales")).andExpect(status().isOk());
         mvc.perform(get("/audit")).andExpect(status().isOk());
         mvc.perform(get("/patients")).andExpect(status().isForbidden());
