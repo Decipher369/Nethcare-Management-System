@@ -24,7 +24,7 @@
                     Dispatch Due Queue Now
                 </button>
             </form>
-            <a class="btn-editorial" th:href="@{/followups}">Review list <span aria-hidden="true">↗</span></a>
+            <a class="btn-editorial" th:href="@{/followups}">Follow-ups <span aria-hidden="true">↗</span></a>
         </div>
     </div>
 
@@ -65,13 +65,18 @@
         </div>
     </div>
 
-    <!-- SMS gateway status banner -->
+    <!-- Gateway status banner -->
     <div class="panel" th:if="${smsEnabled != null}">
-        <p class="readonly pad" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
-            <span>
+        <p class="readonly pad" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+            <span style="display:inline-flex; align-items:center; gap:8px;">
                 SMS Gateway:
                 <span th:if="${isSimulator}" class="tag good" style="background:#e8f5e9; color:#1b5e20;">● Simulator Mode (Virtual SMS Console)</span>
                 <span th:unless="${isSimulator}" class="tag good" style="background:#e3f2fd; color:#0d47a1;">● Live Gateway (<span th:text="${smsProvider}"></span>)</span>
+            </span>
+            <span th:if="${emailEnabled != null}" style="display:inline-flex; align-items:center; gap:8px;">
+                Email Gateway:
+                <span th:if="${isEmailSimulator}" class="tag good" style="background:#e8f5e9; color:#1b5e20;">● Simulator Mode (Virtual Email Console)</span>
+                <span th:unless="${isEmailSimulator}" class="tag good" style="background:#e3f2fd; color:#0d47a1;">● Live Gateway (<span th:text="${emailProvider}"></span>)</span>
             </span>
             <span class="note" style="font-size:12px; margin:0;">Automated schedule: Daily at 08:00 (Asia/Colombo)</span>
         </p>
@@ -81,13 +86,20 @@
     <div class="panel" style="margin-bottom: 1.2rem;">
         <details>
             <summary style="padding: 0.8rem 1.2rem; cursor: pointer; font-size: 13px; font-weight: 600; color: var(--brand-deep); display: flex; align-items: center; justify-content: space-between;">
-                <span>Compose &amp; Send Direct SMS / Test SMS</span>
+                <span>Compose &amp; Send Direct Outreach (SMS or Email)</span>
                 <span style="font-size: 11px; font-weight: normal; color: var(--ink-soft);">Click to open compose box ▾</span>
             </summary>
-            <form method="post" th:action="@{/notifications/send-direct}" style="padding: 1rem 1.2rem; border-top: 1px solid var(--line); display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <form method="post" th:action="@{/notifications/send-direct}" style="padding: 1rem 1.2rem; border-top: 1px solid var(--line); display: grid; grid-template-columns: 140px 1fr 1fr; gap: 12px;">
                 <div class="field" style="margin: 0;">
-                    <label for="directPhone">Phone Number</label>
-                    <input id="directPhone" name="phone" required placeholder="07XXXXXXXX or +947XXXXXXXX">
+                    <label for="directChannel">Channel</label>
+                    <select id="directChannel" name="channel" onchange="updateDirectPlaceholder(this.value)">
+                        <option value="SMS" selected>SMS</option>
+                        <option value="EMAIL">Email</option>
+                    </select>
+                </div>
+                <div class="field" style="margin: 0;">
+                    <label for="directDestination" id="directDestinationLabel">Destination (Phone Number)</label>
+                    <input id="directDestination" name="destination" required placeholder="07XXXXXXXX or +947XXXXXXXX">
                 </div>
                 <div class="field" style="margin: 0;">
                     <label for="directName">Recipient Name</label>
@@ -98,9 +110,25 @@
                     <textarea id="directMsg" name="message" required rows="2" style="width: 100%; box-sizing: border-box; padding: 0.5rem; font-family: inherit; font-size: 12px; border: 1px solid var(--line); border-radius: 4px;">Nethcare: Your follow-up appointment is scheduled at Nethcare Clinic on Friday at 10:30 AM.</textarea>
                 </div>
                 <div style="grid-column: 1 / -1;">
-                    <button class="btn sm" type="submit" style="background: var(--brand-deep); color: #fff; cursor: pointer;">Send SMS Now</button>
+                    <button class="btn sm" type="submit" id="directSubmitBtn" style="background: var(--brand-deep); color: #fff; cursor: pointer;">Send Message Now</button>
                 </div>
             </form>
+            <script>
+                function updateDirectPlaceholder(channel) {
+                    const destInput = document.getElementById('directDestination');
+                    const destLabel = document.getElementById('directDestinationLabel');
+                    const btn = document.getElementById('directSubmitBtn');
+                    if (channel === 'EMAIL') {
+                        destLabel.textContent = 'Destination (Email Address)';
+                        destInput.placeholder = 'patient@example.com';
+                        btn.textContent = 'Send Email Now';
+                    } else {
+                        destLabel.textContent = 'Destination (Phone Number)';
+                        destInput.placeholder = '07XXXXXXXX or +947XXXXXXXX';
+                        btn.textContent = 'Send SMS Now';
+                    }
+                }
+            </script>
         </details>
     </div>
 
@@ -122,7 +150,8 @@
                 <select id="ch" name="channel">
                     <option value="">Any Channel</option>
                     <option value="SMS">SMS</option>
-                    <option value="IN_APP">In-app portal</option>
+                    <option value="EMAIL">Email</option>
+                    <option value="IN_APP_PORTAL">In-app portal</option>
                 </select>
             </div>
             <div class="field">

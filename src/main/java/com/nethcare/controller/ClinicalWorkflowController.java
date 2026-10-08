@@ -35,19 +35,22 @@ public class ClinicalWorkflowController {
     private final PrescriptionRepository prescriptions;
     private final ReferralRepository referrals;
     private final UserRepository users;
+    private final com.nethcare.service.FollowUpService followUpService;
 
     public ClinicalWorkflowController(ClinicalService clinical,
                                       ExaminationRepository examinations,
                                       PatientRepository patients,
                                       PrescriptionRepository prescriptions,
                                       ReferralRepository referrals,
-                                      UserRepository users) {
+                                      UserRepository users,
+                                      com.nethcare.service.FollowUpService followUpService) {
         this.clinical = clinical;
         this.examinations = examinations;
         this.patients = patients;
         this.prescriptions = prescriptions;
         this.referrals = referrals;
         this.users = users;
+        this.followUpService = followUpService;
     }
 
     @GetMapping("/examinations/new")
@@ -91,7 +94,9 @@ public class ClinicalWorkflowController {
         model.addAttribute("history", clinical.medicalHistoryForExamination(id).orElse(new MedicalHistory()));
         model.addAttribute("prescription", prescriptions.findByExaminationId(id).orElse(null));
         model.addAttribute("referral", referrals.findByExaminationId(id).orElse(null));
+        model.addAttribute("followUps", followUpService.forPatient(exam.getPatientId()));
         model.addAttribute("surgeons", users.findByRoleOrderByFullNameAsc(Role.SURGEON));
+        model.addAttribute("opticians", users.findByRoleOrderByFullNameAsc(Role.OPTICIAN));
         model.addAttribute("user", authentication.getName());
         return "clinical/examination-detail";
     }
@@ -104,6 +109,39 @@ public class ClinicalWorkflowController {
             redirect.addFlashAttribute("msg", "Prescription issued and added to the permanent history.");
         } catch (BusinessException ex) {
             redirect.addFlashAttribute("error", ex.getMessage());
+        }
+        return "redirect:/examinations/" + id;
+    }
+
+    @PostMapping("/examinations/{id}/followup")
+    public String scheduleFollowUp(@PathVariable Long id,
+                                   @RequestParam(required = false) Long assignedOpticianId,
+                                   @RequestParam com.nethcare.model.FollowUpCategory category,
+                                   @RequestParam @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) LocalDate targetReviewDate,
+                                   @RequestParam(required = false, defaultValue = "false") boolean highRisk,
+                                   @RequestParam(required = false) String clinicalNotes,
+                                   Authentication authentication,
+                                   RedirectAttributes redirect) {
+        try {
+            Examination exam = examination(id);
+            Long opticianId = assignedOpticianId;
+            if (opticianId == null) {
+                com.nethcare.model.User currentUser = users.findByUsername(authentication.getName()).orElse(null);
+                if (currentUser != null && (currentUser.getRole() == Role.OPTICIAN || currentUser.getRole() == Role.ADMIN)) {
+                    opticianId = currentUser.getId();
+                } else if (exam.getExaminedBy() != null) {
+                    opticianId = users.findByUsername(exam.getExaminedBy()).map(com.nethcare.model.User::getId).orElse(null);
+                }
+                if (opticianId == null) {
+                    opticianId = users.findByRoleOrderByFullNameAsc(Role.OPTICIAN).stream().findFirst().map(com.nethcare.model.User::getId)
+                            .orElseThrow(() -> new BusinessException("No optician found to assign case."));
+                }
+            }
+            com.nethcare.model.FollowUp caseRow = followUpService.createCase(
+                    exam.getPatientId(), opticianId, id, category, targetReviewDate, highRisk, clinicalNotes, authentication.getName());
+            redirect.addFlashAttribute("msg", "Follow-up scheduled for " + caseRow.getDueOn() + " (" + caseRow.getDueForWho() + ").");
+        } catch (Exception ex) {
+            redirect.addFlashAttribute("error", "Failed to schedule follow-up: " + ex.getMessage());
         }
         return "redirect:/examinations/" + id;
     }

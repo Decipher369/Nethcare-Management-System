@@ -32,15 +32,19 @@ public class ReportController {
     private final ReportingService reporting;
     private final UserRepository users;
     private final NotificationDispatchService dispatchService;
+    private final PatientRepository patients;
+    private final ExaminationRepository examinations;
 
     public ReportController(FollowUpService followUpService, FollowUpRepository followUps,
                             NotificationRepository notifications, AuditLogRepository auditLogs,
                             AuditService auditService, ReportingService reporting, UserRepository users,
-                            NotificationDispatchService dispatchService) {
+                            NotificationDispatchService dispatchService,
+                            PatientRepository patients, ExaminationRepository examinations) {
         this.followUpService = followUpService; this.followUps = followUps;
         this.notifications = notifications; this.auditLogs = auditLogs;
         this.auditService = auditService; this.reporting = reporting; this.users = users;
         this.dispatchService = dispatchService;
+        this.patients = patients; this.examinations = examinations;
     }
 
     @GetMapping("/dashboard/console")
@@ -64,16 +68,169 @@ public class ReportController {
     @GetMapping("/followups")
     public String followUps(Authentication auth, Model model,
                             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
-                            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
+                            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
+                            @RequestParam(required = false) String preset,
+                            @RequestParam(required = false) String category,
+                            @RequestParam(required = false, defaultValue = "false") boolean highRisk) {
         who(auth, model, "Patients Due for Review", "followups");
-        LocalDate start = from == null ? LocalDate.now() : from;
-        LocalDate end = to == null ? start.plusDays(7) : to;
+        LocalDate today = LocalDate.now();
+        LocalDate start;
+        LocalDate end;
+        String activePreset = preset != null ? preset : "";
+
+        if ("today".equalsIgnoreCase(preset)) {
+            start = today;
+            end = today;
+        } else if ("this_week".equalsIgnoreCase(preset)) {
+            start = today;
+            end = today.plusDays(7);
+        } else if ("next_14".equalsIgnoreCase(preset)) {
+            start = today;
+            end = today.plusDays(14);
+        } else if ("this_month".equalsIgnoreCase(preset)) {
+            start = today;
+            end = today.plusDays(30);
+        } else if ("overdue".equalsIgnoreCase(preset)) {
+            start = today.minusMonths(6);
+            end = today.minusDays(1);
+        } else if (from != null && to != null) {
+            start = from;
+            end = to;
+            if (from.equals(today) && to.equals(today)) activePreset = "today";
+            else if (from.equals(today) && to.equals(today.plusDays(7))) activePreset = "this_week";
+            else if (from.equals(today) && to.equals(today.plusDays(14))) activePreset = "next_14";
+            else if (from.equals(today) && to.equals(today.plusDays(30))) activePreset = "this_month";
+            else if (to.isBefore(today)) activePreset = "overdue";
+            else activePreset = "custom";
+        } else if (from != null) {
+            start = from;
+            end = from.plusDays(7);
+            activePreset = "custom";
+        } else {
+            start = today;
+            end = today.plusDays(7);
+            activePreset = "this_week";
+        }
+
+        FollowUpCategory parsedCat = null;
+        if (category != null && !category.isBlank()) {
+            try {
+                parsedCat = FollowUpCategory.valueOf(category.trim());
+            } catch (IllegalArgumentException ignored) {}
+        }
+        final FollowUpCategory filterCat = parsedCat;
+
         List<FollowUp> cases = followUpService.weeklyList(start, end);
-        model.addAttribute("from", start); model.addAttribute("to", end);
+        if (highRisk) {
+            cases = cases.stream().filter(FollowUp::isHighRisk).toList();
+        }
+        if (filterCat != null) {
+            cases = cases.stream().filter(f -> f.getCategory() == filterCat).toList();
+        }
+
+        model.addAttribute("from", start);
+        model.addAttribute("to", end);
+        model.addAttribute("preset", activePreset);
+        model.addAttribute("highRisk", highRisk);
+        model.addAttribute("selectedCategory", filterCat);
         model.addAttribute("dueCount", cases.size());
         model.addAttribute("invalidContacts", cases.stream().filter(f -> !f.isContactReachable()).count());
         model.addAttribute("rows", cases);
+        model.addAttribute("patients", patients.findAll().stream().filter(p -> Boolean.TRUE.equals(p.getIsActive())).toList());
+        model.addAttribute("opticians", users.findByRoleOrderByFullNameAsc(Role.OPTICIAN));
         return "console/followups";
+    }
+
+    @PostMapping({"/followups", "/followups/schedule"})
+    public String scheduleFollowUp(@RequestParam Long patientId,
+                                   @RequestParam(required = false) Long assignedOpticianId,
+                                   @RequestParam(required = false) Long originatingVisitId,
+                                   @RequestParam FollowUpCategory category,
+                                   @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate targetReviewDate,
+                                   @RequestParam(required = false, defaultValue = "false") boolean highRisk,
+                                   @RequestParam(required = false) String clinicalNotes,
+                                   Authentication auth,
+                                   RedirectAttributes ra) {
+        try {
+            Long visitId = originatingVisitId;
+            if (visitId == null) {
+                visitId = examinations.findByPatientIdOrderByExamDateDesc(patientId)
+                        .stream().findFirst().map(Examination::getId)
+                        .orElse(null);
+            }
+            if (visitId == null) {
+                ra.addFlashAttribute("caseError", "Patient has no recorded examinations yet. Please record an examination first.");
+                return "redirect:/followups";
+            }
+
+            Long opticianId = assignedOpticianId;
+            if (opticianId == null) {
+                User currentUser = users.findByUsername(auth.getName()).orElse(null);
+                if (currentUser != null && (currentUser.getRole() == Role.OPTICIAN || currentUser.getRole() == Role.ADMIN)) {
+                    opticianId = currentUser.getId();
+                } else {
+                    opticianId = users.findByRoleOrderByFullNameAsc(Role.OPTICIAN).stream().findFirst().map(User::getId)
+                            .orElse(null);
+                }
+            }
+
+            if (opticianId == null) {
+                ra.addFlashAttribute("caseError", "No optician available to assign this case.");
+                return "redirect:/followups";
+            }
+
+            FollowUp saved = followUpService.createCase(patientId, opticianId, visitId, category,
+                    targetReviewDate, highRisk, clinicalNotes, auth.getName());
+            ra.addFlashAttribute("caseMessage", "Follow-up case scheduled for " + saved.getDueOn() + " (" + saved.getPatientName() + ")");
+        } catch (Exception ex) {
+            ra.addFlashAttribute("caseError", "Failed to schedule follow-up: " + ex.getMessage());
+        }
+        return "redirect:/followups";
+    }
+
+    @PostMapping("/followups/{id}/booked")
+    public String markBooked(@PathVariable Long id,
+                             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate bookedOn,
+                             @RequestParam(required = false) String note,
+                             Authentication auth,
+                             RedirectAttributes ra) {
+        try {
+            LocalDate appointmentDate = bookedOn != null ? bookedOn : LocalDate.now().plusDays(7);
+            String noteText = note != null && !note.isBlank() ? note : "Patient agreed to appointment";
+            followUpService.recordResponse(id, FollowUpOutcome.BOOKED, noteText, appointmentDate, auth.getName());
+            ra.addFlashAttribute("caseMessage", "Case marked as BOOKED for " + appointmentDate);
+        } catch (Exception ex) {
+            ra.addFlashAttribute("caseError", "Error marking as booked: " + ex.getMessage());
+        }
+        return "redirect:/followups";
+    }
+
+    @PostMapping("/followups/{id}/declined")
+    public String markDeclined(@PathVariable Long id,
+                               @RequestParam(required = false) String note,
+                               Authentication auth,
+                               RedirectAttributes ra) {
+        try {
+            String noteText = note != null && !note.isBlank() ? note : "Patient declined follow-up appointment";
+            followUpService.recordResponse(id, FollowUpOutcome.DECLINED, noteText, null, auth.getName());
+            ra.addFlashAttribute("caseMessage", "Case marked as DECLINED");
+        } catch (Exception ex) {
+            ra.addFlashAttribute("caseError", "Error marking as declined: " + ex.getMessage());
+        }
+        return "redirect:/followups";
+    }
+
+    @PostMapping("/followups/{id}/attended")
+    public String markAttended(@PathVariable Long id,
+                               Authentication auth,
+                               RedirectAttributes ra) {
+        try {
+            followUpService.markAttended(id, auth.getName());
+            ra.addFlashAttribute("caseMessage", "Case marked as ATTENDED");
+        } catch (Exception ex) {
+            ra.addFlashAttribute("caseError", "Error marking as attended: " + ex.getMessage());
+        }
+        return "redirect:/followups";
     }
 
     @PostMapping("/followups/{id}/queue")
@@ -105,6 +262,11 @@ public class ReportController {
         model.addAttribute("smsEnabled", true);
         model.addAttribute("smsProvider", gateway.getProviderName());
         model.addAttribute("isSimulator", gateway.isSimulator());
+
+        EmailGateway emailGateway = dispatchService.getEmailGateway();
+        model.addAttribute("emailEnabled", true);
+        model.addAttribute("emailProvider", emailGateway != null ? emailGateway.getProviderName() : "N/A");
+        model.addAttribute("isEmailSimulator", emailGateway != null && emailGateway.isSimulator());
         return "console/notifications";
     }
 
@@ -129,25 +291,36 @@ public class ReportController {
     }
 
     @PostMapping("/notifications/send-direct")
-    public String sendDirect(@RequestParam String phone,
+    public String sendDirect(@RequestParam(required = false, defaultValue = "SMS") String channel,
+                             @RequestParam(required = false) String phone,
+                             @RequestParam(required = false) String destination,
                              @RequestParam(required = false) String recipientName,
                              @RequestParam String message,
                              Authentication auth,
                              RedirectAttributes ra) {
         try {
-            Notification n = followUpService.sendDirectSms(phone, recipientName, message, auth.getName());
+            String target = destination != null && !destination.isBlank() ? destination.trim() : (phone != null ? phone.trim() : "");
+            boolean isEmail = "EMAIL".equalsIgnoreCase(channel) || target.contains("@");
+            Notification n;
+            if (isEmail) {
+                n = followUpService.sendDirectEmail(target, recipientName, message, auth.getName());
+            } else {
+                n = followUpService.sendDirectSms(target, recipientName, message, auth.getName());
+            }
+
             if (n.getStatus() == NotificationStatus.FAILED) {
-                ra.addFlashAttribute("dispatchError", "Failed to queue SMS: " + n.getFailureReason());
+                ra.addFlashAttribute("dispatchError", "Failed to queue message: " + n.getFailureReason());
                 return "redirect:/notifications";
             }
             boolean sent = dispatchService.dispatchSingle(n, auth.getName());
+            String channelLabel = isEmail ? "Email" : "SMS";
             if (sent) {
-                ra.addFlashAttribute("dispatchMessage", "SMS sent successfully to " + n.getDestination() + " (Receipt: " + n.getGatewayReceiptId() + ")");
+                ra.addFlashAttribute("dispatchMessage", channelLabel + " sent successfully to " + n.getDestination() + " (Receipt: " + n.getGatewayReceiptId() + ")");
             } else {
-                ra.addFlashAttribute("dispatchMessage", "SMS queued for next dispatch (Reference: " + n.getReference() + ")");
+                ra.addFlashAttribute("dispatchMessage", channelLabel + " queued for next dispatch (Reference: " + n.getReference() + ")");
             }
         } catch (Exception ex) {
-            ra.addFlashAttribute("dispatchError", "Error sending SMS: " + ex.getMessage());
+            ra.addFlashAttribute("dispatchError", "Error sending message: " + ex.getMessage());
         }
         return "redirect:/notifications";
     }
@@ -199,7 +372,7 @@ public class ReportController {
 
     @GetMapping("/reports/orders")
     public String orders(Authentication auth, Model model) {
-        who(auth, model, "Order Status", "orders");
+        who(auth, model, "Order Status", "report-orders");
         ReportingService.OrderSummary s = reporting.orders();
         model.addAttribute("orderSplit", orderRows(s)); model.addAttribute("totalOrders", s.open());
         model.addAttribute("avgDays", 0); model.addAttribute("overdue", s.overdue()); model.addAttribute("urgent", s.urgent());
@@ -208,7 +381,7 @@ public class ReportController {
 
     @GetMapping("/reports/stock")
     public String stock(Authentication auth, Model model) {
-        who(auth, model, "Stock Summary", "stock");
+        who(auth, model, "Stock Summary", "report-stock");
         ReportingService.StockSummary s = reporting.stock();
         model.addAttribute("rows", stockRows(s.lowStock())); model.addAttribute("lowCount", s.lowCount());
         model.addAttribute("totalItems", s.totalItems()); model.addAttribute("stockValue", money(s.stockValue()));
@@ -225,7 +398,13 @@ public class ReportController {
         who(auth, model, "Audit Trail", "audit");
         List<AuditLog> logs = auditLogs.search(blankNull(user), blankNull(entity), action,
                 from == null ? null : from.atStartOfDay(), to == null ? null : to.plusDays(1).atStartOfDay());
-        model.addAttribute("rows", logs); model.addAttribute("chainValid", auditService.verifyChain());
+        model.addAttribute("rows", logs);
+        model.addAttribute("chainValid", auditService.verifyChain());
+        model.addAttribute("selectedUser", user);
+        model.addAttribute("selectedEntity", entity);
+        model.addAttribute("selectedAction", action);
+        model.addAttribute("from", from);
+        model.addAttribute("to", to);
         return "console/audit";
     }
 

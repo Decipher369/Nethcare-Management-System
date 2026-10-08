@@ -53,17 +53,25 @@ public class StockController {
     }
 
     @GetMapping("/stock")
-    public String list(Authentication auth, @RequestParam(required = false) StockCategory category,
+    public String list(Authentication auth, @RequestParam(name = "category", required = false) String category,
                        @RequestParam(required = false) String q,
                        @RequestParam(defaultValue = "all") String view,
                        Model model) {
         who(auth, model);
 
+        StockCategory cat = null;
+        if (category != null && !category.isBlank()) {
+            try {
+                cat = StockCategory.valueOf(category.trim().toUpperCase());
+            } catch (IllegalArgumentException ignored) {
+            }
+        }
+
         List<StockItem> items;
         if ("low".equals(view)) {
             items = stock.lowStock();
-        } else if (category != null || (q != null && !q.isBlank())) {
-            items = stock.search(category, q);
+        } else if (cat != null || (q != null && !q.isBlank())) {
+            items = stock.search(cat, q);
         } else {
             items = stock.listed();
         }

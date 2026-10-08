@@ -1,6 +1,7 @@
 package com.nethcare.controller;
 
 import com.nethcare.model.Patient;
+import com.nethcare.repository.PatientRepository;
 import com.nethcare.service.ClinicalService;
 import com.nethcare.service.PatientService;
 import java.time.LocalDate;
@@ -26,6 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class PatientPagesTest {
     @Autowired MockMvc mvc;
     @MockBean PatientService patients;
+    @MockBean PatientRepository patientRepo;
     @MockBean ClinicalService clinical;
 
     @Test
@@ -47,7 +49,7 @@ class PatientPagesTest {
                 .andExpect(view().name("patients/detail"))
                 .andExpect(content().string(containsString("patient-summary-page")))
                 .andExpect(content().string(containsString("Test Patient")))
-                .andExpect(content().string(containsString("action=\"/patients/54/send-sms\"")))
+                .andExpect(content().string(containsString("action=\"/patients/54/notify\"")))
                 .andExpect(content().string(containsString("name=\"message\"")))
                 .andExpect(content().string(containsString("SMS delivery failed")))
                 .andExpect(content().string(containsString("href=\"/notifications\"")));
@@ -71,5 +73,29 @@ class PatientPagesTest {
                 .andExpect(content().string(containsString("Administration navigation")))
                 .andExpect(content().string(containsString("/css/admin.css")))
                 .andExpect(content().string(containsString("action=\"/admin/users\"")));
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN", username = "admin_user")
+    void patientsListPageRendersForAdminWithTopbarAndCardBox() throws Exception {
+        when(patientRepo.findByIsActiveTrueOrderByFullNameAsc()).thenReturn(List.of());
+
+        mvc.perform(get("/patients"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("patients/list"))
+                .andExpect(content().string(containsString("patients-page-body")))
+                .andExpect(content().string(containsString("patients-topbar")))
+                .andExpect(content().string(containsString("patients-card-box")));
+    }
+
+    @Test
+    @WithMockUser(roles = "OPTICIAN", username = "optician_user")
+    void patientsListPageRendersForOptician() throws Exception {
+        when(patientRepo.findByIsActiveTrueOrderByFullNameAsc()).thenReturn(List.of());
+
+        mvc.perform(get("/patients"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("patients/list"))
+                .andExpect(content().string(containsString("patients-card-box")));
     }
 }

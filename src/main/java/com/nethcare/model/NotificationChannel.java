@@ -9,12 +9,14 @@ package com.nethcare.model;
 public enum NotificationChannel {
 
     SMS,
+    EMAIL,
     IN_APP_PORTAL,
     BOTH;
 
     public String label() {
         return switch (this) {
             case SMS -> "SMS";
+            case EMAIL -> "Email";
             case IN_APP_PORTAL -> "In-app portal";
             case BOTH -> "SMS and in-app portal";
         };

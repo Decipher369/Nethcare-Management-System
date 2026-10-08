@@ -12,10 +12,10 @@
 
 <!-- The left rail. "active" is the key of the current screen. -->
 <th:block th:fragment="side(active)">
-<th:block th:if="${role == 'ADMIN'}">
+<th:block th:if="${(role != null ? role : currentRole) == 'ADMIN'}">
     <aside th:replace="~{admin/fragments :: rail(${active})}"></aside>
 </th:block>
-<aside class="side" th:unless="${role == 'ADMIN'}">
+<aside class="side" th:unless="${(role != null ? role : currentRole) == 'ADMIN'}">
     <div class="brand">
         <img th:src="@{/images/nethcare-logo.png}" alt="Nethcare logo">
         <span class="brand-copy">
@@ -24,35 +24,182 @@
         </span>
     </div>
     <nav>
-        <a th:href="@{/dashboard/console}" th:classappend="${active == 'dashboard'} ? ' on' : ''">Dashboard</a>
+        <span class="grp">Workspace</span>
+        <a th:href="@{/dashboard/console}" th:classappend="${active == 'dashboard'} ? ' on' : ''"
+           th:attr="aria-current=${active == 'dashboard'} ? 'page' : null">
+            <span class="nav-icon" aria-hidden="true">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                </svg>
+            </span>
+            <span>Dashboard</span>
+        </a>
 
-        <div th:if="${role == 'ADMIN' or role == 'OPTICIAN'}">
-            <div class="grp">Patient care</div>
-            <a th:href="@{/patients}">Patients</a>
-            <a th:href="@{/referrals}">Referrals</a>
-            <a th:href="@{/followups}" th:classappend="${active == 'followups'} ? ' on' : ''">Review list</a>
-            <a th:href="@{/notifications}" th:classappend="${active == 'notifications'} ? ' on' : ''">Reminders</a>
+        <div th:if="${(role != null ? role : currentRole) == 'ADMIN' or (role != null ? role : currentRole) == 'OPTICIAN'}">
+            <span class="grp">Patient care</span>
+            <a th:href="@{/patients}" th:classappend="${active == 'patients'} ? ' on' : ''"
+               th:attr="aria-current=${active == 'patients'} ? 'page' : null">
+                <span class="nav-icon" aria-hidden="true">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                </span>
+                <span>Patients</span>
+            </a>
+            <a th:href="@{/referrals}" th:classappend="${active == 'referrals'} ? ' on' : ''"
+               th:attr="aria-current=${active == 'referrals'} ? 'page' : null">
+                <span class="nav-icon" aria-hidden="true">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="8.5" cy="7" r="4"></circle>
+                        <line x1="20" y1="8" x2="20" y2="14"></line>
+                        <line x1="23" y1="11" x2="17" y2="11"></line>
+                    </svg>
+                </span>
+                <span>Referrals</span>
+            </a>
+            <a th:href="@{/followups}" th:classappend="${active == 'followups'} ? ' on' : ''"
+               th:attr="aria-current=${active == 'followups'} ? 'page' : null">
+                <span class="nav-icon" aria-hidden="true">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                        <line x1="3" y1="10" x2="21" y2="10"></line>
+                    </svg>
+                </span>
+                <span>Follow-ups</span>
+            </a>
+            <a th:href="@{/notifications}" th:classappend="${active == 'notifications'} ? ' on' : ''"
+               th:attr="aria-current=${active == 'notifications'} ? 'page' : null">
+                <span class="nav-icon" aria-hidden="true">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                        <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                    </svg>
+                </span>
+                <span>Notifications</span>
+            </a>
         </div>
 
-        <div th:if="${role == 'ADMIN' or role == 'STAFF_NURSE'}">
-            <div class="grp">Store operations</div>
-            <a th:href="@{/stock}">Stock</a>
-            <a th:href="@{/orders}">Orders</a>
-            <a th:href="@{/bills}">Bills</a>
+        <div th:if="${(role != null ? role : currentRole) == 'ADMIN' or (role != null ? role : currentRole) == 'STAFF_NURSE'}">
+            <span class="grp">Store operations</span>
+            <a th:href="@{/stock}" th:classappend="${active == 'stock'} ? ' on' : ''"
+               th:attr="aria-current=${active == 'stock'} ? 'page' : null">
+                <span class="nav-icon" aria-hidden="true">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m7.5 4.27 9 5.15"></path>
+                        <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"></path>
+                        <path d="m3.3 7 8.7 5 8.7-5"></path>
+                        <path d="M12 22V12"></path>
+                    </svg>
+                </span>
+                <span>Stock</span>
+            </a>
+            <a th:href="@{/orders}" th:classappend="${active == 'orders'} ? ' on' : ''"
+               th:attr="aria-current=${active == 'orders'} ? 'page' : null">
+                <span class="nav-icon" aria-hidden="true">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"></path>
+                        <path d="M3 6h18"></path>
+                        <path d="M16 10a4 4 0 0 1-8 0"></path>
+                    </svg>
+                </span>
+                <span>Orders</span>
+            </a>
+            <a th:href="@{/bills}" th:classappend="${active == 'bills'} ? ' on' : ''"
+               th:attr="aria-current=${active == 'bills'} ? 'page' : null">
+                <span class="nav-icon" aria-hidden="true">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                        <polyline points="10 9 9 9 8 9"></polyline>
+                    </svg>
+                </span>
+                <span>Bills</span>
+            </a>
         </div>
 
-        <div th:if="${role == 'ADMIN' or role == 'AUDITOR'}">
-            <div class="grp">Reports</div>
-            <a th:href="@{/reports/sales}" th:classappend="${active == 'sales'} ? ' on' : ''">Sales</a>
-            <a th:href="@{/reports/orders}" th:classappend="${active == 'orders'} ? ' on' : ''">Orders</a>
-            <a th:href="@{/reports/stock}" th:classappend="${active == 'stock'} ? ' on' : ''">Stock</a>
+        <div th:if="${(role != null ? role : currentRole) == 'ADMIN' or (role != null ? role : currentRole) == 'AUDITOR'}">
+            <span class="grp">Reports</span>
+            <a th:href="@{/reports/sales}" th:classappend="${active == 'sales'} ? ' on' : ''"
+               th:attr="aria-current=${active == 'sales'} ? 'page' : null">
+                <span class="nav-icon" aria-hidden="true">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="20" x2="18" y2="10"></line>
+                        <line x1="12" y1="20" x2="12" y2="4"></line>
+                        <line x1="6" y1="20" x2="6" y2="14"></line>
+                    </svg>
+                </span>
+                <span>Sales report</span>
+            </a>
+            <a th:href="@{/reports/orders}" th:classappend="${active == 'report-orders'} ? ' on' : ''"
+               th:attr="aria-current=${active == 'report-orders'} ? 'page' : null">
+                <span class="nav-icon" aria-hidden="true">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                    </svg>
+                </span>
+                <span>Order fulfillment</span>
+            </a>
+            <a th:href="@{/reports/stock}" th:classappend="${active == 'report-stock'} ? ' on' : ''"
+               th:attr="aria-current=${active == 'report-stock'} ? 'page' : null">
+                <span class="nav-icon" aria-hidden="true">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path>
+                        <line x1="12" y1="9" x2="12" y2="13"></line>
+                        <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                    </svg>
+                </span>
+                <span>Stock levels</span>
+            </a>
 
-            <div class="grp">Accountability</div>
-            <a th:href="@{/audit}" th:classappend="${active == 'audit'} ? ' on' : ''">Audit trail</a>
+            <span class="grp">Accountability</span>
+            <a th:href="@{/audit}" th:classappend="${active == 'audit'} ? ' on' : ''"
+               th:attr="aria-current=${active == 'audit'} ? 'page' : null">
+                <span class="nav-icon" aria-hidden="true">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                        <path d="m9 12 2 2 4-4"></path>
+                    </svg>
+                </span>
+                <span>Audit trail</span>
+            </a>
         </div>
-        <div th:if="${role == 'ADMIN'}">
-            <div class="grp">Administration</div>
-            <a th:href="@{/admin/users}">Users and login history</a>
+        <div th:if="${(role != null ? role : currentRole) == 'SURGEON'}">
+            <span class="grp">Consultations</span>
+            <a th:href="@{/referrals}" th:classappend="${active == 'referrals'} ? ' on' : ''"
+               th:attr="aria-current=${active == 'referrals'} ? 'page' : null">
+                <span class="nav-icon" aria-hidden="true">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="8.5" cy="7" r="4"></circle>
+                        <line x1="20" y1="8" x2="20" y2="14"></line>
+                        <line x1="23" y1="11" x2="17" y2="11"></line>
+                    </svg>
+                </span>
+                <span>Referral worklist</span>
+            </a>
+        </div>
+        <div th:if="${(role != null ? role : currentRole) == 'ADMIN'}">
+            <span class="grp">Administration</span>
+            <a th:href="@{/admin/users}" th:classappend="${active == 'admin'} ? ' on' : ''"
+               th:attr="aria-current=${active == 'admin'} ? 'page' : null">
+                <span class="nav-icon" aria-hidden="true">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                    </svg>
+                </span>
+                <span>Users and access</span>
+            </a>
         </div>
     </nav>
     <div class="out"><form th:action="@{/logout}" method="post"><button type="submit">Sign out</button></form></div>
