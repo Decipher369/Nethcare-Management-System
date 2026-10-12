@@ -56,52 +56,110 @@
             </div>
         </div>
 
+        <!-- Entity Filter Pills -->
+        <div class="filter-pills-bar" style="justify-content: space-between;">
+            <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 6px;">
+                <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--ink-soft); margin-right: 4px;">Entity Filter:</span>
+
+                <a th:href="@{/audit(user=${selectedUser}, action=${selectedAction}, from=${from}, to=${to})}"
+                   class="filter-pill" th:classappend="${selectedEntity == null or selectedEntity == ''} ? ' active' : ''">
+                    All Entities
+                </a>
+                <a th:href="@{/audit(entity='Patient', user=${selectedUser}, action=${selectedAction}, from=${from}, to=${to})}"
+                   class="filter-pill" th:classappend="${selectedEntity == 'Patient'} ? ' active' : ''">
+                    Patients
+                </a>
+                <a th:href="@{/audit(entity='Examination', user=${selectedUser}, action=${selectedAction}, from=${from}, to=${to})}"
+                   class="filter-pill" th:classappend="${selectedEntity == 'Examination'} ? ' active' : ''">
+                    Examinations
+                </a>
+                <a th:href="@{/audit(entity='Prescription', user=${selectedUser}, action=${selectedAction}, from=${from}, to=${to})}"
+                   class="filter-pill" th:classappend="${selectedEntity == 'Prescription'} ? ' active' : ''">
+                    Prescriptions
+                </a>
+                <a th:href="@{/audit(entity='PatientFollowUpCase', user=${selectedUser}, action=${selectedAction}, from=${from}, to=${to})}"
+                   class="filter-pill" th:classappend="${selectedEntity == 'PatientFollowUpCase'} ? ' active' : ''">
+                    Follow-ups
+                </a>
+                <a th:href="@{/audit(entity='NotificationDispatch', user=${selectedUser}, action=${selectedAction}, from=${from}, to=${to})}"
+                   class="filter-pill" th:classappend="${selectedEntity == 'NotificationDispatch'} ? ' active' : ''">
+                    Notifications
+                </a>
+                <a th:href="@{/audit(entity='ClinicalAdviceLog', user=${selectedUser}, action=${selectedAction}, from=${from}, to=${to})}"
+                   class="filter-pill" th:classappend="${selectedEntity == 'ClinicalAdviceLog'} ? ' active' : ''">
+                    Clinical Advice
+                </a>
+                <a th:href="@{/audit(entity='Order', user=${selectedUser}, action=${selectedAction}, from=${from}, to=${to})}"
+                   class="filter-pill" th:classappend="${selectedEntity == 'Order'} ? ' active' : ''">
+                    Orders
+                </a>
+                <a th:href="@{/audit(entity='Bill', user=${selectedUser}, action=${selectedAction}, from=${from}, to=${to})}"
+                   class="filter-pill" th:classappend="${selectedEntity == 'Bill'} ? ' active' : ''">
+                    Bills
+                </a>
+                <a th:href="@{/audit(entity='StockItem', user=${selectedUser}, action=${selectedAction}, from=${from}, to=${to})}"
+                   class="filter-pill" th:classappend="${selectedEntity == 'StockItem'} ? ' active' : ''">
+                    Stock
+                </a>
+                <a th:href="@{/audit(entity='User', user=${selectedUser}, action=${selectedAction}, from=${from}, to=${to})}"
+                   class="filter-pill" th:classappend="${selectedEntity == 'User'} ? ' active' : ''">
+                    Users
+                </a>
+            </div>
+
+            <div th:if="${(selectedEntity != null and selectedEntity != '') or (selectedUser != null and selectedUser != '') or selectedAction != null or from != null or to != null}">
+                <a th:href="@{/audit}" style="font-size: 11px; color: var(--ink-soft); text-decoration: underline;">
+                    Clear all filters
+                </a>
+            </div>
+        </div>
+
         <form class="filters" method="get" th:action="@{/audit}">
             <div class="field">
                 <label for="u">User</label>
                 <select id="u" name="user">
-                    <option value="">Anyone</option>
-                    <option value="admin">admin</option>
-                    <option value="optician">optician</option>
-                    <option value="staff">staff</option>
-                    <option value="surgeon">surgeon</option>
+                    <option value="" th:selected="${selectedUser == null or selectedUser == ''}">Anyone</option>
+                    <option value="admin" th:selected="${selectedUser == 'admin'}">admin</option>
+                    <option value="optician" th:selected="${selectedUser == 'optician'}">optician</option>
+                    <option value="staff" th:selected="${selectedUser == 'staff'}">staff</option>
+                    <option value="surgeon" th:selected="${selectedUser == 'surgeon'}">surgeon</option>
                 </select>
             </div>
             <div class="field">
                 <label for="e">Entity</label>
                 <select id="e" name="entity">
-                    <option value="">Anything</option>
-                    <option value="Patient">Patient</option>
-                    <option value="Examination">Examination</option>
-                    <option value="Prescription">Prescription</option>
-                    <option value="Referral">Referral</option>
-                    <option value="PatientFollowUpCase">Follow-up case</option>
-                    <option value="NotificationDispatch">Notification dispatch</option>
-                    <option value="ClinicalAdviceLog">Clinical advice</option>
-                    <option value="Order">Order</option>
-                    <option value="Bill">Bill</option>
-                    <option value="Payment">Payment</option>
-                    <option value="StockItem">Stock item</option>
-                    <option value="User">User</option>
-                    <option value="SystemSummaryReport">Report</option>
+                    <option value="" th:selected="${selectedEntity == null or selectedEntity == ''}">Anything</option>
+                    <option value="Patient" th:selected="${selectedEntity == 'Patient'}">Patient</option>
+                    <option value="Examination" th:selected="${selectedEntity == 'Examination'}">Examination</option>
+                    <option value="Prescription" th:selected="${selectedEntity == 'Prescription'}">Prescription</option>
+                    <option value="Referral" th:selected="${selectedEntity == 'Referral'}">Referral</option>
+                    <option value="PatientFollowUpCase" th:selected="${selectedEntity == 'PatientFollowUpCase'}">Follow-up case</option>
+                    <option value="NotificationDispatch" th:selected="${selectedEntity == 'NotificationDispatch'}">Notification dispatch</option>
+                    <option value="ClinicalAdviceLog" th:selected="${selectedEntity == 'ClinicalAdviceLog'}">Clinical advice</option>
+                    <option value="Order" th:selected="${selectedEntity == 'Order'}">Order</option>
+                    <option value="Bill" th:selected="${selectedEntity == 'Bill'}">Bill</option>
+                    <option value="Payment" th:selected="${selectedEntity == 'Payment'}">Payment</option>
+                    <option value="StockItem" th:selected="${selectedEntity == 'StockItem'}">Stock item</option>
+                    <option value="User" th:selected="${selectedEntity == 'User'}">User</option>
+                    <option value="SystemSummaryReport" th:selected="${selectedEntity == 'SystemSummaryReport'}">Report</option>
                 </select>
             </div>
             <div class="field">
                 <label for="a">Action</label>
                 <select id="a" name="action">
-                    <option value="">Any Action</option>
-                    <option value="CREATE">CREATE</option>
-                    <option value="UPDATE">UPDATE</option>
-                    <option value="DELETE">DELETE</option>
+                    <option value="" th:selected="${selectedAction == null}">Any Action</option>
+                    <option value="CREATE" th:selected="${selectedAction != null and selectedAction.name() == 'CREATE'}">CREATE</option>
+                    <option value="UPDATE" th:selected="${selectedAction != null and selectedAction.name() == 'UPDATE'}">UPDATE</option>
+                    <option value="DELETE" th:selected="${selectedAction != null and selectedAction.name() == 'DELETE'}">DELETE</option>
                 </select>
             </div>
             <div class="field">
                 <label for="from">From</label>
-                <input id="from" name="from" type="date">
+                <input id="from" name="from" type="date" th:value="${from}">
             </div>
             <div class="field">
                 <label for="to">To</label>
-                <input id="to" name="to" type="date">
+                <input id="to" name="to" type="date" th:value="${to}">
             </div>
             <button class="btn" type="submit">Filter log</button>
             <a class="btn ghost" th:href="@{/audit}">Clear</a>
@@ -157,8 +215,8 @@
                 <summary style="font-size:12px; cursor:pointer; color:var(--brand-deep); font-weight:600; padding:6px 0;">
                     Switch to tabular audit view
                 </summary>
-                <div style="margin-top:12px; overflow-x:auto;">
-                    <table>
+                <div style="margin-top:12px; overflow-x:auto; max-height:600px;">
+                    <table class="sticky-table-head">
                         <thead>
                         <tr>
                             <th>When</th>

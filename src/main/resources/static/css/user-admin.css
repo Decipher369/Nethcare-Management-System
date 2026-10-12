@@ -17,7 +17,7 @@ body.user-admin-body .staff-layout > .wrap {
 /* Ensure content slot (main.wrap) sits to the right of sidebar without extra margin */
 body.user-admin-body main.wrap {
     max-width: none !important;
-    margin-left: 238px !important;
+    margin-left: 250px !important;
     padding: 0 !important;
     width: auto !important;
     margin-top: 0 !important;
@@ -26,18 +26,20 @@ body.user-admin-body main.wrap {
 }
 
 /* User Admin Dedicated Sticky Topbar - Flush at y = 0 */
+body.user-admin-body .user-admin-topbar,
 body.user-admin-body .admin-topbar {
     position: sticky;
     top: 0 !important;
     margin-top: 0 !important;
     z-index: 100;
-    margin-left: 238px;
+    margin-left: 250px;
     height: 56px;
     background: #FFFFFF;
     border-bottom: 1px solid #E2E8F0;
     box-shadow: 0 1px 2px rgba(15, 39, 66, 0.04);
     padding: 0 32px;
     display: flex;
+    flex-direction: row !important;
     align-items: center;
     justify-content: space-between;
     white-space: nowrap;
@@ -45,21 +47,32 @@ body.user-admin-body .admin-topbar {
     font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 900px) {
     body.user-admin-body main.wrap {
         margin-left: 0 !important;
+        margin: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 0 !important;
+        box-sizing: border-box;
     }
+    body.user-admin-body .user-admin-topbar,
     body.user-admin-body .admin-topbar {
         margin-left: 0 !important;
         padding: 0 16px;
+        position: static;
+        width: 100% !important;
+        box-sizing: border-box;
     }
 }
 
 /* Topbar Left Group */
 body.user-admin-body .topbar-left-group {
-    display: flex;
-    align-items: center;
-    gap: 10px;
+    display: inline-flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 10px !important;
+    height: 100%;
 }
 
 body.user-admin-body .topbar-pulse-dot {
@@ -68,6 +81,7 @@ body.user-admin-body .topbar-pulse-dot {
     border-radius: 50%;
     background: #0284C7;
     display: inline-block;
+    flex-shrink: 0;
     animation: pulseDot 2s infinite ease-in-out;
 }
 
@@ -81,6 +95,10 @@ body.user-admin-body .topbar-pulse-dot {
 }
 
 body.user-admin-body .topbar-workspace-label {
+    display: inline-flex;
+    align-items: center;
+    line-height: 1;
+    margin: 0;
     font-size: 12px;
     font-weight: 600;
     text-transform: uppercase;
@@ -89,11 +107,19 @@ body.user-admin-body .topbar-workspace-label {
 }
 
 body.user-admin-body .topbar-slash-sep {
+    display: inline-flex;
+    align-items: center;
+    line-height: 1;
+    margin: 0;
     font-size: 12px;
     color: #CBD5E1;
 }
 
 body.user-admin-body .topbar-workspace-title {
+    display: inline-flex;
+    align-items: center;
+    line-height: 1;
+    margin: 0;
     font-size: 12px;
     font-weight: 600;
     letter-spacing: 0.02em;
@@ -841,11 +867,8 @@ body.user-admin-body .topbar-signout-btn:focus {
     }
 }
 
-/* Align the redesigned page with the shared administrator rail. */
-@media (min-width: 901px) {
-    body.user-admin-body .admin-nav { width: 238px; }
-}
 @media (max-width: 900px) {
     body.user-admin-body main.wrap,
+    body.user-admin-body .user-admin-topbar,
     body.user-admin-body .admin-topbar { margin-left: 0 !important; }
 }

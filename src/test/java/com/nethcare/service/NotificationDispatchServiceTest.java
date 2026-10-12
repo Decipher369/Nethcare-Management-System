@@ -21,12 +21,13 @@ class NotificationDispatchServiceTest {
     @Mock NotificationRepository notifications;
     @Mock FollowUpService followUps;
     @Mock SmsGateway smsGateway;
+    @Mock EmailGateway emailGateway;
 
     private NotificationDispatchService dispatchService;
 
     @BeforeEach
     void setUp() {
-        dispatchService = new NotificationDispatchService(notifications, followUps, smsGateway, 3);
+        dispatchService = new NotificationDispatchService(notifications, followUps, smsGateway, emailGateway, 3);
     }
 
     @Test
@@ -44,6 +45,25 @@ class NotificationDispatchServiceTest {
 
         assertTrue(result);
         verify(followUps).markSent(10L, "SIM-RECEIPT-123", "tester");
+    }
+
+    @Test
+    void dispatchSingleEmailSuccess() {
+        Notification n = new Notification();
+        n.setId(11L);
+        n.setChannel(com.nethcare.model.NotificationChannel.EMAIL);
+        n.setDestination("patient@example.com");
+        n.setMessage("Test Email");
+        n.setStatus(NotificationStatus.PENDING);
+        n.setRetryCount(0);
+
+        when(emailGateway.send("patient@example.com", "Test Email")).thenReturn("SIM-MAIL-123");
+
+        boolean result = dispatchService.dispatchSingle(n, "tester");
+
+        assertTrue(result);
+        verify(emailGateway).send("patient@example.com", "Test Email");
+        verify(followUps).markSent(11L, "SIM-MAIL-123", "tester");
     }
 
     @Test

@@ -127,22 +127,90 @@
             </div>
         </div>
 
-        <!-- SMS Outreach Section -->
-        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 1.2rem; margin: 1.5rem 0;">
-            <h2 style="margin: 0 0 0.4rem; font-size: 1rem; color: #1a3a5c;">Send SMS Notification</h2>
-            <p style="font-size: 0.84rem; color: #64748b; margin: 0 0 0.8rem;">
-                Dispatch an automated appointment reminder or custom text to <strong th:text="${patient.phone}">07XXXXXXXX</strong>.
-            </p>
-            <form method="post" th:action="@{/patients/{id}/send-sms(id=${patient.id})}">
-                <div style="margin-bottom: 0.8rem;">
-                    <textarea name="message" rows="2" style="width: 100%; box-sizing: border-box; padding: 0.5rem; font-family: inherit; font-size: 0.85rem; border: 1px solid #cbd5e1; border-radius: 4px;"
-                              th:text="'Nethcare: ' + ${patient.fullName} + ', your follow-up appointment at Nethcare Clinic is scheduled for ' + ${#temporals.format(T(java.time.LocalDate).now().plusDays(3), 'dd MMM yyyy')} + ' at 10:30 AM.'"></textarea>
+        <!-- Unified Patient Outreach Section (Single action using saved contact records) -->
+        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1.25rem; margin: 1.5rem 0;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.75rem;">
+                <div>
+                    <h2 style="margin: 0 0 0.25rem; font-size: 1.05rem; color: #1a3a5c; display: flex; align-items: center; gap: 0.5rem;">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 2L11 13"></path>
+                            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                        </svg>
+                        <span>Send Patient Notification</span>
+                    </h2>
+                    <p style="font-size: 0.85rem; color: #64748b; margin: 0;">
+                        Sends directly to contact details recorded on file. If only phone or email is provided, it automatically routes through the available channel.
+                    </p>
                 </div>
-                <div style="display: flex; gap: 10px; align-items: center;">
-                    <button type="submit" style="background: #1a3a5c; color: #fff; border: none; padding: 0.45rem 1rem; border-radius: 4px; cursor: pointer; font-size: 0.85rem; font-weight: 500;">
-                        Send SMS Now
+                <div style="display: flex; gap: 0.5rem; align-items: center; font-size: 0.82rem;">
+                    <!-- Phone badge -->
+                    <span th:if="${!#strings.isEmpty(patient.phone)}" style="background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; padding: 0.2rem 0.5rem; border-radius: 4px; display: inline-flex; align-items: center; gap: 4px;">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                        <span th:text="${patient.phone}">0771234567</span>
+                    </span>
+                    <span th:unless="${!#strings.isEmpty(patient.phone)}" style="background: #f1f5f9; color: #94a3b8; border: 1px solid #e2e8f0; padding: 0.2rem 0.5rem; border-radius: 4px;">
+                        No Phone
+                    </span>
+
+                    <!-- Email badge -->
+                    <span th:if="${!#strings.isEmpty(patient.email)}" style="background: #f0f9ff; color: #0369a1; border: 1px solid #bae6fd; padding: 0.2rem 0.5rem; border-radius: 4px; display: inline-flex; align-items: center; gap: 4px;">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                        <span th:text="${patient.email}">patient@example.com</span>
+                    </span>
+                    <span th:unless="${!#strings.isEmpty(patient.email)}" style="background: #f1f5f9; color: #94a3b8; border: 1px solid #e2e8f0; padding: 0.2rem 0.5rem; border-radius: 4px;">
+                        No Email
+                    </span>
+                </div>
+            </div>
+
+            <!-- Routing details notice -->
+            <div style="font-size: 0.82rem; margin-bottom: 0.75rem; padding: 0.45rem 0.75rem; border-radius: 4px; background: #ffffff; border: 1px solid #e2e8f0; color: #475569;">
+                <span th:if="${!#strings.isEmpty(patient.phone) and !#strings.isEmpty(patient.email)}">
+                    <strong>Delivery route:</strong> Both <strong>SMS</strong> (<span th:text="${patient.phone}"></span>) and <strong>Email</strong> (<span th:text="${patient.email}"></span>) recorded on file.
+                </span>
+                <span th:if="${!#strings.isEmpty(patient.phone) and #strings.isEmpty(patient.email)}">
+                    <strong>Delivery route:</strong> <strong>SMS</strong> (<span th:text="${patient.phone}"></span>) — No email on file.
+                </span>
+                <span th:if="${#strings.isEmpty(patient.phone) and !#strings.isEmpty(patient.email)}">
+                    <strong>Delivery route:</strong> <strong>Email</strong> (<span th:text="${patient.email}"></span>) — No mobile number on file (automatically routing to Email).
+                </span>
+                <span th:if="${#strings.isEmpty(patient.phone) and #strings.isEmpty(patient.email)}" style="color: #e11d48;">
+                    <strong>Notice:</strong> Neither a phone number nor an email address is recorded for this patient.
+                </span>
+            </div>
+
+            <form method="post" th:action="@{/patients/{id}/notify(id=${patient.id})}">
+                <div style="margin-bottom: 0.75rem;">
+                    <textarea name="message" id="patientOutreachMessage" rows="2" style="width: 100%; box-sizing: border-box; padding: 0.6rem; font-family: inherit; font-size: 0.88rem; border: 1px solid #cbd5e1; border-radius: 4px;"
+                              th:text="'Nethcare: ' + ${patient.fullName} + ', your follow-up appointment at Nethcare Clinic is scheduled soon. Please contact us to confirm your visit.'"></textarea>
+                </div>
+
+                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.75rem;">
+                    <button type="button" onclick="document.getElementById('patientOutreachMessage').value = this.getAttribute('data-msg')"
+                            th:data-msg="'Nethcare Recall: ' + ${patient.fullName} + ', you are due for your routine eye examination at Nethcare Clinic. Please reply or contact us to confirm your visit.'"
+                            style="background: #ffffff; border: 1px solid #cbd5e1; font-size: 0.78rem; padding: 0.25rem 0.6rem; border-radius: 4px; cursor: pointer; color: #334155;">
+                        Recall Notice
                     </button>
-                    <a th:href="@{/notifications}" style="font-size: 0.84rem; color: #1a3a5c;">View Reminder Queue →</a>
+                    <button type="button" onclick="document.getElementById('patientOutreachMessage').value = this.getAttribute('data-msg')"
+                            th:data-msg="'Nethcare Order Update: ' + ${patient.fullName} + ', your custom spectacles are ready for collection at Nethcare Clinic.'"
+                            style="background: #ffffff; border: 1px solid #cbd5e1; font-size: 0.78rem; padding: 0.25rem 0.6rem; border-radius: 4px; cursor: pointer; color: #334155;">
+                        Spectacles Ready
+                    </button>
+                    <button type="button" onclick="document.getElementById('patientOutreachMessage').value = this.getAttribute('data-msg')"
+                            th:data-msg="'Nethcare Clinic: ' + ${patient.fullName} + ', your appointment is confirmed at Nethcare Clinic.'"
+                            style="background: #ffffff; border: 1px solid #cbd5e1; font-size: 0.78rem; padding: 0.25rem 0.6rem; border-radius: 4px; cursor: pointer; color: #334155;">
+                        Appointment Confirmation
+                    </button>
+                </div>
+
+                <div style="display: flex; gap: 12px; align-items: center;">
+                    <button type="submit" 
+                            th:disabled="${#strings.isEmpty(patient.phone) and #strings.isEmpty(patient.email)}"
+                            style="background: #1a3a5c; color: #fff; border: none; padding: 0.5rem 1.25rem; border-radius: 4px; cursor: pointer; font-size: 0.88rem; font-weight: 500; display: inline-flex; align-items: center; gap: 6px;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13"></path><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                        <span>Send Notification</span>
+                    </button>
+                    <a th:href="@{/notifications}" style="font-size: 0.84rem; color: #1a3a5c; text-decoration: none;">View Delivery Log →</a>
                 </div>
             </form>
         </div>
@@ -412,7 +480,54 @@
 
         </div>
 
-        <!-- Block 6: Deactivate / Reactivate Patient Record Card -->
+        <!-- Block 5B: Follow-up Reviews & Recalls -->
+        <div class="summary-card-box" style="margin-bottom: 1.5rem;">
+            <div class="card-header-row">
+                <h2 class="card-heading-title">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                    <span>FOLLOW-UP REVIEWS &amp; RECALLS</span>
+                </h2>
+                <span class="count-pill-gray" th:text="${followUps != null ? followUps.size() : 0} + ' scheduled'">0 scheduled</span>
+            </div>
+
+            <div class="card-content-fill">
+                <table class="history-table" th:if="${followUps != null and !followUps.isEmpty()}">
+                    <thead>
+                    <tr><th>Due Date</th><th>Category</th><th>Risk Level</th><th>Status</th><th>Notes</th><th>Action</th></tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="fu : ${followUps}">
+                        <td th:text="${fu.dueOn}">2026-03-01</td>
+                        <td th:text="${fu.category}">ROUTINE_ANNUAL</td>
+                        <td>
+                            <span th:if="${fu.highRisk}" style="background: #fee2e2; color: #b91c1c; font-size: 0.75rem; font-weight: 600; padding: 2px 8px; border-radius: 9999px;">HIGH RISK</span>
+                            <span th:unless="${fu.highRisk}" style="background: #f1f5f9; color: #475569; font-size: 0.75rem; font-weight: 500; padding: 2px 8px; border-radius: 9999px;">Standard</span>
+                        </td>
+                        <td>
+                            <span th:text="${fu.status}" style="font-size: 0.8rem; font-weight: 600; color: #1a3a5c;">ACTIVE</span>
+                        </td>
+                        <td th:text="${fu.responseNote} ?: '—'">—</td>
+                        <td>
+                            <a th:href="@{/followups}" style="color: #1a3a5c; font-weight: 500; text-decoration: underline; font-size: 0.82rem;">Manage in Console →</a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+
+                <div class="dashed-empty-box" th:if="${followUps == null or followUps.isEmpty()}">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="dashed-empty-icon"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                    <p class="empty-title-line">No follow-up recalls scheduled</p>
+                    <p class="empty-sub-line">Follow-up cases are created during clinical examinations or via the follow-up console.</p>
+                </div>
+            </div>
+
+            <div class="card-footer-action-wrap">
+                <a th:href="@{/followups}" class="btn-footer-gray">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                    <span>Manage all patient recalls in Follow-up Console</span>
+                </a>
+            </div>
+        </div>
         <div class="summary-card-box deactivate-card-box" th:if="${patient.isActive}">
             <div class="deactivate-left-text">
                 <h3 class="deactivate-title-rose">
