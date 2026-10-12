@@ -329,7 +329,9 @@ per role on first run, and prints the list on the login page itself:
 | optician | optician123 | OPTICIAN |
 | staff | staff123 | STAFF_NURSE |
 | surgeon | surgeon123 | SURGEON |
-| patient | patient123 | PATIENT |
+| auditor | auditor123 | AUDITOR |
+
+> **Note on Patients:** Patients do not have pre-assigned static credentials. When staff registers a patient, the system dynamically generates their unique username and temporary password. The patient logs in with their temporary credentials and must change their password on first login before accessing their portal dashboard.
 
 Without the `dev` profile no accounts are created and there is nothing to log in with.
 Change the passwords in `application-dev.properties` before using this anywhere shared.

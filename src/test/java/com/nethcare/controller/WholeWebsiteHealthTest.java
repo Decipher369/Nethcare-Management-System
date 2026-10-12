@@ -563,7 +563,7 @@ class WholeWebsiteHealthTest {
     @WithMockUser(roles = "PATIENT", username = "patient")
     @DisplayName("Patient: Lands on /portal, views personal history, cannot access staff console")
     void patientRoleAccess() throws Exception {
-        PortalData portalData = new PortalData(PatientDto.of(samplePatient), List.of(), List.of());
+        PortalData portalData = new PortalData(PatientDto.of(samplePatient), List.of(), List.of(), List.of());
         when(portalService.forUser("patient")).thenReturn(portalData);
 
         mvc.perform(get("/dashboard"))
