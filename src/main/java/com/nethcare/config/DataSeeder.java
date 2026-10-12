@@ -37,9 +37,6 @@ public class DataSeeder {
     @Value("${seed.surgeon.password:surgeon123}")
     private String surgeonPassword;
 
-    @Value("${seed.patient.password:patient123}")
-    private String patientPassword;
-
     @Value("${seed.auditor.password:auditor123}")
     private String auditorPassword;
 
@@ -59,12 +56,10 @@ public class DataSeeder {
                    "Counter Staff", "staff@nethcare.lk");
             create(userRepository, passwordEncoder, "surgeon", surgeonPassword, Role.SURGEON,
                    "Eye Surgeon", "surgeon@nethcare.lk");
-            create(userRepository, passwordEncoder, "patient", patientPassword, Role.PATIENT,
-                   "Demo Patient", "patient@nethcare.lk");
             create(userRepository, passwordEncoder, "auditor", auditorPassword, Role.AUDITOR,
                    "Clinical Auditor", "auditor@nethcare.lk");
 
-            log.info("Seeded {} users (one per role)", userRepository.count());
+            log.info("Seeded {} clinic staff/admin accounts", userRepository.count());
         };
     }
 
