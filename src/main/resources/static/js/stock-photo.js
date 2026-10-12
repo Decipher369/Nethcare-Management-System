@@ -3,6 +3,7 @@
     const preview = document.getElementById('photo-preview');
     const error = document.getElementById('photo-error');
     const remove = document.getElementById('removePhoto');
+    const empty = document.getElementById('photo-empty');
     if (!input || !preview || !error) return;
     const original = preview.getAttribute('src');
     let previewUrl;
@@ -15,7 +16,9 @@
         releasePreview();
         if (original) preview.src = original;
         else preview.removeAttribute('src');
-        preview.style.display = original && !(remove && remove.checked) ? '' : 'none';
+        const visible = original && !(remove && remove.checked);
+        preview.style.display = visible ? '' : 'none';
+        if (empty) empty.hidden = Boolean(visible);
     }
     input.addEventListener('change', () => {
         releasePreview();
@@ -35,6 +38,7 @@
         previewUrl = URL.createObjectURL(file);
         preview.src = previewUrl;
         preview.style.display = '';
+        if (empty) empty.hidden = true;
     });
     if (remove) remove.addEventListener('change', () => {
         if (remove.checked) {

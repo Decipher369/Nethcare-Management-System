@@ -1,0 +1,90 @@
+/* Stock forms share the rounded cards and navy palette of the patient workspace. */
+body.stock-form-body { background: #f3f6f9; color: #0f2742; }
+body.stock-form-body .wrap.stock-form-page { max-width: 1440px; padding: 30px 36px 40px; }
+body.stock-form-body .staff-layout > .wrap { display: none; }
+.stock-form-page { font-family: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif; }
+.stock-back { display: inline-flex; align-items: center; gap: 8px; margin-bottom: 22px; text-decoration: none; color: #64748b; font-size: 13px; font-weight: 600; }
+.stock-back:hover { color: #15375b; }
+.stock-back svg { color: #94a3b8; }
+.stock-page-heading { display: flex; justify-content: space-between; align-items: center; gap: 20px; margin-bottom: 26px; }
+.stock-eyebrow { display: block; margin-bottom: 7px; color: #64748b; font-size: 11px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; }
+.stock-form-page .stock-page-heading h1 { margin: 0; color: #102a45; font-size: 28px; line-height: 1.25; letter-spacing: -.025em; overflow-wrap: anywhere; }
+.stock-page-heading p { margin: 8px 0 0; color: #64748b; font-size: 14px; }
+.stock-record-badge { flex-shrink: 0; padding: 5px 13px; background: #eff7ff; border: 1px solid #bae0fd; color: #15375b; border-radius: 999px; font-size: 12px; font-weight: 600; }
+.stock-form-layout { display: grid; grid-template-columns: minmax(0, 1.65fr) minmax(290px, 1fr); gap: 24px; align-items: start; }
+.stock-details-column { display: grid; gap: 22px; min-width: 0; }
+.stock-photo-column { min-width: 0; }
+.stock-form-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; overflow: hidden; box-shadow: 0 2px 4px rgba(15, 39, 66, .035); }
+.stock-card-heading { display: flex; align-items: center; gap: 12px; padding: 22px 24px; border-bottom: 1px solid #f1f5f9; }
+.stock-section-icon { display: grid; place-items: center; width: 40px; height: 40px; flex-shrink: 0; border-radius: 11px; background: #eff6fd; color: #2d638d; }
+.stock-form-page .stock-card-heading h2 { margin: 0; color: #15375b; font-size: 16px; font-weight: 700; }
+.stock-card-heading p { margin: 3px 0 0; color: #64748b; font-size: 12px; }
+.stock-card-content { padding: 24px; }
+.stock-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px 18px; }
+.stock-field { display: flex; flex-direction: column; gap: 7px; min-width: 0; }
+.stock-full { grid-column: 1 / -1; }
+.stock-field label, .stock-upload-field > label { display: flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 700; color: #475569; letter-spacing: .055em; text-transform: uppercase; }
+.stock-required { color: #e11d48; }
+.stock-optional { margin-left: auto; font-size: 11px; color: #94a3b8; font-weight: 400; letter-spacing: 0; text-transform: none; }
+.stock-field input, .stock-field select, .stock-field textarea { width: 100%; min-width: 0; border: 1px solid #cbd5e1; border-radius: 10px; padding: 11px 13px; background: #fff; color: #0f2742; font-family: inherit; font-size: 14px; line-height: 1.4; box-shadow: 0 1px 2px rgba(15, 39, 66, .03); transition: border-color .15s, box-shadow .15s; }
+.stock-field input, .stock-field select { min-height: 44px; }
+.stock-field input::placeholder, .stock-field textarea::placeholder { color: #94a3b8; }
+.stock-field textarea { resize: vertical; min-height: 98px; }
+.stock-field input:focus, .stock-field select:focus, .stock-field textarea:focus { outline: none; border-color: #5297c9; box-shadow: 0 0 0 3px #e4f1fb; }
+.stock-field input[readonly] { background: #f8fafc; color: #64748b; }
+.stock-field small { color: #64748b; font-size: 12px; }
+.stock-price-input { position: relative; }
+.stock-price-input > span { position: absolute; inset: 0 auto 0 14px; display: flex; align-items: center; color: #64748b; font-size: 12px; font-weight: 600; }
+.stock-price-input input { padding-left: 51px; }
+.stock-photo-stage { display: flex; align-items: center; justify-content: center; min-height: 240px; padding: 22px; border: 1px dashed #b9cfdf; border-radius: 12px; background: #f8fbfe; overflow: hidden; }
+.stock-photo-empty { display: flex; align-items: center; flex-direction: column; text-align: center; gap: 10px; color: #94a3b8; }
+.stock-form-page [hidden] { display: none !important; }
+.stock-photo-empty svg { color: #7b9bb5; margin-bottom: 6px; }
+.stock-photo-empty strong { color: #475569; font-size: 14px; font-weight: 600; }
+.stock-photo-empty span { max-width: 210px; font-size: 12px; line-height: 1.6; }
+.stock-photo-stage #photo-preview { max-width: 100%; max-height: 235px; object-fit: contain; border-radius: 7px; }
+.stock-upload-field { margin-top: 20px; }
+.stock-upload-field input { display: block; margin-top: 9px; width: 100%; min-width: 0; border: 1px solid #e2e8f0; border-radius: 10px; padding: 7px; color: #64748b; background: #fff; font: inherit; font-size: 12px; }
+.stock-upload-field input::file-selector-button { border: 0; border-radius: 6px; padding: 9px 12px; margin-right: 9px; color: #15375b; background: #edf4fa; font: inherit; font-weight: 600; cursor: pointer; }
+.stock-upload-field input::file-selector-button:hover { background: #deebf6; }
+.stock-photo-help, .stock-photo-keep { color: #64748b; font-size: 11px; line-height: 1.7; margin: 10px 0 0; }
+.stock-photo-error { color: #9b1c1c; font-size: 12px; }
+.stock-remove-photo { display: flex; align-items: center; gap: 8px; margin-top: 14px; color: #64748b; font-size: 12px; cursor: pointer; }
+.stock-remove-photo input { accent-color: #15375b; }
+.stock-photo-tip { display: flex; align-items: flex-start; gap: 11px; margin-top: 18px; padding: 18px; border: 1px solid #dceaf5; border-radius: 12px; background: #eef6fc; }
+.stock-photo-tip svg { flex-shrink: 0; color: #4e7a9a; margin-top: 1px; }
+.stock-photo-tip strong { color: #15375b; font-size: 12px; }
+.stock-photo-tip p { margin: 5px 0 0; color: #587087; font-size: 12px; line-height: 1.7; }
+.stock-form-footer { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 24px; padding: 20px 24px; background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; }
+.stock-form-footer p { margin: 0; color: #64748b; font-size: 12px; }
+.stock-form-actions { display: flex; align-items: center; gap: 12px; }
+.stock-cancel, .stock-save { display: inline-flex; justify-content: center; align-items: center; gap: 8px; min-height: 43px; padding: 10px 20px; border-radius: 9px; font: inherit; font-size: 13px; font-weight: 600; text-decoration: none; }
+.stock-cancel { color: #475569; background: #fff; border: 1px solid #cbd5e1; }
+.stock-save { color: #fff; background: #15375b; border: 1px solid #15375b; cursor: pointer; box-shadow: 0 2px 4px rgba(15, 39, 66, .1); }
+.stock-save:hover { background: #214d76; }
+.stock-cancel:hover { background: #f8fafc; }
+.stock-back:focus-visible, .stock-cancel:focus-visible, .stock-save:focus-visible, .stock-upload-field input:focus-visible { outline: 3px solid #7ab5df; outline-offset: 3px; }
+.stock-error { margin-bottom: 20px; padding: 15px 18px; border: 1px solid #fde8e8; border-radius: 12px; background: #fdf2f2; color: #9b1c1c; font-size: 13px; }
+.stock-count-note { margin: 16px 2px 0; color: #64748b; font-size: 12px; }
+.stock-count-note a { color: #15375b; font-weight: 600; }
+@media (max-width: 1100px) {
+    .stock-form-layout { grid-template-columns: minmax(0, 1fr); }
+    .stock-photo-column { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, .65fr); gap: 20px; align-items: start; }
+    .stock-photo-tip { margin-top: 0; }
+}
+@media (max-width: 600px) {
+    body.stock-form-body .wrap.stock-form-page { padding: 22px 16px 30px; }
+    .stock-page-heading { align-items: flex-start; }
+    .stock-form-page .stock-page-heading h1 { font-size: 24px; }
+    .stock-page-heading p { font-size: 13px; }
+    .stock-record-badge { padding: 4px 9px; font-size: 11px; }
+    .stock-fields, .stock-photo-column { grid-template-columns: minmax(0, 1fr); }
+    .stock-card-heading { padding: 18px; }
+    .stock-card-content { padding: 18px; }
+    .stock-form-footer { padding: 16px; flex-wrap: wrap; }
+    .stock-form-actions { margin-left: auto; }
+    .stock-cancel, .stock-save { padding: 10px 14px; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .stock-field input, .stock-field select, .stock-field textarea { transition: none; }
+}
