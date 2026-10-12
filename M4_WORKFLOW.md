@@ -55,3 +55,17 @@ after the M1-M3 tables exist, then apply
 `src/main/resources/schema/audit_immutable.sql`. Hibernate can create the mapped
 tables in development, but the trigger script is required for database-level
 append-only enforcement.
+
+## 6. Role-scoped console and responsive navigation
+
+The console rail (`console.css`, `staff.css`, and `admin.css`) provides unified vertical navigation
+styled in enterprise dark navy blue (`#174c70`):
+- **OPTICIAN**: Patient care group (`Patients`, `Referrals`, `Follow-ups`, `Notifications`).
+- **STAFF_NURSE**: Store operations group (`Stock`, `Orders`, `Bills`).
+- **SURGEON**: Consultations group (`Referrals`).
+- **AUDITOR**: Reports and accountability groups (`Sales report`, `Order fulfillment`, `Stock valuation`, `Audit trail`).
+- **ADMIN**: Unrestricted administrative shell with all workspaces.
+
+On mobile and narrow viewports (`<= 900px`), navigation links automatically format as compact,
+touch-friendly chips with `flex-wrap: wrap`, preventing overflow clipping and ensuring all role-scoped
+routes remain accessible without blocking viewport real estate.

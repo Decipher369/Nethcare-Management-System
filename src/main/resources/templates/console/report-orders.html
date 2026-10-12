@@ -11,8 +11,39 @@
 <div class="content">
 <div th:replace="~{console/fragments :: mocknote}"></div>
 
-    <!-- Editorial Header matching front style -->
-    <div class="editorial-heading">
+    <!-- Official Report Letterhead Header (Prints only on Paper / PDF) -->
+    <div class="report-print-header">
+        <div class="print-header-top">
+            <div class="print-brand">
+                <img th:src="@{/images/nethcare-logo.png}" alt="Nethcare Logo" class="print-logo">
+                <div class="print-brand-text">
+                    <div class="print-org-name">NETHCARE MANAGEMENT SYSTEM</div>
+                    <div class="print-sub-name">Neth Opticians &amp; Eye Care Services · Kolonnawa Branch</div>
+                    <div class="print-contact">Tel: +94 11 257 8900 &bull; Email: info@nethcare.lk &bull; Official Management Record</div>
+                </div>
+            </div>
+            <div class="print-doc-meta">
+                <div class="print-badge">OPERATIONS REPORT</div>
+                <div class="print-meta-row"><strong>Ref:</strong> REP-ORD-<span th:text="${#temporals.format(T(java.time.LocalDate).now(), 'yyyyMM')}">202610</span></div>
+                <div class="print-meta-row"><strong>Generated:</strong> <span th:text="${#temporals.format(T(java.time.LocalDate).now(), 'dd MMM yyyy')}">07 Oct 2026</span></div>
+                <div class="print-meta-row"><strong>Auditor:</strong> <span th:text="${user}">admin</span> (<span th:text="${role}">ADMIN</span>)</div>
+            </div>
+        </div>
+        <div class="print-rule"></div>
+        <div class="print-title-strip">
+            <div>
+                <h1 class="print-title">ORDER PIPELINE &amp; FULFILLMENT STATUS REPORT</h1>
+                <div class="print-subtitle">Spectacle fabrication pipeline, workshop turnaround, and collection backlog tracking</div>
+            </div>
+            <div class="print-period-box">
+                <span class="period-lbl">Audit Date:</span>
+                <span class="period-val" th:text="${#temporals.format(T(java.time.LocalDate).now(), 'dd MMM yyyy')}">07 Oct 2026</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Editorial Header matching front style (Screen only) -->
+    <div class="editorial-heading screen-only">
         <div>
             <p class="eyebrow">Store Operations · Dispensing</p>
             <h2>Order Status.<br><em>Pipeline &amp; workshop tracking.</em></h2>
@@ -20,6 +51,7 @@
         </div>
         <div style="display:flex; gap:10px;">
             <a class="btn-editorial" th:href="@{/orders}">All orders <span aria-hidden="true">↗</span></a>
+            <button class="btn-editorial" type="button" onclick="window.print()">Print / PDF <span aria-hidden="true">↗</span></button>
         </div>
     </div>
 
@@ -106,6 +138,35 @@
             </tr>
             </tbody>
         </table>
+    </div>
+
+    <!-- Formal Report Sign-off & Audit Certification (Visible only on Print/PDF) -->
+    <div class="report-print-signoff">
+        <h3 class="print-section-title">Audit Sign-off &amp; Executive Authorization</h3>
+        <div class="print-signature-grid">
+            <div class="print-signature-card">
+                <div class="sig-role">Prepared by</div>
+                <div class="sig-name" th:text="${user} + ' (' + ${role} + ')'">admin (ADMIN)</div>
+                <div class="sig-line"></div>
+                <div class="sig-caption">Signature &amp; Date</div>
+            </div>
+            <div class="print-signature-card">
+                <div class="sig-role">Verified &amp; Reconciled by</div>
+                <div class="sig-name">Workshop / Dispensing Supervisor</div>
+                <div class="sig-line"></div>
+                <div class="sig-caption">Signature &amp; Date</div>
+            </div>
+            <div class="print-signature-card">
+                <div class="sig-role">Approved by</div>
+                <div class="sig-name">Managing Optician / Director</div>
+                <div class="sig-line"></div>
+                <div class="sig-caption">Signature &amp; Date</div>
+            </div>
+        </div>
+        <div class="print-footer-notice">
+            <strong>Confidentiality Notice:</strong> This document contains proprietary clinical and order fulfillment records of Nethcare Management System. 
+            Generated for administrative audit and clinical compliance only. Any unauthorized reproduction, distribution, or alteration is strictly prohibited.
+        </div>
     </div>
 
 </div>

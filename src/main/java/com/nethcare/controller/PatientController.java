@@ -119,7 +119,43 @@ public class PatientController {
         model.addAttribute("patient", patient);
         model.addAttribute("visits", clinical.historyFor(id));
         model.addAttribute("prescriptions", clinical.prescriptionsFor(id));
+        model.addAttribute("followUps", followUpService.forPatient(id));
         return "patients/detail";
+    }
+
+    @PostMapping("/patients/{id}/notify")
+    public String notifyPatient(@PathVariable Long id,
+                                @RequestParam(required = false) String message,
+                                @RequestParam(required = false, defaultValue = "AUTO") String channel,
+                                Authentication authentication,
+                                RedirectAttributes redirect) {
+        try {
+            java.util.List<Notification> dispatchedList = followUpService.sendPatientNotification(id, message, channel, authentication.getName());
+            if (dispatchedList.isEmpty()) {
+                redirect.addFlashAttribute("error", "No notifications could be generated for this patient.");
+                return "redirect:/patients/" + id;
+            }
+
+            java.util.List<String> delivered = new java.util.ArrayList<>();
+            for (Notification n : dispatchedList) {
+                if (n.getStatus() != NotificationStatus.FAILED) {
+                    boolean sent = dispatchService.dispatchSingle(n, authentication.getName());
+                    if (sent) {
+                        delivered.add(n.getChannel().name() + " (" + n.getDestination() + ")");
+                    } else {
+                        delivered.add(n.getChannel().name() + " queued (" + n.getDestination() + ")");
+                    }
+                } else {
+                    delivered.add(n.getChannel().name() + " failed: " + n.getFailureReason());
+                }
+            }
+
+            redirect.addFlashAttribute("success", "Outreach sent via: " + String.join(", ", delivered));
+            return "redirect:/patients/" + id;
+        } catch (Exception ex) {
+            redirect.addFlashAttribute("error", "Outreach failed: " + ex.getMessage());
+            return "redirect:/patients/" + id;
+        }
     }
 
     @PostMapping("/patients/{id}/send-sms")
@@ -143,6 +179,31 @@ public class PatientController {
             return "redirect:/patients/" + id;
         } catch (Exception ex) {
             redirect.addFlashAttribute("error", "Failed to dispatch SMS: " + ex.getMessage());
+            return "redirect:/patients/" + id;
+        }
+    }
+
+    @PostMapping("/patients/{id}/send-email")
+    public String sendEmail(@PathVariable Long id,
+                            @RequestParam(required = false) String message,
+                            Authentication authentication,
+                            RedirectAttributes redirect) {
+        try {
+            Notification n = followUpService.sendPatientEmail(id, message, authentication.getName());
+            if (n.getStatus() == NotificationStatus.FAILED) {
+                redirect.addFlashAttribute("error", "Email cannot be sent: " + n.getFailureReason());
+                return "redirect:/patients/" + id;
+            }
+            boolean sent = dispatchService.dispatchSingle(n, authentication.getName());
+            if (sent) {
+                redirect.addFlashAttribute("success",
+                        "Email dispatched successfully to " + n.getDestination() + " (Receipt: " + n.getGatewayReceiptId() + ")");
+            } else {
+                redirect.addFlashAttribute("success", "Email queued for next dispatch (Reference: " + n.getReference() + ")");
+            }
+            return "redirect:/patients/" + id;
+        } catch (Exception ex) {
+            redirect.addFlashAttribute("error", "Failed to dispatch email: " + ex.getMessage());
             return "redirect:/patients/" + id;
         }
     }

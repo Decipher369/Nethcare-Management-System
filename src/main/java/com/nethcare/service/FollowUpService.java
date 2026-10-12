@@ -108,20 +108,36 @@ public class FollowUpService {
             return saveExcluded(f, "Patient opted out", actor);
         }
         String phone = normalizeSriLankanPhone(f.getPhone());
-        if (phone == null) {
-            Notification failed = build(f, f.getPhone(), NotificationStatus.FAILED);
-            failed.setFailureReason("Missing or invalid Sri Lankan mobile number");
+        String email = f.getEmail() != null && !f.getEmail().isBlank()
+                ? f.getEmail().trim()
+                : patients.findById(f.getPatientId()).map(Patient::getEmail).filter(e -> !e.isBlank()).orElse(null);
+
+        Notification n;
+        if (phone != null) {
+            n = build(f, phone, NotificationChannel.SMS, NotificationStatus.PENDING);
+            Notification saved = notifications.save(n);
+            f.setStatus(FollowUpStatus.REVIEW_QUEUED);
+            followUps.save(f);
+            audit.record(actor, AuditAction.CREATE, "NotificationDispatch", saved.getReference(),
+                    null, "PENDING -> " + phone);
+            return saved;
+        } else if (email != null && isValidEmail(email)) {
+            n = build(f, email, NotificationChannel.EMAIL, NotificationStatus.PENDING);
+            Notification saved = notifications.save(n);
+            f.setStatus(FollowUpStatus.REVIEW_QUEUED);
+            followUps.save(f);
+            audit.record(actor, AuditAction.CREATE, "NotificationDispatch", saved.getReference(),
+                    null, "PENDING (EMAIL fallback) -> " + email);
+            return saved;
+        } else {
+            String dest = f.getPhone() != null && !f.getPhone().isBlank() ? f.getPhone() : (email != null ? email : "N/A");
+            Notification failed = build(f, dest, NotificationChannel.SMS, NotificationStatus.FAILED);
+            failed.setFailureReason("Missing or invalid Sri Lankan mobile number and no email address available");
             Notification saved = notifications.save(failed);
             audit.record(actor, AuditAction.CREATE, "NotificationDispatch", saved.getReference(),
-                    null, "FAILED: invalid phone");
+                    null, "FAILED: invalid phone and no email");
             return saved;
         }
-        Notification saved = notifications.save(build(f, phone, NotificationStatus.PENDING));
-        f.setStatus(FollowUpStatus.REVIEW_QUEUED);
-        followUps.save(f);
-        audit.record(actor, AuditAction.CREATE, "NotificationDispatch", saved.getReference(),
-                null, "PENDING -> " + phone);
-        return saved;
     }
 
     @Transactional
@@ -225,11 +241,104 @@ public class FollowUpService {
     }
 
     @Transactional
+    public Notification sendPatientEmail(Long patientId, String messageText, String actor) {
+        Patient patient = patients.findById(patientId)
+                .orElseThrow(() -> new ResourceNotFoundException("No patient with id " + patientId));
+        String email = patient.getEmail();
+        boolean valid = isValidEmail(email);
+
+        Notification n = new Notification();
+        n.setReference(nextReference());
+        n.setPatientId(patient.getId());
+        if (patient.getUserId() != null) n.setRecipientUserId(patient.getUserId());
+        n.setPatientName(patient.getFullName());
+        n.setType(NotificationType.PATIENT_SMS);
+        n.setChannel(NotificationChannel.EMAIL);
+        n.setDestination(valid ? email.trim() : (email != null ? email : "N/A"));
+        n.setMessage(messageText != null && !messageText.isBlank() ? messageText.trim() :
+                ("Nethcare: " + patient.getFullName() + ", your appointment update from Nethcare Clinic."));
+        n.setScheduledFor(LocalDateTime.now());
+        n.setStatus(valid ? NotificationStatus.PENDING : NotificationStatus.FAILED);
+        if (!valid) {
+            n.setFailureReason("Missing or invalid email address");
+        }
+        Notification saved = notifications.save(n);
+        audit.record(actor, AuditAction.CREATE, "NotificationDispatch", saved.getReference(),
+                null, "PATIENT_EMAIL -> " + n.getDestination());
+        return saved;
+    }
+
+    @Transactional
+    public List<Notification> sendPatientNotification(Long patientId, String messageText, String preferredChannel, String actor) {
+        Patient patient = patients.findById(patientId)
+                .orElseThrow(() -> new ResourceNotFoundException("No patient with id " + patientId));
+        String phone = normalizeSriLankanPhone(patient.getPhone());
+        String email = patient.getEmail();
+        boolean hasValidPhone = phone != null;
+        boolean hasValidEmail = isValidEmail(email);
+
+        if (!hasValidPhone && !hasValidEmail) {
+            throw new BusinessException("Patient has neither a valid mobile number nor email address on file.");
+        }
+
+        List<Notification> created = new java.util.ArrayList<>();
+        boolean shouldSendSms = false;
+        boolean shouldSendEmail = false;
+
+        if ("SMS".equalsIgnoreCase(preferredChannel)) {
+            if (!hasValidPhone) {
+                throw new BusinessException("Patient has no valid mobile number on file for SMS outreach.");
+            }
+            shouldSendSms = true;
+        } else if ("EMAIL".equalsIgnoreCase(preferredChannel)) {
+            if (!hasValidEmail) {
+                throw new BusinessException("Patient has no valid email address on file for Email outreach.");
+            }
+            shouldSendEmail = true;
+        } else {
+            // Auto / Unified: deliver to all available contact channels recorded
+            if (hasValidPhone) shouldSendSms = true;
+            if (hasValidEmail) shouldSendEmail = true;
+        }
+
+        if (shouldSendSms) {
+            created.add(sendPatientSms(patientId, messageText, actor));
+        }
+        if (shouldSendEmail) {
+            created.add(sendPatientEmail(patientId, messageText, actor));
+        }
+
+        return created;
+    }
+
+    @Transactional
+    public Notification sendDirectEmail(String rawEmail, String recipientName, String messageText, String actor) {
+        boolean valid = isValidEmail(rawEmail);
+        Notification n = new Notification();
+        n.setReference(nextReference());
+        n.setPatientName(recipientName != null && !recipientName.isBlank() ? recipientName.trim() : "Ad-hoc Recipient");
+        n.setType(NotificationType.PATIENT_SMS);
+        n.setChannel(NotificationChannel.EMAIL);
+        n.setDestination(valid ? rawEmail.trim() : (rawEmail != null ? rawEmail : "N/A"));
+        n.setMessage(messageText != null && !messageText.isBlank() ? messageText.trim() :
+                ("Nethcare: " + n.getPatientName() + ", notification from Nethcare Clinic."));
+        n.setScheduledFor(LocalDateTime.now());
+        n.setStatus(valid ? NotificationStatus.PENDING : NotificationStatus.FAILED);
+        if (!valid) {
+            n.setFailureReason("Missing or invalid email address");
+        }
+        Notification saved = notifications.save(n);
+        audit.record(actor, AuditAction.CREATE, "NotificationDispatch", saved.getReference(),
+                null, "DIRECT_EMAIL -> " + n.getDestination());
+        return saved;
+    }
+
+    @Transactional
     public Notification markSent(Long id, String gatewayReceiptId, String actor) {
         Notification n = notification(id);
         if (!n.isQueued()) throw new BusinessException("Notification " + n.getReference() + " is not pending.");
         if (gatewayReceiptId == null || gatewayReceiptId.isBlank()) {
-            throw new BusinessException("The SMS gateway receipt id is required.");
+            throw new BusinessException("The gateway receipt id is required.");
         }
         n.setLastAttemptAt(LocalDateTime.now());
         n.setGatewayReceiptId(gatewayReceiptId.trim());
@@ -313,14 +422,16 @@ public class FollowUpService {
     }
 
     private Notification saveExcluded(FollowUp f, String reason, String actor) {
-        Notification n = build(f, f.getPhone(), NotificationStatus.EXCLUDED);
+        NotificationChannel ch = f.getPhone() != null && !f.getPhone().isBlank() ? NotificationChannel.SMS : NotificationChannel.EMAIL;
+        String dest = f.getPhone() != null && !f.getPhone().isBlank() ? f.getPhone() : (f.getEmail() != null ? f.getEmail() : "N/A");
+        Notification n = build(f, dest, ch, NotificationStatus.EXCLUDED);
         n.setSkippedReason(reason);
         Notification saved = notifications.save(n);
         audit.record(actor, AuditAction.CREATE, "NotificationDispatch", saved.getReference(), null, "EXCLUDED: " + reason);
         return saved;
     }
 
-    private Notification build(FollowUp f, String destination, NotificationStatus status) {
+    private Notification build(FollowUp f, String destination, NotificationChannel channel, NotificationStatus status) {
         Notification n = new Notification();
         n.setReference(nextReference());
         n.setFollowUpId(f.getId());
@@ -328,13 +439,17 @@ public class FollowUpService {
         patients.findById(f.getPatientId()).map(Patient::getUserId).ifPresent(n::setRecipientUserId);
         n.setPatientName(f.getPatientName());
         n.setType(f.isHighRisk() ? NotificationType.SPECIAL_CASE_FOLLOWUP : NotificationType.VISIT_REMINDER);
-        n.setChannel(NotificationChannel.SMS);
+        n.setChannel(channel);
         n.setDestination(destination);
         n.setMessage("Nethcare: " + f.getPatientName() + ", your " + f.getDueForWho().toLowerCase()
                 + " is due on " + f.getDueOn() + ". Please contact the clinic to arrange your visit.");
         n.setStatus(status);
         n.setScheduledFor(LocalDateTime.now());
         return n;
+    }
+
+    private boolean isValidEmail(String email) {
+        return email != null && email.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$");
     }
 
     private String normalizeSriLankanPhone(String raw) {

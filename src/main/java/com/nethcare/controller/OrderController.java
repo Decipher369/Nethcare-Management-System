@@ -63,7 +63,11 @@ public class OrderController {
         } else if ("overdue".equals(view)) {
             found = orders.overdue();
         } else if (view != null && !view.isBlank() && !"open".equals(view)) {
-            found = orders.byStatus(OrderStatus.valueOf(view.toUpperCase()));
+            try {
+                found = orders.byStatus(OrderStatus.valueOf(view.toUpperCase()));
+            } catch (IllegalArgumentException e) {
+                found = orders.open();
+            }
         } else {
             found = orders.open();
         }

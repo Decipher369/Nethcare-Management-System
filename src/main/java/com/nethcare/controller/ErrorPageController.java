@@ -23,9 +23,24 @@ public class ErrorPageController implements ErrorController {
         Object status = request.getAttribute(RequestDispatcher.ERROR_STATUS_CODE);
         Object message = request.getAttribute(RequestDispatcher.ERROR_MESSAGE);
         Object path = request.getAttribute(RequestDispatcher.ERROR_REQUEST_URI);
+        Object exception = request.getAttribute(RequestDispatcher.ERROR_EXCEPTION);
 
-        model.addAttribute("status", status == null ? 500 : status);
-        model.addAttribute("message", message == null ? "Something went wrong" : message);
+        int statusCode = 500;
+        if (status instanceof Integer i && i != 200) {
+            statusCode = i;
+        } else if (status instanceof String s) {
+            try {
+                int parsed = Integer.parseInt(s);
+                if (parsed != 200) statusCode = parsed;
+            } catch (NumberFormatException ignored) {}
+        }
+
+        String msg = message != null && !message.toString().isBlank()
+                ? message.toString()
+                : (exception instanceof Throwable t ? t.getMessage() : "Something went wrong while processing your request.");
+
+        model.addAttribute("status", statusCode);
+        model.addAttribute("message", msg);
         model.addAttribute("path", path == null ? "" : path);
 
         return "error";

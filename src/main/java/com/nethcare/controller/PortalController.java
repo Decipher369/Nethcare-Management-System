@@ -20,6 +20,7 @@ public class PortalController {
         model.addAttribute("patient", data.patient());
         model.addAttribute("prescriptions", data.prescriptions());
         model.addAttribute("orders", data.orders());
+        model.addAttribute("consultations", data.consultations());
         return "portal/home";
     }
 

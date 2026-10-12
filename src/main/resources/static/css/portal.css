@@ -1,0 +1,1245 @@
+/* Nethcare Patient Portal Stylesheet — Scoped strictly under .patient-portal-page */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+body.patient-portal-page {
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background-color: #E3EDF8;
+  color: #0F2742;
+  min-height: 100vh;
+  min-width: 0;
+  width: 100%;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  -webkit-font-smoothing: antialiased;
+  box-sizing: border-box;
+}
+
+.patient-portal-page *,
+.patient-portal-page *::before,
+.patient-portal-page *::after {
+  box-sizing: border-box;
+}
+
+/* 1. TOP BAR */
+.patient-portal-page .portal-top-bar {
+  background-color: #ffffff;
+  border-bottom: 1px solid #E2E8F0;
+  height: 64px;
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  width: 100%;
+}
+
+.patient-portal-page .portal-top-bar-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 32px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.patient-portal-page .portal-brand-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.patient-portal-page .portal-logo-img {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  object-fit: contain;
+}
+
+.patient-portal-page .portal-brand-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.patient-portal-page .portal-brand-breadcrumbs {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.patient-portal-page .portal-brand-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 9999px;
+  background-color: #0284C7;
+  display: inline-block;
+}
+
+.patient-portal-page .portal-brand-tag {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #64748B;
+}
+
+.patient-portal-page .portal-brand-slash {
+  color: #CBD5E1;
+  font-size: 11px;
+}
+
+.patient-portal-page .portal-brand-sub {
+  font-size: 12px;
+  font-weight: 600;
+  color: #334155;
+}
+
+.patient-portal-page .portal-brand-clinic-name {
+  font-size: 12px;
+  color: #94A3B8;
+  margin-top: 1px;
+}
+
+.patient-portal-page .portal-top-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.patient-portal-page .portal-user-pill {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.patient-portal-page .portal-user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 9999px;
+  background-color: #F0F9FF;
+  border: 1px solid #BAE0FD;
+  color: #15375B;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.patient-portal-page .portal-user-meta {
+  display: flex;
+  flex-direction: column;
+}
+
+.patient-portal-page .portal-user-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1E293B;
+  line-height: 1.2;
+}
+
+.patient-portal-page .portal-user-no {
+  font-size: 11px;
+  font-family: ui-monospace, 'JetBrains Mono', monospace;
+  color: #64748B;
+  line-height: 1.2;
+}
+
+.patient-portal-page .portal-top-divider {
+  width: 1px;
+  height: 16px;
+  background-color: #E2E8F0;
+}
+
+.patient-portal-page .portal-signout-form {
+  margin: 0;
+  padding: 0;
+  display: inline-flex;
+}
+
+.patient-portal-page .portal-signout-btn {
+  font-size: 13px;
+  font-weight: 500;
+  color: #475569;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: inherit;
+}
+
+.patient-portal-page .portal-signout-btn:hover {
+  background-color: #F1F5F9;
+  color: #BE123C;
+}
+
+.patient-portal-page .portal-signout-btn:focus-visible {
+  outline: 2px solid #0369A1;
+  outline-offset: 2px;
+}
+
+.patient-portal-page .portal-signout-icon {
+  width: 14px;
+  height: 14px;
+  color: currentColor;
+}
+
+/* MAIN CONTAINER */
+.patient-portal-page .portal-main-content {
+  flex: 1;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 28px 32px 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  box-sizing: border-box;
+}
+
+/* 2. GREETING CARD */
+.patient-portal-page .portal-greeting-card {
+  position: relative;
+  background-color: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 16px;
+  padding: 28px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(15, 39, 66, 0.05);
+}
+
+.patient-portal-page .portal-greeting-title {
+  font-size: 30px;
+  font-weight: 800;
+  color: #0E243D;
+  margin: 0 0 6px 0;
+  letter-spacing: -0.02em;
+}
+
+.patient-portal-page .portal-greeting-sub {
+  font-size: 13px;
+  color: #64748B;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.patient-portal-page .portal-patient-id-highlight {
+  font-family: ui-monospace, 'JetBrains Mono', monospace;
+  font-weight: 700;
+  color: #15375B;
+}
+
+/* CARDS COMMON */
+.patient-portal-page .portal-card {
+  background: #ffffff;
+  border: 1px solid #E2E8F0;
+  border-radius: 16px;
+  box-shadow: 0 1px 3px rgba(15, 39, 66, 0.05);
+  overflow: hidden;
+  width: 100%;
+}
+
+.patient-portal-page .portal-card-header {
+  background: rgba(248, 250, 252, 0.7);
+  border-bottom: 1px solid #E2E8F0;
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.patient-portal-page .portal-card-header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.patient-portal-page .portal-card-icon {
+  width: 16px;
+  height: 16px;
+  color: #15375B;
+}
+
+.patient-portal-page .portal-card-heading {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #0E243D;
+  margin: 0;
+}
+
+.patient-portal-page .portal-card-header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.patient-portal-page .portal-status-badge {
+  font-size: 12px;
+  font-weight: 600;
+  background-color: #F1F5F9;
+  color: #475569;
+  border-radius: 6px;
+  padding: 4px 10px;
+}
+
+.patient-portal-page .portal-count-pill {
+  font-size: 11px;
+  font-weight: 700;
+  background-color: #F0F7FF;
+  color: #15375B;
+  border: 1px solid #BAE0FD;
+  border-radius: 999px;
+  padding: 2px 10px;
+}
+
+.patient-portal-page .portal-header-subtext {
+  font-size: 13px;
+  color: #64748B;
+}
+
+/* BOOK CONSULTATION BUTTON */
+.patient-portal-page .portal-book-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 34px;
+  padding: 0 14px;
+  background-color: #15375B;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(15, 39, 66, 0.1);
+  transition: all 0.15s ease;
+  font-family: inherit;
+  text-decoration: none;
+}
+
+.patient-portal-page .portal-book-btn:hover {
+  background-color: #0E243D;
+}
+
+.patient-portal-page .portal-book-btn:active {
+  background-color: #081729;
+}
+
+.patient-portal-page .portal-book-btn:focus-visible {
+  outline: 2px solid #0369A1;
+  outline-offset: 2px;
+}
+
+.patient-portal-page .portal-book-btn-icon {
+  width: 14px;
+  height: 14px;
+  color: #7DD3FC;
+}
+
+/* 3. PATIENT PROFILE BODY */
+.patient-portal-page .portal-profile-body {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+@media (min-width: 1024px) {
+  .patient-portal-page .portal-profile-body {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.patient-portal-page .portal-profile-identity {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.patient-portal-page .portal-avatar-lg {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background-color: #F0F9FF;
+  border: 1px solid #BAE0FD;
+  font-size: 20px;
+  font-weight: 700;
+  color: #0C4A6E;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.patient-portal-page .portal-profile-name-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.patient-portal-page .portal-profile-full-name {
+  font-size: 18px;
+  font-weight: 700;
+  color: #0F172A;
+  margin: 0;
+}
+
+.patient-portal-page .portal-patient-no-badge {
+  font-family: ui-monospace, 'JetBrains Mono', monospace;
+  font-size: 12px;
+  font-weight: 700;
+  background-color: #F0F9FF;
+  color: #075985;
+  border: 1px solid #BAE0FD;
+  border-radius: 6px;
+  padding: 2px 8px;
+}
+
+.patient-portal-page .portal-profile-subline {
+  font-size: 13px;
+  color: #64748B;
+  margin-top: 4px;
+}
+
+/* TILES GRID */
+.patient-portal-page .portal-tiles-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  width: 100%;
+}
+
+@media (min-width: 640px) {
+  .patient-portal-page .portal-tiles-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .patient-portal-page .portal-tiles-grid {
+    grid-template-columns: repeat(4, 1fr);
+    width: auto;
+  }
+}
+
+.patient-portal-page .portal-tile {
+  background-color: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  padding: 12px 16px;
+  min-height: 72px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+
+.patient-portal-page .portal-tile-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #94A3B8;
+  margin-bottom: 2px;
+}
+
+.patient-portal-page .portal-tile-val {
+  font-size: 14px;
+  font-weight: 600;
+  color: #0F2742;
+}
+
+.patient-portal-page .portal-tile-val.mono {
+  font-family: ui-monospace, 'JetBrains Mono', monospace;
+}
+
+.patient-portal-page .portal-tile-sub {
+  font-size: 12px;
+  color: #64748B;
+  margin-top: 2px;
+}
+
+.patient-portal-page .portal-tile-val-muted {
+  color: #94A3B8;
+  font-style: italic;
+  font-weight: 400;
+}
+
+/* 4. SPECTACLE ORDERS SECTION */
+.patient-portal-page .portal-orders-body {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.patient-portal-page .portal-order-card {
+  border: 1px solid #E2E8F0;
+  border-radius: 16px;
+  padding: 20px;
+  transition: border-color 0.15s ease;
+  background-color: #ffffff;
+}
+
+.patient-portal-page .portal-order-card:hover {
+  border-color: #BAE0FD;
+}
+
+.patient-portal-page .portal-order-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  border-bottom: 1px solid #F1F5F9;
+  padding-bottom: 12px;
+  margin-bottom: 16px;
+}
+
+.patient-portal-page .portal-order-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.patient-portal-page .portal-order-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #15375B;
+  margin: 0;
+}
+
+/* Status Badges */
+.patient-portal-page .portal-badge-collected {
+  font-size: 12px;
+  font-weight: 600;
+  background-color: #ECFDF5;
+  color: #047857;
+  border: 1px solid #A7F3D0;
+  border-radius: 9999px;
+  padding: 2px 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.patient-portal-page .portal-badge-inprogress {
+  font-size: 12px;
+  font-weight: 600;
+  background-color: #FFFBEB;
+  color: #B45309;
+  border: 1px solid #FDE68A;
+  border-radius: 9999px;
+  padding: 2px 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.patient-portal-page .portal-badge-default {
+  font-size: 12px;
+  font-weight: 600;
+  background-color: #F1F5F9;
+  color: #475569;
+  border: 1px solid #E2E8F0;
+  border-radius: 9999px;
+  padding: 2px 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.patient-portal-page .portal-badge-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 9999px;
+  background-color: currentColor;
+}
+
+.patient-portal-page .portal-order-date-line {
+  font-size: 13px;
+  color: #64748B;
+  margin-top: 4px;
+}
+
+.patient-portal-page .portal-order-ref-block {
+  text-align: right;
+}
+
+.patient-portal-page .portal-order-ref-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #94A3B8;
+}
+
+.patient-portal-page .portal-order-ref-no {
+  font-family: ui-monospace, 'JetBrains Mono', monospace;
+  font-size: 14px;
+  font-weight: 700;
+  color: #15375B;
+}
+
+.patient-portal-page .portal-spec-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+@media (min-width: 640px) {
+  .patient-portal-page .portal-spec-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .patient-portal-page .portal-spec-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.patient-portal-page .portal-spec-tile {
+  background-color: #F8FAFC;
+  border: 1px solid #F1F5F9;
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.patient-portal-page .portal-spec-tile-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #94A3B8;
+  display: block;
+  margin-bottom: 2px;
+}
+
+.patient-portal-page .portal-spec-tile-val {
+  font-size: 14px;
+  font-weight: 600;
+  color: #0F2742;
+  display: block;
+}
+
+.patient-portal-page .portal-spec-tile-sub {
+  font-size: 12px;
+  color: #64748B;
+}
+
+/* 5. PRESCRIPTIONS SECTION */
+.patient-portal-page .portal-rx-body {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.patient-portal-page .portal-rx-block {
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.patient-portal-page .portal-rx-top-bar {
+  background-color: #F8FAFC;
+  border-bottom: 1px solid #E2E8F0;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.patient-portal-page .portal-rx-title-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.patient-portal-page .portal-rx-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #15375B;
+  margin: 0;
+}
+
+.patient-portal-page .portal-rx-badge {
+  font-family: ui-monospace, 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  background-color: #ECFDF5;
+  color: #065F46;
+  border: 1px solid #A7F3D0;
+  border-radius: 4px;
+  padding: 2px 6px;
+}
+
+.patient-portal-page .portal-rx-date-meta {
+  font-size: 13px;
+  color: #64748B;
+}
+
+.patient-portal-page .portal-rx-date-bold {
+  font-weight: 600;
+  color: #1E293B;
+}
+
+.patient-portal-page .portal-rx-table-container {
+  overflow-x: auto;
+  width: 100%;
+}
+
+.patient-portal-page .portal-rx-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  text-align: left;
+}
+
+.patient-portal-page .portal-rx-table th {
+  background: rgba(248, 250, 252, 0.8);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #64748B;
+  padding: 10px 16px;
+  border-bottom: 1px solid #E2E8F0;
+}
+
+.patient-portal-page .portal-rx-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid #F1F5F9;
+  color: #0F2742;
+}
+
+.patient-portal-page .portal-rx-table tr:hover td {
+  background-color: #F8FAFC;
+}
+
+.patient-portal-page .portal-rx-table td.mono {
+  font-family: ui-monospace, 'JetBrains Mono', monospace;
+  font-size: 14px;
+}
+
+.patient-portal-page .portal-rx-table td.sph,
+.patient-portal-page .portal-rx-table td.cyl {
+  font-weight: 600;
+}
+
+.patient-portal-page .portal-rx-table td.muted-dash {
+  color: #94A3B8;
+}
+
+.patient-portal-page .portal-rx-bottom-bar {
+  background: rgba(248, 250, 252, 0.6);
+  border-top: 1px solid #E2E8F0;
+  padding: 14px 16px;
+  font-size: 13px;
+  color: #475569;
+}
+
+/* EMPTY STATES */
+.patient-portal-page .portal-empty-state {
+  padding: 48px 16px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.patient-portal-page .portal-empty-icon-square {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background-color: #F1F5F9;
+  border: 1px solid #E2E8F0;
+  color: #94A3B8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+.patient-portal-page .portal-empty-icon-square svg {
+  width: 24px;
+  height: 24px;
+}
+
+.patient-portal-page .portal-empty-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1E293B;
+  margin: 0 0 4px 0;
+}
+
+.patient-portal-page .portal-empty-desc {
+  font-size: 13px;
+  color: #64748B;
+  max-width: 420px;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* 6. FOOTER BAR */
+.patient-portal-page .portal-footer {
+  width: 100%;
+  background-color: #ffffff;
+  border-top: 1px solid #E2E8F0;
+}
+
+.patient-portal-page .portal-footer-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 14px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+  color: #64748B;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.patient-portal-page .portal-footer-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.patient-portal-page .portal-footer-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 9999px;
+  background-color: #CBD5E1;
+}
+
+.patient-portal-page .portal-refresh-btn {
+  background: transparent;
+  border: none;
+  font-size: 13px;
+  font-family: inherit;
+  color: #64748B;
+  font-weight: 500;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0;
+}
+
+.patient-portal-page .portal-refresh-btn:hover {
+  color: #0E243D;
+  text-decoration: underline;
+}
+
+.patient-portal-page .portal-refresh-icon {
+  width: 14px;
+  height: 14px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .patient-portal-page .portal-refresh-btn.spinning .portal-refresh-icon {
+    animation: portalSpin 0.75s linear infinite;
+  }
+}
+
+@keyframes portalSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* DIALOG STYLING FOR CONTACT MODAL */
+.patient-portal-page .portal-dialog {
+  border: 1px solid #E2E8F0;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(15, 39, 66, 0.15);
+  padding: 0;
+  max-width: 440px;
+  width: 90%;
+  background: #ffffff;
+}
+
+.patient-portal-page .portal-dialog::backdrop {
+  background: rgba(14, 36, 61, 0.4);
+  backdrop-filter: blur(2px);
+}
+
+.patient-portal-page .portal-dialog-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid #E2E8F0;
+  background-color: rgba(248, 250, 252, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.patient-portal-page .portal-dialog-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #15375B;
+  margin: 0;
+}
+
+.patient-portal-page .portal-dialog-body {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  font-size: 14px;
+  color: #334155;
+}
+
+.patient-portal-page .portal-dialog-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.patient-portal-page .portal-dialog-item-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #94A3B8;
+}
+
+.patient-portal-page .portal-dialog-item-val {
+  font-weight: 600;
+  color: #0F2742;
+}
+
+.patient-portal-page .portal-dialog-item-val.mono {
+  font-family: ui-monospace, 'JetBrains Mono', monospace;
+}
+
+.patient-portal-page .portal-dialog-footer {
+  padding: 12px 20px;
+  border-top: 1px solid #E2E8F0;
+  display: flex;
+  justify-content: flex-end;
+  background-color: #F8FAFC;
+}
+
+.patient-portal-page .portal-dialog-close-btn {
+  height: 34px;
+  padding: 0 16px;
+  background-color: #15375B;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.patient-portal-page .portal-dialog-close-btn:hover {
+  background-color: #0E243D;
+}
+
+/* UPCOMING FRAMES SECTION */
+.patient-portal-page .portal-frames-body {
+  padding: 24px;
+}
+
+.patient-portal-page .portal-frames-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+@media (min-width: 640px) {
+  .patient-portal-page .portal-frames-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .patient-portal-page .portal-frames-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.patient-portal-page .portal-frame-card {
+  background-color: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: border-color 0.15s ease;
+}
+
+.patient-portal-page .portal-frame-card:hover {
+  border-color: #BAE0FD;
+}
+
+.patient-portal-page .portal-frame-img-box {
+  background-color: #F1F5F9;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.patient-portal-page .portal-frame-icon-placeholder {
+  width: 48px;
+  height: 48px;
+  color: #94A3B8;
+}
+
+.patient-portal-page .portal-frame-tag-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  font-size: 10px;
+  font-weight: 700;
+  background-color: #15375B;
+  color: #ffffff;
+  padding: 2px 6px;
+  border-radius: 4px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.patient-portal-page .portal-frame-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.patient-portal-page .portal-frame-category {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #94A3B8;
+}
+
+.patient-portal-page .portal-frame-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #0F2742;
+  margin: 0;
+}
+
+.patient-portal-page .portal-frame-desc {
+  font-size: 12px;
+  color: #64748B;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.patient-portal-page .portal-frame-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 6px;
+  padding-top: 8px;
+  border-top: 1px solid #E2E8F0;
+  font-size: 12px;
+}
+
+.patient-portal-page .portal-frame-status {
+  font-weight: 600;
+  color: #047857;
+}
+
+.patient-portal-page .portal-frame-link {
+  font-weight: 600;
+  color: #0284C7;
+}
+
+/* UPCOMING CONSULTATIONS SECTION */
+.patient-portal-page .portal-consultation-body {
+  padding: 24px;
+}
+
+.patient-portal-page .portal-consultation-item {
+  background-color: rgba(240, 249, 255, 0.5);
+  border: 1px solid #BAE0FD;
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.patient-portal-page .portal-consultation-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+  flex: 1;
+}
+
+.patient-portal-page .portal-date-tile {
+  width: 48px;
+  height: 48px;
+  background-color: #15375B;
+  border-radius: 12px;
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  text-align: center;
+}
+
+.patient-portal-page .portal-date-tile-month {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #BAE0FD;
+  line-height: 1.1;
+}
+
+.patient-portal-page .portal-date-tile-day {
+  font-size: 16px;
+  font-weight: 800;
+  color: #ffffff;
+  line-height: 1;
+}
+
+.patient-portal-page .portal-consultation-details {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.patient-portal-page .portal-consultation-row1 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.patient-portal-page .portal-badge-confirmed {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  background-color: #D1FAE5;
+  color: #065F46;
+  border-radius: 4px;
+  padding: 2px 8px;
+}
+
+.patient-portal-page .portal-badge-pending {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  background-color: #FEF3C7;
+  color: #78350F;
+  border-radius: 4px;
+  padding: 2px 8px;
+}
+
+.patient-portal-page .portal-badge-consult-default {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  background-color: #F1F5F9;
+  color: #475569;
+  border-radius: 4px;
+  padding: 2px 8px;
+}
+
+.patient-portal-page .portal-consultation-ref {
+  font-family: ui-monospace, 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: #64748B;
+}
+
+.patient-portal-page .portal-consultation-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #15375B;
+  margin: 0;
+}
+
+.patient-portal-page .portal-consultation-time-line {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #15375B;
+}
+
+.patient-portal-page .portal-clock-icon {
+  width: 14px;
+  height: 14px;
+  color: #0369A1;
+  flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+  .patient-portal-page .portal-consultation-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+/* RESPONSIVE BREAKPOINTS */
+@media (max-width: 640px) {
+  .patient-portal-page .portal-top-bar-inner {
+    padding: 0 16px;
+  }
+  .patient-portal-page .portal-user-meta {
+    display: none;
+  }
+  .patient-portal-page .portal-main-content {
+    padding: 16px;
+  }
+  .patient-portal-page .portal-profile-body,
+  .patient-portal-page .portal-consultation-body,
+  .patient-portal-page .portal-orders-body,
+  .patient-portal-page .portal-rx-body,
+  .patient-portal-page .portal-frames-body {
+    padding: 16px;
+  }
+  .patient-portal-page .portal-footer-inner {
+    padding: 14px 16px;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

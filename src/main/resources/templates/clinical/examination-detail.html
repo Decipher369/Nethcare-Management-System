@@ -193,6 +193,88 @@
                     </form>
                 </div>
             </div>
+    </section>
+
+    <!-- ── Follow-up & Review Scheduling Card ────────────────────── -->
+    <section class="exam-detail-card">
+        <h2>
+            <span>Follow-up &amp; Recall Scheduling</span>
+            <span th:if="${followUps != null and !followUps.isEmpty()}" class="tag good" th:text="${#lists.size(followUps)} + ' Scheduled'">1 Scheduled</span>
+            <span th:if="${followUps == null or followUps.isEmpty()}" class="tag mute">No review scheduled</span>
+        </h2>
+        <div class="pad">
+            <!-- Existing Follow-up Cases if any -->
+            <div th:if="${followUps != null and !followUps.isEmpty()}" style="margin-bottom: 1.2rem;">
+                <div style="display: grid; gap: 8px;">
+                    <div th:each="f : ${followUps}" style="background: #f8fafc; border: 1px solid var(--line); border-radius: 6px; padding: 0.8rem 1rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                        <div>
+                            <span class="tag" th:classappend="${f.highRisk} ? 'bad' : 'info'" th:text="${f.dueForWho}">Routine review</span>
+                            <strong style="margin-left: 8px; color: var(--ink);" th:text="'Due on ' + ${f.dueOn}">Due on 2026-10-10</strong>
+                            <p style="margin: 4px 0 0; font-size: 0.82rem; color: var(--ink-soft);" th:text="${f.responseNote ?: 'No additional notes'}">Notes</p>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span class="tag" th:classappend="${f.status.name() == 'ATTENDED'} ? 'good' : (${f.status.name() == 'DEFAULTED'} ? 'bad' : 'warn')" th:text="${f.status.label()}">Active</span>
+                            <a th:href="@{/followups}" class="btn sm ghost" style="text-decoration: none;">Manage in Follow-ups →</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Schedule Follow-up Form -->
+            <div id="followup-prompt-area">
+                <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px; margin-bottom: 1rem;">
+                    <div>
+                        <strong style="display: block; font-size: 0.95rem; color: var(--ink); margin-bottom: 0.2rem;">Schedule Next Review</strong>
+                        <span style="font-size: 0.84rem; color: var(--ink-soft);">Select a quick preset (6 or 12 months) or specify an exact recall date.</span>
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        <button type="button" class="btn sm" onclick="setReviewMonths(6)" style="background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; cursor: pointer; font-weight: 500;">
+                            + 6 Months Review
+                        </button>
+                        <button type="button" class="btn sm" onclick="setReviewMonths(12)" style="background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; cursor: pointer; font-weight: 500;">
+                            + 12 Months Review
+                        </button>
+                    </div>
+                </div>
+
+                <form method="post" th:action="@{/examinations/{id}/followup(id=${exam.id})}" style="background: #f8fafc; border: 1px solid var(--line); border-radius: 6px; padding: 1.1rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px;">
+                    <label class="field" style="margin: 0;">
+                        <span>Target Review Date</span>
+                        <input type="date" id="targetReviewDate" name="targetReviewDate" required th:value="${#temporals.format(T(java.time.LocalDate).now().plusMonths(6), 'yyyy-MM-dd')}">
+                    </label>
+                    <label class="field" style="margin: 0;">
+                        <span>Review Category</span>
+                        <select name="category" required>
+                            <option value="ROUTINE_REVIEW" selected>Routine review</option>
+                            <option value="REASSESSMENT">Reassessment</option>
+                            <option value="POST_OPERATIVE">Post-operative</option>
+                            <option value="CORNEAL_ULCER">Corneal ulcer</option>
+                            <option value="PEDIATRIC_AMBLYOPIA">Pediatric amblyopia</option>
+                        </select>
+                    </label>
+                    <label class="field" style="margin: 0;" th:if="${opticians != null and !opticians.isEmpty()}">
+                        <span>Assigned Optician</span>
+                        <select name="assignedOpticianId">
+                            <option th:each="opt : ${opticians}" th:value="${opt.id}" th:text="${opt.fullName}"></option>
+                        </select>
+                    </label>
+                    <div style="grid-column: 1 / -1; display: flex; align-items: center; gap: 8px; margin: 4px 0;">
+                        <input type="checkbox" id="highRiskCheck" name="highRisk" value="true">
+                        <label for="highRiskCheck" style="font-size: 0.88rem; color: #b91c1c; font-weight: 600; cursor: pointer;">
+                            Flag as High Risk Surveillance (Urgent attention)
+                        </label>
+                    </div>
+                    <label class="field" style="grid-column: 1 / -1; margin: 0;">
+                        <span>Clinical Follow-up Notes</span>
+                        <textarea name="clinicalNotes" rows="2" placeholder="Clinical reasoning, instructions for next examination, or specific recall criteria…"></textarea>
+                    </label>
+                    <div style="grid-column: 1 / -1; margin-top: 4px;">
+                        <button class="btn" type="submit" style="background: var(--brand-deep); color: #fff; font-weight: 600; padding: 0.5rem 1.2rem; cursor: pointer;">
+                            Schedule Follow-up Review Case
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     </section>
 
@@ -255,6 +337,16 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 });
+
+function setReviewMonths(months) {
+    const d = new Date();
+    d.setMonth(d.getMonth() + months);
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    const input = document.getElementById('targetReviewDate');
+    if (input) input.value = `${yyyy}-${mm}-${dd}`;
+}
 </script>
 </body>
 </html>
