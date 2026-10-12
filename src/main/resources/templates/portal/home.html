@@ -404,7 +404,7 @@
                     <span class="portal-count-pill">New arrivals</span>
                 </div>
                 <div class="portal-card-header-right">
-                    <a id="check-out-frames" href="#" class="portal-book-btn">
+                    <a id="check-out-frames" th:href="@{/frames}" href="/frames" class="portal-book-btn">
                         <span>Check out the frames</span>
                     </a>
                 </div>
@@ -427,7 +427,7 @@
                             <p class="portal-frame-desc">Ultra-lightweight titanium frame with anti-corrosive finish &bull; Size 52-18</p>
                             <div class="portal-frame-footer">
                                 <span class="portal-frame-status">Available in store</span>
-                                <span class="portal-frame-link">View in store &rarr;</span>
+                                <a th:href="@{/frames}" href="/frames" class="portal-frame-link">View in store &rarr;</a>
                             </div>
                         </div>
                     </div>
@@ -446,7 +446,7 @@
                             <p class="portal-frame-desc">Handcrafted organic acetate with ergonomic spring hinges &bull; Size 50-20</p>
                             <div class="portal-frame-footer">
                                 <span class="portal-frame-status">Available in store</span>
-                                <span class="portal-frame-link">View in store &rarr;</span>
+                                <a th:href="@{/frames}" href="/frames" class="portal-frame-link">View in store &rarr;</a>
                             </div>
                         </div>
                     </div>
@@ -465,7 +465,7 @@
                             <p class="portal-frame-desc">Transparent hypoallergenic polymer frame with flexible temples &bull; Size 54-17</p>
                             <div class="portal-frame-footer">
                                 <span class="portal-frame-status">Available in store</span>
-                                <span class="portal-frame-link">View in store &rarr;</span>
+                                <a th:href="@{/frames}" href="/frames" class="portal-frame-link">View in store &rarr;</a>
                             </div>
                         </div>
                     </div>
@@ -591,9 +591,8 @@
             // Check out the frames button handler
             var checkOutFramesBtn = document.getElementById('check-out-frames');
             if (checkOutFramesBtn) {
-                checkOutFramesBtn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    // TODO: set the frames page URL here
+                checkOutFramesBtn.addEventListener('click', function() {
+                    window.location.href = this.getAttribute('href') || '/frames';
                 });
             }
         });

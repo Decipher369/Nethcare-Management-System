@@ -1078,6 +1078,11 @@ body.patient-portal-page {
 .patient-portal-page .portal-frame-link {
   font-weight: 600;
   color: #0284C7;
+  text-decoration: none;
+}
+
+.patient-portal-page .portal-frame-link:hover {
+  text-decoration: underline;
 }
 
 /* UPCOMING CONSULTATIONS SECTION */
