@@ -77,15 +77,18 @@
     <div class="panel editorial-panel">
         <h2>Order fulfillment <em>breakdown</em> <span class="sp" th:text="${totalOrders} + ' active orders'">141 orders</span></h2>
         <div class="pad">
-            <div class="split" style="border-radius:6px; height:28px;">
+            <div class="stage-pipeline-track" th:if="${totalOrders != null and totalOrders > 0}">
                 <div th:each="o : ${orderSplit}" th:class="${o[2]}"
-                     th:style="'width:' + ${(T(java.lang.Integer).parseInt(o[1]) * 100 / 141)} + '%'"
-                     th:text="${o[0]} + ' ' + ${o[1]}">Collected 84</div>
+                     th:style="'width:' + ${(totalOrders > 0 ? (T(java.lang.Integer).parseInt(o[1]) * 100.0 / totalOrders) : 0)} + '%; min-width:' + ${(T(java.lang.Integer).parseInt(o[1]) > 0 ? '6px' : '0')} + ';'"
+                     th:title="${o[0]} + ': ' + ${o[1]} + ' orders'"></div>
+            </div>
+            <div class="stage-pipeline-track is-empty" th:unless="${totalOrders != null and totalOrders > 0}">
+                <div class="track-empty-fill"></div>
             </div>
             <ul class="legend" style="margin-top:12px;">
                 <li th:each="o : ${orderSplit}">
                     <i th:class="${o[2]}"></i>
-                    <span th:text="${o[0]}" style="font-weight:500;">Collected</span>
+                    <span th:text="${o[0]}" style="font-weight:600; color:var(--ink);">Collected</span>
                     <span class="n" th:text="${o[1]}">84</span>
                 </li>
             </ul>
