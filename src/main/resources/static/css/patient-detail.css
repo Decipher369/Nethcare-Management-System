@@ -5,7 +5,10 @@
 
 /* Body Background Override for Patient Detail Page */
 body.patient-detail-body {
-    background-color: #F3F6F9 !important;
+    background-color: #fff9ed !important;
+    background-image: 
+        radial-gradient(circle at 50% 12%, rgba(61, 143, 203, 0.08) 0%, transparent 45%),
+        radial-gradient(circle at 85% 80%, rgba(23, 76, 112, 0.05) 0%, transparent 40%) !important;
 }
 
 /* Hide default shared topbar and empty wrap from fragments.html on Detail Page */
@@ -18,10 +21,11 @@ body.patient-detail-body .staff-layout > .wrap {
 /* Ensure content slot (main.wrap) sits to the right of sidebar without extra margin or padding */
 body.patient-detail-body main.wrap,
 body.patient-detail-body:has(.admin-nav) main.wrap {
-    max-width: none !important;
+    max-width: calc(100% - 250px) !important;
     margin-left: 250px !important;
     padding: 0 !important;
-    width: auto !important;
+    width: calc(100% - 250px) !important;
+    box-sizing: border-box !important;
     margin-top: 0 !important;
     margin-right: 0 !important;
     margin-bottom: 0 !important;
@@ -35,18 +39,22 @@ body.patient-detail-body:has(.admin-nav) .patients-topbar {
     margin-top: 0 !important;
     z-index: 10;
     margin-left: 250px !important;
-    height: 56px;
-    background: #FFFFFF;
-    border-bottom: 1px solid #E2E8F0;
-    box-shadow: 0 1px 2px rgba(15, 39, 66, 0.04);
+    width: calc(100% - 250px) !important;
+    max-width: calc(100% - 250px) !important;
+    box-sizing: border-box !important;
+    height: 64px;
+    background: rgba(255, 249, 237, 0.94);
+    border-bottom: 1px solid #d9e3e5;
+    box-shadow: 0 2px 10px rgba(23, 76, 112, 0.03);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
     padding: 0 32px;
     display: flex;
     flex-direction: row !important;
     align-items: center;
     justify-content: space-between;
     white-space: nowrap;
-    box-sizing: border-box;
-    font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 }
 
 @media (max-width: 900px) {
@@ -152,7 +160,8 @@ body.patient-detail-body .topbar-workspace-title {
 body.patient-detail-body .topbar-right-group {
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: 16px;
+    flex-shrink: 0;
 }
 
 body.patient-detail-body .topbar-user-block {
@@ -193,7 +202,7 @@ body.patient-detail-body .topbar-v-divider {
 body.patient-detail-body .topbar-signout-btn {
     background: transparent;
     border: none;
-    color: #64748B;
+    color: #3e5c70;
     font-size: 13px;
     font-weight: 600;
     display: inline-flex;
@@ -400,12 +409,18 @@ body.patient-detail-body .topbar-signout-btn:focus {
 }
 
 .patient-summary-page .patient-name-title {
-    font-size: 26px;
-    font-weight: 700;
-    color: #0E243D;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 28px;
+    font-weight: 400;
+    color: #174c70;
     margin: 0;
     line-height: 1.2;
     letter-spacing: -0.02em;
+}
+
+.patient-summary-page .patient-name-title em {
+    font-style: italic;
+    color: #236b9e;
 }
 
 /* Badges */
@@ -417,9 +432,9 @@ body.patient-detail-body .topbar-signout-btn:focus {
     font-family: 'JetBrains Mono', ui-monospace, monospace;
     font-size: 12px;
     font-weight: 700;
-    background: #F0F7FF;
-    color: #15375B;
-    border: 1px solid #BAE0FD;
+    background: #eaf4fb;
+    color: #236b9e;
+    border: 1px solid rgba(61, 143, 203, 0.35);
 }
 
 .patient-summary-page .badge-minor-amber {
@@ -442,9 +457,9 @@ body.patient-detail-body .topbar-signout-btn:focus {
     border-radius: 999px;
     font-size: 12px;
     font-weight: 600;
-    background: #F1F5F9;
-    color: #334155;
-    border: 1px solid #E2E8F0;
+    background: #eaf4fb;
+    color: #174c70;
+    border: 1px solid rgba(145, 180, 204, 0.35);
 }
 
 .patient-summary-page .badge-status-rect {
@@ -452,19 +467,19 @@ body.patient-detail-body .topbar-signout-btn:focus {
     align-items: center;
     white-space: nowrap;
     padding: 4px 10px;
-    border-radius: 6px;
+    border-radius: 50px;
     font-size: 12px;
     font-weight: 600;
     line-height: 1.2;
-    background: #F1F5F9;
-    color: #475569;
-    border: 1px solid transparent;
+    background: #eaf4fb;
+    color: #174c70;
+    border: 1px solid rgba(145, 180, 204, 0.35);
     box-sizing: border-box;
 }
 
 .patient-summary-page .identity-meta-line {
     font-size: 13px;
-    color: #64748B;
+    color: #556e7b;
     display: flex;
     align-items: center;
     gap: 8px;
@@ -487,38 +502,49 @@ body.patient-detail-body .topbar-signout-btn:focus {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    padding: 10px 18px;
-    background: #FFFFFF;
-    border: 1px solid #E2E8F0;
-    color: #334155 !important;
+    padding: 10px 20px;
+    background: rgba(255, 255, 255, 0.85);
+    border: 1px solid #d9e3e5;
+    color: #174c70 !important;
     font-size: 13px;
     font-weight: 600;
-    border-radius: 12px;
+    border-radius: 50px;
     text-decoration: none !important;
-    transition: all 0.15s ease;
+    transition: all 0.18s ease;
 }
 
 .patient-summary-page .btn-identity-edit:hover {
-    background: #F1F5F9;
+    background: #eaf4fb;
+    color: #236b9e !important;
+    transform: translateY(-1px);
 }
 
 .patient-summary-page .btn-identity-exam {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    padding: 10px 18px;
-    background: #15375B;
-    color: #FFFFFF !important;
+    padding: 10px 22px;
+    background: linear-gradient(135deg, rgba(129, 194, 238, 0.7), rgba(61, 143, 203, 0.5));
+    color: #062236 !important;
     font-size: 13px;
     font-weight: 600;
-    border-radius: 12px;
+    letter-spacing: 0.3px;
+    border-radius: 50px;
     text-decoration: none !important;
-    box-shadow: 0 1px 3px rgba(15, 39, 66, 0.1);
-    transition: all 0.15s ease;
+    border: 1px solid rgba(61, 143, 203, 0.4);
+    border-top-color: rgba(255, 255, 255, 0.85);
+    box-shadow: 0 4px 16px rgba(23, 76, 112, 0.08);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease, color 0.18s ease;
 }
 
 .patient-summary-page .btn-identity-exam:hover {
-    background: #0E243D;
+    background: #236b9e;
+    color: #FFFFFF !important;
+    border-color: #236b9e;
+    box-shadow: 0 6px 20px rgba(23, 76, 112, 0.15);
+    transform: translateY(-1px);
 }
 
 /* Block 3: Guardian Banner */

@@ -1,13 +1,18 @@
 /* ==========================================================================
    Surgeon Portal & Referral Management Dedicated Stylesheet
-   Strictly adheres to Nethcare Design System (patients.css & patient-detail.css)
+   Strictly adheres to Nethcare Design System (Editorial Paper & Frosted Glass)
    ========================================================================== */
 
 /* Body Background Override for Surgeon Portal */
 body.surgeon-portal-body {
-    background-color: #F3F6F9 !important;
+    background-color: #fff9ed !important;
+    background-image:
+        radial-gradient(ellipse 65% 50% at 50% -10%, rgba(61, 143, 203, 0.12) 0%, transparent 70%),
+        radial-gradient(ellipse 45% 35% at 90% 85%, rgba(61, 143, 203, 0.08) 0%, transparent 60%) !important;
+    background-attachment: fixed !important;
     margin: 0;
     font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    color: #062236;
 }
 
 /* Hide default shared topbars and wraps from fragments.html */
@@ -20,10 +25,11 @@ body.surgeon-portal-body .admin-flash {
 
 /* Ensure content slot (main.wrap) sits to the right of sidebar without extra margin or padding */
 body.surgeon-portal-body main.wrap {
-    max-width: none !important;
+    max-width: calc(100% - 238px) !important;
     margin-left: 238px !important;
     padding: 0 !important;
-    width: auto !important;
+    width: calc(100% - 238px) !important;
+    box-sizing: border-box !important;
     margin-top: 0 !important;
     margin-right: 0 !important;
     margin-bottom: 0 !important;
@@ -31,6 +37,8 @@ body.surgeon-portal-body main.wrap {
 
 body.surgeon-portal-body:has(.admin-shell) main.wrap {
     margin-left: 250px !important;
+    max-width: calc(100% - 250px) !important;
+    width: calc(100% - 250px) !important;
 }
 
 /* Surgeon Portal Dedicated Sticky Topbar - Flush at y = 0 */
@@ -40,21 +48,27 @@ body.surgeon-portal-body .patients-topbar {
     margin-top: 0 !important;
     z-index: 100;
     margin-left: 238px !important;
-    height: 56px;
-    background: #FFFFFF;
-    border-bottom: 1px solid #E2E8F0;
-    box-shadow: 0 1px 2px rgba(15, 39, 66, 0.04);
+    width: calc(100% - 238px) !important;
+    max-width: calc(100% - 238px) !important;
+    box-sizing: border-box !important;
+    height: 64px;
+    background: rgba(255, 249, 237, 0.94) !important;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1px solid #d9e3e5 !important;
+    box-shadow: 0 4px 20px rgba(23, 76, 112, 0.04) !important;
     padding: 0 32px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     white-space: nowrap;
-    box-sizing: border-box;
     font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 }
 
 body.surgeon-portal-body:has(.admin-shell) .patients-topbar {
     margin-left: 250px !important;
+    width: calc(100% - 250px) !important;
+    max-width: calc(100% - 250px) !important;
 }
 
 @media (max-width: 900px) {
@@ -79,7 +93,8 @@ body.surgeon-portal-body .topbar-pulse-dot {
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background: #0284C7;
+    background: #3d8fcb;
+    box-shadow: 0 0 0 3px rgba(61, 143, 203, 0.25);
     display: inline-block;
     animation: pulseDotPortal 2s infinite ease-in-out;
 }
@@ -90,11 +105,11 @@ body.surgeon-portal-body .topbar-pulse-dot {
 }
 
 body.surgeon-portal-body .topbar-workspace-label {
-    font-size: 12px;
-    font-weight: 600;
+    font-size: 11px;
+    font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.04em;
-    color: #64748B;
+    letter-spacing: 0.08em;
+    color: #556e7b;
 }
 
 body.surgeon-portal-body .topbar-slash-sep {
@@ -106,26 +121,29 @@ body.surgeon-portal-body .topbar-link-text {
     font-size: 12px;
     font-weight: 600;
     letter-spacing: 0.02em;
-    color: #64748B;
+    color: #556e7b;
     text-decoration: none !important;
+    transition: color 0.15s ease;
 }
 
 body.surgeon-portal-body .topbar-link-text:hover {
-    color: #15375B;
+    color: #174c70;
 }
 
 body.surgeon-portal-body .topbar-workspace-title {
-    font-size: 12px;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 15px;
     font-weight: 600;
-    letter-spacing: 0.02em;
-    color: #15375B;
+    letter-spacing: 0.01em;
+    color: #174c70;
 }
 
 /* Topbar Right Group */
 body.surgeon-portal-body .topbar-right-group {
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: 16px;
+    flex-shrink: 0;
 }
 
 body.surgeon-portal-body .topbar-user-block {
@@ -135,12 +153,12 @@ body.surgeon-portal-body .topbar-user-block {
 }
 
 body.surgeon-portal-body .topbar-avatar {
-    width: 28px;
-    height: 28px;
+    width: 30px;
+    height: 30px;
     border-radius: 50%;
-    background: #F1F5F9;
-    border: 1px solid #E2E8F0;
-    color: #15375B;
+    background: rgba(61, 143, 203, 0.12);
+    border: 1px solid rgba(61, 143, 203, 0.25);
+    color: #174c70;
     font-size: 12px;
     font-weight: 700;
     text-transform: uppercase;
@@ -151,37 +169,41 @@ body.surgeon-portal-body .topbar-avatar {
 }
 
 body.surgeon-portal-body .topbar-username {
-    font-size: 12px;
-    font-weight: 700;
-    color: #0E243D;
-    letter-spacing: 0.02em;
+    font-size: 13px;
+    font-weight: 600;
+    color: #062236;
+    letter-spacing: 0.01em;
 }
 
 body.surgeon-portal-body .topbar-v-divider {
     width: 1px;
-    height: 16px;
-    background: #E2E8F0;
+    height: 18px;
+    background: #d9e3e5;
 }
 
 body.surgeon-portal-body .topbar-signout-btn {
-    background: transparent;
-    border: none;
-    color: #64748B;
-    font-size: 13px;
+    background: rgba(255, 255, 255, 0.6);
+    border: 1px solid rgba(23, 76, 112, 0.12);
+    color: #174c70;
+    font-size: 12px;
     font-weight: 600;
     display: inline-flex;
     align-items: center;
     gap: 6px;
     cursor: pointer;
-    padding: 6px 10px;
-    border-radius: 8px;
-    transition: all 0.15s ease;
+    padding: 6px 14px;
+    border-radius: 50px;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     font-family: inherit;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
 }
 
 body.surgeon-portal-body .topbar-signout-btn:hover {
-    color: #0E243D;
-    background: #F1F5F9;
+    color: #062236;
+    background: rgba(255, 255, 255, 0.95);
+    border-color: rgba(23, 76, 112, 0.25);
+    box-shadow: 0 2px 8px rgba(23, 76, 112, 0.08);
 }
 
 /* ── Badges for Urgency & Status ───────────────────────────── */
@@ -189,60 +211,60 @@ body.surgeon-portal-body .topbar-signout-btn:hover {
     display: inline-flex;
     align-items: center;
     gap: 4px;
-    padding: 3px 10px;
-    border-radius: 999px;
+    padding: 4px 12px;
+    border-radius: 50px;
     font-size: 11px;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.04em;
-    background: #FEF2F2;
-    color: #B91C1C;
-    border: 1px solid #FECACA;
+    letter-spacing: 0.06em;
+    background: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #fca5a5;
 }
 
 .badge-routine-pill {
     display: inline-flex;
     align-items: center;
     gap: 4px;
-    padding: 3px 10px;
-    border-radius: 999px;
+    padding: 4px 12px;
+    border-radius: 50px;
     font-size: 11px;
-    font-weight: 600;
+    font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.04em;
-    background: #F0F9FF;
-    color: #0369A1;
-    border: 1px solid #BAE6FD;
+    letter-spacing: 0.06em;
+    background: #eaf4fb;
+    color: #174c70;
+    border: 1px solid rgba(61, 143, 203, 0.3);
 }
 
 .badge-pending-pill {
     display: inline-flex;
     align-items: center;
     gap: 4px;
-    padding: 3px 10px;
-    border-radius: 999px;
+    padding: 4px 12px;
+    border-radius: 50px;
     font-size: 11px;
-    font-weight: 600;
+    font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.04em;
-    background: #FEF3C7;
-    color: #B45309;
-    border: 1px solid #FDE68A;
+    letter-spacing: 0.06em;
+    background: #fef3c7;
+    color: #92400e;
+    border: 1px solid #fcd34d;
 }
 
 .badge-completed-pill {
     display: inline-flex;
     align-items: center;
     gap: 4px;
-    padding: 3px 10px;
-    border-radius: 999px;
+    padding: 4px 12px;
+    border-radius: 50px;
     font-size: 11px;
-    font-weight: 600;
+    font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.04em;
-    background: #ECFDF5;
-    color: #047857;
-    border: 1px solid #A7F3D0;
+    letter-spacing: 0.06em;
+    background: #ecfdf5;
+    color: #065f46;
+    border: 1px solid #a7f3d0;
 }
 
 /* ── Table Action Button ───────────────────────────────────── */
@@ -250,46 +272,53 @@ body.surgeon-portal-body .topbar-signout-btn:hover {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    padding: 6px 14px;
-    border-radius: 8px;
+    padding: 7px 16px;
+    border-radius: 50px;
     font-size: 12px;
     font-weight: 600;
-    background: #15375B;
-    color: #FFFFFF !important;
+    background: linear-gradient(135deg, rgba(129, 194, 238, 0.7), rgba(61, 143, 203, 0.5));
+    color: #062236 !important;
     text-decoration: none !important;
-    transition: all 0.15s ease;
+    border: 1px solid rgba(61, 143, 203, 0.4);
+    box-shadow: 0 2px 8px rgba(61, 143, 203, 0.15);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
     white-space: nowrap;
-    border: none;
     cursor: pointer;
 }
 
 .btn-table-action:hover {
-    background: #0E243D;
-    box-shadow: 0 2px 6px rgba(21, 55, 91, 0.15);
+    background: #236b9e;
+    color: #ffffff !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(35, 107, 158, 0.25);
+    border-color: #236b9e;
 }
 
 /* ── Preformatted History Box ──────────────────────────────── */
 .pre-history-box {
-    background: #F8FAFC;
-    border: 1px solid #E2E8F0;
-    border-radius: 10px;
-    padding: 16px 20px;
+    background: rgba(255, 255, 255, 0.85);
+    border: 1px solid #d9e3e5;
+    border-radius: 14px;
+    padding: 18px 22px;
     font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
     font-size: 13px;
-    line-height: 1.6;
-    color: #334155;
+    line-height: 1.65;
+    color: #062236;
     white-space: pre-wrap;
     max-height: 360px;
     overflow-y: auto;
     margin: 0;
     box-sizing: border-box;
+    box-shadow: 0 2px 8px rgba(23, 76, 112, 0.03);
 }
 
 /* ── Surgeon Consultation Form & Inputs ────────────────────── */
 .surgeon-entry-form {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 22px;
 }
 
 .surgeon-form-grid {
@@ -315,15 +344,15 @@ body.surgeon-portal-body .topbar-signout-btn:hover {
 }
 
 .surgeon-field-group label {
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: #475569;
+    letter-spacing: 0.08em;
+    color: #556e7b;
 }
 
 .surgeon-field-group label .req-star {
-    color: #DC2626;
+    color: #b91c1c;
     margin-left: 2px;
 }
 
@@ -332,48 +361,53 @@ body.surgeon-portal-body .topbar-signout-btn:hover {
     width: 100%;
     box-sizing: border-box;
     padding: 12px 14px;
-    border: 1px solid #CBD5E1;
-    border-radius: 10px;
+    border: 1px solid #d9e3e5;
+    border-radius: 12px;
     font-family: inherit;
     font-size: 14px;
-    color: #1E293B;
-    background: #FFFFFF;
-    transition: all 0.15s ease;
+    color: #062236;
+    background: #ffffff;
+    transition: all 0.2s ease;
     resize: vertical;
 }
 
 .surgeon-field-group textarea:focus,
 .surgeon-field-group input:focus {
     outline: none;
-    border-color: #15375B;
-    box-shadow: 0 0 0 4px rgba(21, 55, 91, 0.1);
+    border-color: #3d8fcb;
+    box-shadow: 0 0 0 3px rgba(61, 143, 203, 0.15);
 }
 
 .surgeon-field-group textarea::placeholder,
 .surgeon-field-group input::placeholder {
-    color: #94A3B8;
+    color: #8da4b0;
 }
 
 .btn-complete-submit {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    padding: 12px 24px;
-    background: #15375B;
-    color: #FFFFFF !important;
+    padding: 12px 28px;
+    background: linear-gradient(135deg, rgba(129, 194, 238, 0.7), rgba(61, 143, 203, 0.5));
+    color: #062236 !important;
     font-size: 13px;
     font-weight: 600;
-    border-radius: 12px;
-    border: none;
-    box-shadow: 0 1px 3px rgba(15, 39, 66, 0.1);
-    transition: all 0.15s ease;
+    border-radius: 50px;
+    border: 1px solid rgba(61, 143, 203, 0.4);
+    box-shadow: 0 2px 10px rgba(61, 143, 203, 0.18);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
     cursor: pointer;
     font-family: inherit;
 }
 
 .btn-complete-submit:hover {
-    background: #0E243D;
-    box-shadow: 0 4px 12px rgba(21, 55, 91, 0.15);
+    background: #236b9e;
+    color: #ffffff !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(35, 107, 158, 0.28);
+    border-color: #236b9e;
 }
 
 /* Info tile spanning utility for 3-column grid */
