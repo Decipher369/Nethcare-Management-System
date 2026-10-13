@@ -6,8 +6,11 @@ body.patient-portal-page {
   margin: 0;
   padding: 0;
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  background-color: #E3EDF8;
-  color: #0F2742;
+  background-color: #fff9ed !important;
+  background-image: 
+    radial-gradient(circle at 50% 12%, rgba(61, 143, 203, 0.1) 0%, transparent 45%),
+    radial-gradient(circle at 85% 80%, rgba(23, 76, 112, 0.05) 0%, transparent 40%) !important;
+  color: #174c70;
   min-height: 100vh;
   min-width: 0;
   width: 100%;
@@ -26,13 +29,16 @@ body.patient-portal-page {
 
 /* 1. TOP BAR */
 .patient-portal-page .portal-top-bar {
-  background-color: #ffffff;
-  border-bottom: 1px solid #E2E8F0;
-  height: 64px;
+  background: rgba(255, 249, 237, 0.94);
+  border-bottom: 1px solid #d9e3e5;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  height: 68px;
   position: sticky;
   top: 0;
   z-index: 40;
   width: 100%;
+  box-shadow: 0 4px 20px rgba(23, 76, 112, 0.04);
 }
 
 .patient-portal-page .portal-top-bar-inner {
@@ -208,25 +214,40 @@ body.patient-portal-page {
 /* 2. GREETING CARD */
 .patient-portal-page .portal-greeting-card {
   position: relative;
-  background-color: #FFFFFF;
-  border: 1px solid #E2E8F0;
-  border-radius: 16px;
-  padding: 28px;
+  background-color: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(217, 227, 229, 0.9);
+  border-top-color: #ffffff;
+  border-radius: 22px;
+  padding: 34px 32px 30px;
   overflow: hidden;
-  box-shadow: 0 1px 3px rgba(15, 39, 66, 0.05);
+  box-shadow: 0 10px 32px rgba(23, 76, 112, 0.05);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.patient-portal-page .portal-greeting-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #3d8fcb, #81c2ee);
 }
 
 .patient-portal-page .portal-greeting-title {
-  font-size: 30px;
-  font-weight: 800;
-  color: #0E243D;
-  margin: 0 0 6px 0;
-  letter-spacing: -0.02em;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 34px;
+  font-weight: 400;
+  color: #174c70;
+  margin: 0 0 8px 0;
+  letter-spacing: -0.8px;
+  line-height: 1.2;
 }
 
 .patient-portal-page .portal-greeting-sub {
-  font-size: 13px;
-  color: #64748B;
+  font-size: 13.5px;
+  color: #556e7b;
   margin: 0;
   display: flex;
   align-items: center;
@@ -236,24 +257,29 @@ body.patient-portal-page {
 
 .patient-portal-page .portal-patient-id-highlight {
   font-family: ui-monospace, 'JetBrains Mono', monospace;
-  font-weight: 700;
-  color: #15375B;
+  font-weight: 600;
+  color: #236b9e;
+  background: #eaf4fb;
+  padding: 2px 8px;
+  border-radius: 6px;
 }
 
 /* CARDS COMMON */
 .patient-portal-page .portal-card {
-  background: #ffffff;
-  border: 1px solid #E2E8F0;
-  border-radius: 16px;
-  box-shadow: 0 1px 3px rgba(15, 39, 66, 0.05);
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(217, 227, 229, 0.9);
+  border-radius: 20px;
+  box-shadow: 0 8px 28px rgba(23, 76, 112, 0.04);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   overflow: hidden;
   width: 100%;
 }
 
 .patient-portal-page .portal-card-header {
-  background: rgba(248, 250, 252, 0.7);
-  border-bottom: 1px solid #E2E8F0;
-  padding: 16px 24px;
+  background: rgba(255, 249, 237, 0.65);
+  border-bottom: 1px solid #d9e3e5;
+  padding: 16px 26px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -270,15 +296,15 @@ body.patient-portal-page {
 .patient-portal-page .portal-card-icon {
   width: 16px;
   height: 16px;
-  color: #15375B;
+  color: #236b9e;
 }
 
 .patient-portal-page .portal-card-heading {
-  font-size: 13px;
+  font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: #0E243D;
+  letter-spacing: 0.08em;
+  color: #174c70;
   margin: 0;
 }
 
@@ -289,59 +315,68 @@ body.patient-portal-page {
 }
 
 .patient-portal-page .portal-status-badge {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
-  background-color: #F1F5F9;
-  color: #475569;
-  border-radius: 6px;
-  padding: 4px 10px;
+  background-color: #eaf4fb;
+  color: #174c70;
+  border-radius: 50px;
+  padding: 4px 12px;
+  border: 1px solid rgba(145, 180, 204, 0.35);
 }
 
 .patient-portal-page .portal-count-pill {
   font-size: 11px;
   font-weight: 700;
-  background-color: #F0F7FF;
-  color: #15375B;
-  border: 1px solid #BAE0FD;
+  background-color: #eaf4fb;
+  color: #236b9e;
+  border: 1px solid rgba(61, 143, 203, 0.35);
   border-radius: 999px;
   padding: 2px 10px;
 }
 
 .patient-portal-page .portal-header-subtext {
-  font-size: 13px;
-  color: #64748B;
+  font-size: 12.5px;
+  color: #556e7b;
 }
 
-/* BOOK CONSULTATION BUTTON */
+/* BOOK CONSULTATION & ACTION BUTTONS */
 .patient-portal-page .portal-book-btn {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  height: 34px;
-  padding: 0 14px;
-  background-color: #15375B;
-  color: #ffffff;
-  font-size: 13px;
+  gap: 8px;
+  height: 38px;
+  padding: 0 18px;
+  background: linear-gradient(135deg, rgba(129, 194, 238, 0.7), rgba(61, 143, 203, 0.5));
+  color: #062236;
+  font-size: 12px;
   font-weight: 600;
-  border-radius: 10px;
-  border: none;
+  letter-spacing: 0.3px;
+  border-radius: 50px;
+  border: 1px solid rgba(61, 143, 203, 0.4);
+  border-top-color: rgba(255, 255, 255, 0.85);
   cursor: pointer;
-  box-shadow: 0 1px 2px rgba(15, 39, 66, 0.1);
-  transition: all 0.15s ease;
+  box-shadow: 0 4px 16px rgba(23, 76, 112, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease, background 0.18s ease, color 0.18s ease;
   font-family: inherit;
   text-decoration: none;
 }
 
 .patient-portal-page .portal-book-btn:hover {
-  background-color: #0E243D;
+  background: #236b9e;
+  color: #ffffff;
+  border-color: #236b9e;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(23, 76, 112, 0.15);
 }
 
 .patient-portal-page .portal-book-btn:active {
-  background-color: #081729;
+  transform: translateY(1px);
 }
 
 .patient-portal-page .portal-book-btn:focus-visible {
-  outline: 2px solid #0369A1;
+  outline: 3px solid #174c70;
   outline-offset: 2px;
 }
 

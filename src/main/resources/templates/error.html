@@ -1,27 +1,163 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <meta charset="UTF-8">
-    <title th:text="${status} + ' — Nethcare'">Error</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${status} + ' — Nethcare'">Notice — Nethcare</title>
     <link rel="icon" type="image/png" th:href="@{/images/nethcare-logo.png}">
+    <link rel="stylesheet" th:href="@{/css/glass-buttons.css}">
     <style>
-        body { font-family: system-ui, sans-serif; background: #f5f6f8;
-               display: flex; align-items: center; justify-content: center;
-               height: 100vh; margin: 0; }
-        .card { background: #fff; padding: 2.5rem; border-radius: 8px; text-align: center;
-                box-shadow: 0 2px 12px rgba(0,0,0,.1); max-width: 420px; }
-        .code { font-size: 3rem; font-weight: 600; color: #c0392b; margin: 0; }
-        h1 { font-size: 1.1rem; color: #333; margin: .5rem 0 1rem; }
-        .path { font-size: .8rem; color: #999; word-break: break-all; margin-bottom: 1.5rem; }
-        a { color: #1a3a5c; text-decoration: none; font-size: .9rem; }
+        :root {
+            --paper: #fff9ed;
+            --navy: #174c70;
+            --muted: #556e7b;
+            --rule: #d9e3e5;
+            --brand-blue: #3d8fcb;
+            --brand-deep: #236b9e;
+            --sky-soft: #eaf4fb;
+        }
+        * { box-sizing: border-box; }
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--paper);
+            background-image: 
+                radial-gradient(circle at 50% 15%, rgba(61, 143, 203, 0.12) 0%, transparent 50%),
+                radial-gradient(circle at 80% 85%, rgba(23, 76, 112, 0.06) 0%, transparent 40%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 24px;
+            color: var(--navy);
+            -webkit-font-smoothing: antialiased;
+        }
+        .error-wrap {
+            width: 100%;
+            max-width: 480px;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(217, 227, 229, 0.9);
+            border-top-color: #ffffff;
+            border-radius: 24px;
+            padding: 44px 36px;
+            text-align: center;
+            box-shadow: 0 16px 40px rgba(23, 76, 112, 0.08);
+            -webkit-backdrop-filter: blur(20px) saturate(140%);
+            backdrop-filter: blur(20px) saturate(140%);
+            position: relative;
+            overflow: hidden;
+        }
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--brand-blue), #81c2ee);
+        }
+        .logo {
+            width: 58px;
+            height: 58px;
+            object-fit: contain;
+            margin: 0 auto 18px;
+            display: block;
+        }
+        .status-pill {
+            display: inline-block;
+            font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            padding: 4px 12px;
+            border-radius: 50px;
+            background: var(--sky-soft);
+            color: var(--brand-deep);
+            border: 1px solid rgba(61, 143, 203, 0.35);
+            margin-bottom: 14px;
+        }
+        .eyebrow {
+            margin: 0 0 8px;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 1.8px;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+        h1 {
+            font-family: Georgia, 'Times New Roman', serif;
+            font-size: 32px;
+            font-weight: 400;
+            color: var(--navy);
+            letter-spacing: -0.8px;
+            line-height: 1.2;
+            margin: 0 0 10px;
+        }
+        h1 em {
+            font-style: italic;
+            color: var(--brand-deep);
+            font-weight: 400;
+        }
+        .message {
+            font-size: 14px;
+            color: var(--muted);
+            line-height: 1.6;
+            margin: 0 0 18px;
+        }
+        .path {
+            font-family: ui-monospace, SFMono-Regular, monospace;
+            font-size: 11px;
+            color: #7d96a6;
+            word-break: break-all;
+            background: rgba(248, 250, 252, 0.8);
+            border: 1px solid var(--rule);
+            border-radius: 10px;
+            padding: 8px 12px;
+            margin: 0 0 28px;
+        }
+        .action-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 12px 24px;
+            border-radius: 50px;
+            background: linear-gradient(135deg, rgba(129, 194, 238, 0.7), rgba(61, 143, 203, 0.5));
+            color: #062236;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            border: 1px solid rgba(61, 143, 203, 0.4);
+            border-top-color: rgba(255, 255, 255, 0.85);
+            box-shadow: 0 4px 16px rgba(23, 76, 112, 0.08);
+            transition: all 0.18s ease;
+        }
+        .action-link:hover {
+            background: var(--brand-deep);
+            color: #ffffff;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(23, 76, 112, 0.15);
+        }
+        .action-link span {
+            font-size: 16px;
+            line-height: 1;
+        }
     </style>
 </head>
 <body>
-<div class="card">
-    <p class="code" th:text="${status}">500</p>
-    <h1 th:text="${message}">Something went wrong</h1>
-    <p class="path" th:text="${path}"></p>
-    <a th:href="@{/}">Back to my page</a>
+<div class="error-wrap">
+    <div class="card">
+        <img class="logo" th:src="@{/images/nethcare-logo.png}" alt="Nethcare">
+        <span class="status-pill" th:text="'Status ' + ${status}">Status 500</span>
+        <p class="eyebrow">A moment to refocus</p>
+        <h1>Something went<br><em>a little off.</em></h1>
+        <p class="message" th:text="${message}">The requested resource could not be found or an unexpected error occurred.</p>
+        <p class="path" th:if="${path != null and !path.isBlank()}" th:text="${path}"></p>
+        <a class="action-link" th:href="@{/}">Return to home <span aria-hidden="true">↗</span></a>
+    </div>
 </div>
 </body>
 </html>
