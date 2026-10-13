@@ -15,9 +15,12 @@
 <div class="page-wrapper">
     <div class="card">
         <div class="header-group">
-            <img class="logo" th:src="@{/images/nethcare-logo.png}" alt="Nethcare logo">
-            <h1>Nethcare</h1>
-            <p class="sub">Neth Opticians — Management System</p>
+            <a th:href="@{/}" class="logo-link" title="Return to home">
+                <img class="logo" th:src="@{/images/nethcare-logo.png}" alt="Nethcare logo">
+            </a>
+            <p class="eyebrow">Opticians & Management Workspace</p>
+            <h1>See life. <em>Beautifully.</em></h1>
+            <p class="sub">Sign in to your Nethcare staff or patient portal</p>
         </div>
 
         <!-- Banner for login error -->
@@ -71,8 +74,13 @@
             <button type="submit" id="submitBtn" class="submit-btn">
                 <span class="spinner" aria-hidden="true"></span>
                 <span id="btnText">Sign in</span>
+                <span class="btn-arrow" aria-hidden="true">↗</span>
             </button>
         </form>
+
+        <div class="footer">
+            <a th:href="@{/}" class="back-link">Return to public shop front <span aria-hidden="true">↗</span></a>
+        </div>
     </div>
 </div>
 

@@ -89,19 +89,35 @@
 
     <!-- Stage breakdown -->
     <div class="panel editorial-panel">
-        <h2>Stage breakdown <span class="sp">Active order distribution</span></h2>
+        <h2>Stage breakdown <span class="sp" th:text="${totalOrders != null ? totalOrders + ' total in pipeline' : 'Active order distribution'}">Active order distribution</span></h2>
         <div class="pad">
-            <div class="split" style="border-radius:6px; height:28px;">
-                <div th:each="o : ${orderSplit}" th:class="${o[2]}"
-                     th:text="${o[0]} + ' ' + ${o[1]}">Collected 84</div>
+            <!-- Sleek proportional progress track -->
+            <div class="stage-pipeline-track" th:if="${totalOrders != null and totalOrders > 0}">
+                <div th:each="o : ${orderSplit}"
+                     th:class="${o[2]}"
+                     th:style="'width:' + ${(totalOrders > 0 ? (T(java.lang.Integer).parseInt(o[1]) * 100.0 / totalOrders) : 0)} + '%; min-width:' + ${(T(java.lang.Integer).parseInt(o[1]) > 0 ? '8px' : '0')} + ';'"
+                     th:title="${o[0]} + ': ' + ${o[1]} + ' orders'"></div>
             </div>
-            <ul class="legend" style="margin-top:14px;">
-                <li th:each="o : ${orderSplit}">
-                    <i th:class="${o[2]}"></i>
-                    <span th:text="${o[0]}" style="font-weight:550;">Collected</span>
-                    <span class="n" th:text="${o[1]}">84</span>
-                </li>
-            </ul>
+            <div class="stage-pipeline-track is-empty" th:unless="${totalOrders != null and totalOrders > 0}">
+                <div class="track-empty-fill"></div>
+            </div>
+
+            <!-- Clear, distinct stage cards -->
+            <div class="stage-cards-grid">
+                <div class="stage-card" th:each="o : ${orderSplit}">
+                    <div class="stage-card-header">
+                        <span class="stage-card-badge">
+                            <i th:class="${o[2]}"></i>
+                            <span th:text="${o[0]}">Stage</span>
+                        </span>
+                        <span class="stage-card-pct"
+                              th:text="${totalOrders != null and totalOrders > 0 ? (T(java.lang.Math).round(T(java.lang.Integer).parseInt(o[1]) * 100.0 / totalOrders) + '%') : '0%'}">0%</span>
+                    </div>
+                    <div class="stage-card-count" th:text="${o[1]}">0</div>
+                    <div class="stage-card-desc"
+                         th:text="${o[0] == 'Placed' ? 'Order booked &amp; deposit paid' : (o[0] == 'At lab' ? 'Workshop lens processing' : (o[0] == 'Ready' ? 'Verified, waiting pickup' : 'Dispensed to customer'))}">Stage detail</div>
+                </div>
+            </div>
         </div>
     </div>
 
