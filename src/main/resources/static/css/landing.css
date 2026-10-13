@@ -12,7 +12,7 @@
 .public-page :is(a, button, input, summary):focus-visible { outline: 3px solid #3187b9; outline-offset: 6px; }
 .skip-link { position: absolute; left: 20px; top: -80px; z-index: 10; padding: 12px 20px; background: var(--navy); color: white; }
 .skip-link:focus { top: 10px; }
-.public-page .site-head { background: var(--paper); border-color: var(--rule); }
+.public-page .site-head { background: #ffffff; border-color: var(--rule); }
 .public-page .head-in { max-width: 1360px; min-height: 106px; padding: 20px 56px; gap: 40px; }
 .public-page .brand { flex: 1; gap: 10px; }
 .public-page .brand img { width: 56px; height: 56px; }
@@ -154,7 +154,7 @@
 /* Cream and sky blue across the public pages. */
 .public-page { --sky: #c3e5fa; --sky-soft: #eaf5fd; --ink: var(--navy); --ink-soft: var(--muted); --line: var(--rule); --bg: var(--paper); --bg-soft: var(--sky-soft); }
 .public-page ::selection { background: #a2d5f4; color: #174c70; }
-.public-page .site-head { background: #fff9ed; }
+.public-page .site-head { background: #ffffff; }
 .public-page .brand strong, .public-page .brand span { color: var(--navy); }
 .public-page .site-foot { background: #e4f2fc; }
 .public-page .site-head nav a { min-height: 36px; }
@@ -311,7 +311,20 @@
 
 /* Logo blue, floating navigation and touch layouts. */
 .public-page { --brand-blue: #3d8fcb; --brand-deep: #236b9e; --sky: #3d8fcb; --sky-soft: #eaf4fb; }
-.public-page .site-head { position: sticky; top: 12px; z-index: 20; margin: 16px auto 0; width: calc(100% - 48px); max-width: 1280px; background: rgba(255, 249, 237, .97); border: 1px solid #d7e3e9; border-radius: 22px; box-shadow: 0 8px 28px #174c700d; backdrop-filter: blur(16px); }
+.public-page .site-head {
+    position: sticky;
+    top: 12px;
+    z-index: 20;
+    margin: 16px auto 0;
+    width: calc(100% - 48px);
+    max-width: 1280px;
+    background: rgba(255, 255, 255, 0.94);
+    border: 1px solid rgba(217, 227, 233, 0.85);
+    border-radius: 22px;
+    box-shadow: 0 10px 32px rgba(23, 76, 112, 0.08), 0 2px 6px rgba(23, 76, 112, 0.03);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+}
 .public-page .head-in { min-height: 84px; padding: 12px 20px; gap: 24px; }
 .public-page .brand { flex: 0 0 auto; }
 .public-page .brand img { width: 52px; height: 52px; }
